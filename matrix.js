@@ -564,7 +564,7 @@ Matrix.arrayToMatrix = function (elements, rows, columns) {
         }
     } else if( !rows || !columns ) {
         // TODO : Allow to pass one, but not both parameters and calculate the other one if possible
-        throw new TypeError( 'Array has to be square matrix or size has to be given.' );
+        throw new TypeError( 'Array has to represent a square matrix or the size has to be specified.' );
     }
 
     return new Matrix( rows, columns )._setElements( elements );
