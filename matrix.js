@@ -1,6 +1,7 @@
 /**
  * matrix.js
  * (C) 2013 Ingo Bürk, admin (at) airblader (dot) de
+ * This library is protected with the MIT License.
  *
  * matrix.js is a Javascript library that offers a matrix structure and calculations on matrices,
  * such as adding, multiplying, inverting, ...
