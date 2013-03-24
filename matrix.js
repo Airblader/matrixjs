@@ -168,6 +168,10 @@ function Matrix (rows, columns) {
         return this;
     }
 
+    this.copy = function () {
+        return new Matrix( __rows, __columns )._setElements( __elements );
+    }
+
     this.equals = function (M) {
         if( M.getDimension().rows !== __rows || M.getDimension().columns !== __columns ) {
             return false;
@@ -286,7 +290,7 @@ Matrix.LUDecomposition = function (M) {
     var m = M.getDimension().rows,
         n = M.getDimension().columns,
         swappedRows = 0,
-        LU = new Matrix( m, n )._setElements( M._getElements() );
+        LU = M.copy();
 
     for( var k = 1; k <= m; k++ ) {
         var pivot = 0,
@@ -476,10 +480,8 @@ Matrix.arrayToMatrix = function (elements, rows, columns) {
 
 // ######################
 // Allow more than 2 arguments for add etc.
-// inverse
 // eigenvalues, eigenvectors
 // LGS
-// copy method (use in det/LUDecomp method!)
 // way more validation
 
 
