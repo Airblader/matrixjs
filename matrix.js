@@ -31,6 +31,10 @@ function Matrix (rows, columns) {
         return this;
     }
 
+    this.trace = function () {
+        return Matrix.trace( this );
+    }
+
     this.transpose = function () {
         var result = Matrix.transpose( this ),
             temp = __rows;
@@ -41,13 +45,17 @@ function Matrix (rows, columns) {
         return this;
     }
 
+    this.det = function () {
+        return Matrix.det( this );
+    }
+
     this.isSquare = function () {
         return __rows === __columns;
     }
 
     this.get = function (row, column) {
         if( row < 1 || column < 1 || row > __rows || column > __columns ) {
-            throw new TypeError();
+            throw new TypeError( 'Cannot access element (' + row + ',' + column + ')' );
         }
 
         return __elements[this.__getIndexFromPosition( row, column )] || 0;
@@ -259,9 +267,9 @@ Matrix.trace = function (M) {
     }
 
     var trace = 0;
-    
+
     for( var i = 1; i <= M.getDimension().rows; i++ ) {
-        trace += M.get(i, i);
+        trace += M.get( i, i );
     }
 
     return trace;
@@ -278,7 +286,55 @@ Matrix.det = function (M) {
         throw new TypeError( 'Matrix is not square.' );
     }
 
-    // TODO
+    var n = M.getDimension().rows,
+        LR = new Matrix( n )._setElements( M._getElements() );
+
+    // LR decomposition into a single matrix
+    // TODO extract into method
+    var swappedRows = 0;
+
+    for( var k = 1; k <= n; k++ ) {
+        var pivot = 0,
+            maxArg = -1;
+
+        for( var i = k; i <= n; i++ ) {
+            var currArg = Math.abs( LR.get( i, k ) );
+
+            if( currArg >= maxArg ) {
+                pivot = i;
+                maxArg = currArg;
+            }
+        }
+
+        if( LR.get( pivot, k ) === 0 ) {
+            throw new TypeError( 'Matrix is singular.' );
+        }
+
+        if( pivot !== k ) {
+            var tempRow = LR.getRow( pivot );
+
+            LR.setRow( pivot, LR.getRow( k ) );
+            LR.setRow( k, tempRow );
+
+            swappedRows++;
+        }
+
+        for( var i = k + 1; i <= n; i++ ) {
+            for( var j = k + 1; j <= n; j++ ) {
+                LR.set( i, j, LR.get( i, j ) - LR.get( k, j ) * ( LR.get( i, k ) / LR.get( k, k ) ) );
+            }
+
+            LR.set( i, k, 0 );
+        }
+    }
+
+
+    var det = Math.pow( -1, swappedRows );
+    for( var i = 1; i <= n; i++ ) {
+        det = det * LR.get( i, i );
+    }
+
+    return det;
 }
 
 Matrix.inverse = function (M) {
@@ -408,14 +464,30 @@ function assertArray (found, expected, testIdentifier) {
 })( 'Test 7' );
 
 (function (identifier) {
+    // TODO
     // Test transpose
-})( 'Test X' );
+})( 'Test 8' );
 
 (function (identifier) {
-})( 'Test X' );
+    assertEquals( Matrix.zeros( 3 ).trace(), 0, identifier );
+    assertEquals( Matrix.eye( 3 ).trace(), 3, identifier );
+    assertEquals( Matrix.arrayToMatrix( [3, 1, 2, 7, -5, 3, 0, 4, 1], 3, 3 ).trace(), -1, identifier );
+})( 'Test 9' );
 
 (function (identifier) {
-})( 'Test X' );
+    assertEquals( Matrix.eye( 3 ).det(), 1, identifier );
+    assertEquals( Matrix.arrayToMatrix( [1, 2, 3, 1, 1, 1, 3, 3, 1], 3, 3 ).det(), 2, identifier );
+    assertEquals( Matrix.arrayToMatrix( [1, 2, 3, 3, 2, 1, 2, 1, 3], 3, 3 ).det(), -12, identifier );
+
+    var isSingular = false;
+    try {
+        Matrix.zeros( 3 ).det();
+    } catch( e ) {
+        isSingular = true;
+    } finally {
+        assertEquals( isSingular, true, identifier );
+    }
+})( 'Test 10' );
 
 (function (identifier) {
 })( 'Test X' );
