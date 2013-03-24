@@ -86,7 +86,7 @@ function Matrix (rows, columns) {
 
     this.set = function (row, column, value) {
         if( row < 1 || column < 1 || row > __rows || column > __columns ) {
-            throw new TypeError();
+            throw new TypeError( 'Cannot access element (' + row + ',' + column + ')' );
         }
 
         var index = this.__getIndexFromPosition( row, column );
@@ -180,7 +180,7 @@ function Matrix (rows, columns) {
 
     this._setElements = function (elements) {
         if( __elements.length !== 0 && __elements.length !== elements.length ) {
-            throw new TypeError();
+            throw new TypeError( 'Invalid number of elements. The size of a matrix cannot be changed afterwards.' );
         }
 
         __elements = elements;
@@ -231,7 +231,7 @@ function Matrix (rows, columns) {
 
 Matrix.add = function (A, B) {
     if( A.getDimension().rows !== B.getDimension().rows || A.getDimension().columns !== B.getDimension().columns ) {
-        throw new TypeError();
+        throw new TypeError( 'Dimensions do not match.' );
     }
 
     var Result = new Matrix( A.getDimension().rows, A.getDimension().columns ),
@@ -244,7 +244,7 @@ Matrix.add = function (A, B) {
     }
 
     Result._setElements( elementsResult );
-    
+
     return Result;
 }
 
@@ -267,7 +267,7 @@ Matrix.multiply = function (A, B) {
     // TODO Idea: Strassen Algorithm for big matrices
 
     if( A.getDimension().columns !== B.getDimension().rows ) {
-        throw new TypeError();
+        throw new TypeError( 'Inner dimensions do not match.' );
     }
 
     var Result = new Matrix( A.getDimension().rows, B.getDimension().columns );
