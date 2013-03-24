@@ -1,20 +1,37 @@
+/**
+ * matrix.js
+ * (C) 2013 Ingo Bürk, admin (at) airblader (dot) de
+ *
+ * matrix.js is a Javascript library that offers a matrix structure and calculations on matrices,
+ * such as adding, multiplying, inverting, ...
+ */
+
+/**
+ * Creates a new Matrix
+ * @param rows Number of rows (defaults to 1)
+ * @param columns Number of columns (defaults to the value of rows)
+ * @constructor
+ */
 function Matrix (rows, columns) {
-    var __rows = rows || 0,
-        __columns = columns || rows || 0,
+    var __rows = rows || 1,
+        __columns = columns || __rows,
         __elements = [];
 
     this.add = function (M) {
         __elements = Matrix.add( this, M )._getElements();
+
         return this;
     }
 
     this.subtract = function (M) {
         __elements = Matrix.subtract( this, M )._getElements();
+
         return this;
     }
 
     this.scale = function (k) {
         __elements = Matrix.scale( this, k )._getElements();
+
         return this;
     }
 
@@ -51,6 +68,7 @@ function Matrix (rows, columns) {
 
     this.inverse = function () {
         __elements = Matrix.inverse( this )._getElements();
+
         return this;
     }
 
@@ -114,6 +132,7 @@ function Matrix (rows, columns) {
         }
 
         __elements.splice.apply( __elements, [this.__getIndexFromPosition( row, 1 ), __columns].concat( elements ) );
+
         return this;
     }
 
@@ -165,6 +184,7 @@ function Matrix (rows, columns) {
         }
 
         __elements = elements;
+
         return this;
     }
 
@@ -224,6 +244,7 @@ Matrix.add = function (A, B) {
     }
 
     Result._setElements( elementsResult );
+    
     return Result;
 }
 
