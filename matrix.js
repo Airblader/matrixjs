@@ -49,6 +49,11 @@ function Matrix (rows, columns) {
         return Matrix.det( this );
     }
 
+    this.inverse = function () {
+        __elements = Matrix.inverse( this )._getElements();
+        return this;
+    }
+
     this.isSquare = function () {
         return __rows === __columns;
     }
@@ -104,7 +109,8 @@ function Matrix (rows, columns) {
             throw new TypeError( 'Invalid row index.' );
         }
         if( elements.length !== __columns ) {
-            throw new TypeError( 'Wrong number of columns in row.' );
+            throw new TypeError( 'Wrong number of columns in row (found '
+                + elements.length + ' but expected ' + __columns + ').' );
         }
 
         __elements.splice.apply( __elements, [this.__getIndexFromPosition( row, 1 ), __columns].concat( elements ) );
@@ -130,7 +136,8 @@ function Matrix (rows, columns) {
             throw new TypeError( 'Invalid column index.' );
         }
         if( elements.length !== __rows ) {
-            throw new TypeError( 'Wrong number of rows in column.' );
+            throw new TypeError( 'Wrong number of rows in column (found '
+                + elements.length + ' but expected ' + __rows + ').' );
         }
 
         for( var i = 0; i < elements.length; i++ ) {
@@ -275,6 +282,53 @@ Matrix.trace = function (M) {
     return trace;
 }
 
+Matrix.LUDecomposition = function (M) {
+    var m = M.getDimension().rows,
+        n = M.getDimension().columns,
+        swappedRows = 0,
+        LU = new Matrix( m, n )._setElements( M._getElements() );
+
+    for( var k = 1; k <= m; k++ ) {
+        var pivot = 0,
+            maxArg = -1;
+
+        for( var i = k; i <= m; i++ ) {
+            var currArg = Math.abs( LU.get( i, k ) );
+
+            if( currArg >= maxArg ) {
+                pivot = i;
+                maxArg = currArg;
+            }
+        }
+
+        if( LU.get( pivot, k ) === 0 ) {
+            throw new TypeError( 'Matrix is singular.' );
+        }
+
+        if( pivot !== k ) {
+            var tempRow = LU.getRow( pivot );
+
+            LU.setRow( pivot, LU.getRow( k ) );
+            LU.setRow( k, tempRow );
+
+            swappedRows++;
+        }
+
+        for( var i = k + 1; i <= m; i++ ) {
+            for( var j = k + 1; j <= n; j++ ) {
+                LU.set( i, j, LU.get( i, j ) - LU.get( k, j ) * ( LU.get( i, k ) / LU.get( k, k ) ) );
+            }
+
+            LU.set( i, k, 0 );
+        }
+    }
+
+    // as a "hidden property" we attach the number of swapped rows
+    LU.swappedRows = swappedRows;
+
+    return LU;
+}
+
 Matrix.det = function (M) {
     /* TODO Ideas:
      *   1. Sparse matrix: Use Laplace?
@@ -287,58 +341,89 @@ Matrix.det = function (M) {
     }
 
     var n = M.getDimension().rows,
-        LR = new Matrix( n )._setElements( M._getElements() );
+        LU = Matrix.LUDecomposition( M );
 
-    // LR decomposition into a single matrix
-    // TODO extract into method
-    var swappedRows = 0;
-
-    for( var k = 1; k <= n; k++ ) {
-        var pivot = 0,
-            maxArg = -1;
-
-        for( var i = k; i <= n; i++ ) {
-            var currArg = Math.abs( LR.get( i, k ) );
-
-            if( currArg >= maxArg ) {
-                pivot = i;
-                maxArg = currArg;
-            }
-        }
-
-        if( LR.get( pivot, k ) === 0 ) {
-            throw new TypeError( 'Matrix is singular.' );
-        }
-
-        if( pivot !== k ) {
-            var tempRow = LR.getRow( pivot );
-
-            LR.setRow( pivot, LR.getRow( k ) );
-            LR.setRow( k, tempRow );
-
-            swappedRows++;
-        }
-
-        for( var i = k + 1; i <= n; i++ ) {
-            for( var j = k + 1; j <= n; j++ ) {
-                LR.set( i, j, LR.get( i, j ) - LR.get( k, j ) * ( LR.get( i, k ) / LR.get( k, k ) ) );
-            }
-
-            LR.set( i, k, 0 );
-        }
-    }
-
-
-    var det = Math.pow( -1, swappedRows );
+    var det = Math.pow( -1, LU.swappedRows );
     for( var i = 1; i <= n; i++ ) {
-        det = det * LR.get( i, i );
+        det = det * LU.get( i, i );
     }
 
     return det;
 }
 
 Matrix.inverse = function (M) {
-    // TODO
+    if( !M.isSquare() ) {
+        throw new TypeError( 'Matrix is not square.' );
+    }
+
+    var augmentedM = Matrix.augment( M, Matrix.eye( M.getDimension().rows ) );
+
+    try {
+        augmentedM = Matrix.LUDecomposition( augmentedM );
+
+        // TODO The following two loops can probably be rewritten into something smarter
+        for( var i = augmentedM.getDimension().rows; i > 1; i-- ) {
+            var row = augmentedM.getRow( i ),
+                factor = augmentedM.get( i - 1, i ) / augmentedM.get( i, i );
+
+            for( var k = 0; k < row.length; k++ ) {
+                augmentedM.set( i - 1, k + 1, augmentedM.get( i - 1, k + 1 ) - (row[k] * factor ) );
+            }
+        }
+
+        for( var i = 1; i <= augmentedM.getDimension().rows; i++ ) {
+            var row = augmentedM.getRow( i );
+            for( var j = 0; j < row.length; j++ ) {
+                row[j] = row[j] / augmentedM.get( i, i );
+            }
+
+            augmentedM.setRow( i, row );
+        }
+    } catch( e ) {
+        throw new TypeError( 'Matrix is not invertible.' );
+    }
+
+    return Matrix.submatrix( augmentedM,
+        1, augmentedM.getDimension().rows, M.getDimension().columns + 1, augmentedM.getDimension().columns );
+}
+
+Matrix.submatrix = function (M, rowStart, rowEnd, columnStart, columnEnd) {
+    var m = M.getDimension().rows,
+        n = M.getDimension().columns;
+
+    if( rowStart < 1 || rowStart > m || columnStart < 1 || columnStart > n
+        || rowEnd < 1 || rowEnd > m || columnEnd < 1 || columnEnd > n
+        || rowStart > rowEnd || columnStart > columnEnd ) {
+        throw new TypeError( 'Invalid parameters.' );
+    }
+
+    var mResult = rowEnd - rowStart + 1,
+        nResult = columnEnd - columnStart + 1;
+
+    var Result = new Matrix( mResult, nResult );
+    for( var i = rowStart; i <= rowEnd; i++ ) {
+        var row = M.getRow( i ).slice( columnStart - 1, columnEnd );
+        Result.setRow( i - rowStart + 1, row );
+    }
+
+    return Result;
+}
+
+Matrix.augment = function (A, B) {
+    if( A.getDimension().rows !== B.getDimension().rows ) {
+        throw new TypeError( 'Matrices do not have the same number of rows.' );
+    }
+
+    var Result = new Matrix( A.getDimension().rows, A.getDimension().columns + B.getDimension().columns );
+
+    for( var i = 1; i <= A.getDimension().columns; i++ ) {
+        Result.setColumn( i, A.getColumn( i ) );
+    }
+    for( var i = 1; i <= B.getDimension().columns; i++ ) {
+        Result.setColumn( i + A.getDimension().columns, B.getColumn( i ) );
+    }
+
+    return Result;
 }
 
 Matrix.zeros = function (rows, columns) {
@@ -394,6 +479,7 @@ Matrix.arrayToMatrix = function (elements, rows, columns) {
 // inverse
 // eigenvalues, eigenvectors
 // LGS
+// copy method (use in det/LUDecomp method!)
 // way more validation
 
 
@@ -488,6 +574,32 @@ function assertArray (found, expected, testIdentifier) {
         assertEquals( isSingular, true, identifier );
     }
 })( 'Test 10' );
+
+(function (identifier) {
+    var M = Matrix.arrayToMatrix( [1, 2, 3, 3, 2, 1, 2, 1, 3], 3, 3 );
+
+    assertEquals( Matrix.submatrix( M, 1, 3, 1, 3 ).equals( M ), true, identifier );
+
+    assertEquals( Matrix.submatrix( M, 2, 3, 2, 3 ).equals( Matrix.arrayToMatrix(
+        [2, 1, 1, 3], 2, 2
+    ) ), true, identifier );
+})( 'Test 11' );
+
+(function (identifier) {
+    var M = Matrix.eye( 3 );
+    assertEquals( Matrix.inverse( M ).equals( M ), true, identifier );
+    assertEquals( Matrix.inverse( Matrix.scale( M, 2 ) ).equals( Matrix.scale( M, 0.5 ) ), true, identifier );
+
+    assertEquals( Matrix.arrayToMatrix( [4, 7, 2, 6], 2, 2 ).inverse().equals(
+        Matrix.arrayToMatrix( [0.6, -0.7, -0.2, 0.4], 2, 2 )
+    ), true, identifier );
+})( 'Test 12' );
+
+(function (identifier) {
+})( 'Test X' );
+
+(function (identifier) {
+})( 'Test X' );
 
 (function (identifier) {
 })( 'Test X' );
