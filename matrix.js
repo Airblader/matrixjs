@@ -201,6 +201,10 @@ function Matrix () {
         return new Matrix( __rows, __columns )._setElements( __elements );
     }
 
+    this.contains = function (needle) {
+        return __elements.indexOf( needle );
+    }
+
     this.equals = function (M) {
         if( M.getDimension().rows !== __rows || M.getDimension().columns !== __columns ) {
             return false;
@@ -645,7 +649,7 @@ Matrix.arrayToMatrix = function (elements, rows, columns) {
 // eigenvalues, eigenvectors
 // dot product, cross product
 // move arrayToMatrix to constructor
-// contains method
+// roundTo
 // rank
 // getDiag, getMinor
 // LGS
