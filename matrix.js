@@ -9,14 +9,37 @@
 
 /**
  * Creates a new Matrix
- * @param {Number} [rows=1] Number of rows
- * @param {Number} [columns=rows] Number of columns
  * @constructor
  */
-function Matrix (rows, columns) {
-    var __rows = rows || 1,
-        __columns = columns || __rows,
+function Matrix () {
+    var args = [].slice.call( arguments ),
+        __rows, __columns,
         __elements = [];
+
+    if( args.length === 1 && args[0] instanceof Array ) {
+        __rows = args[0].length;
+        __columns = -1;
+
+        for( var i = 0; i < args[0].length; i++ ) {
+            if( args[0][i].length !== __columns && __columns !== -1 ) {
+                throw new TypeError( 'Invalid parameters.' );
+            }
+            __columns = Math.max( __columns, args[0][i].length );
+
+            for( var j = 0; j < args[0][i].length; j++ ) {
+                __elements.push( args[0][i][j] );
+            }
+        }
+    } else if( args.length === 1 ) {
+        __rows = args[0];
+        __columns = args[0];
+    } else if( args.length === 2 ) {
+        __rows = args[0];
+        __columns = args[1];
+    } else {
+        throw new TypeError( 'Invalid parameters.' );
+    }
+
 
     this.add = function (M) {
         return Matrix.add( this, M );
@@ -52,6 +75,10 @@ function Matrix (rows, columns) {
 
     this.inverse = function () {
         return Matrix.inverse( this );
+    }
+
+    this.submatrix = function (rowStart, rowEnd, columnStart, columnEnd) {
+        return Matrix.submatrix( rowstart, rowEnd, columnStart, columnEnd );
     }
 
     this.isSquare = function () {
@@ -567,6 +594,20 @@ Matrix.eye = function (n) {
 }
 
 /**
+ * Returns a diagonal matrix.
+ * @param {Array} elements Array of diagonal elements
+ * @returns {Matrix} Matrix with the specified elements on its diagonal.
+ */
+Matrix.diag = function (elements) {
+    var Result = new Matrix( elements.length );
+    for( var i = 1; i <= Result.getDimension().rows; i++ ) {
+        Result.set( i, i, elements[i] );
+    }
+
+    return Result;
+}
+
+/**
  * Creates and returns a matrix from an array of elements.
  * If no size arguments (rows, columns) are given and the number of elements is a square number, a square matrix
  * will be created.
@@ -574,6 +615,7 @@ Matrix.eye = function (n) {
  * @param {Number} rows Number of rows
  * @param {Number} columns Number of columns
  * @returns {Matrix} A new matrix containing the given elements as entries.
+ * @deprecated
  */
 Matrix.arrayToMatrix = function (elements, rows, columns) {
     if( !rows && !columns ) {
@@ -599,6 +641,11 @@ Matrix.arrayToMatrix = function (elements, rows, columns) {
 
 
 // ######################
-// Allow more than 2 arguments for add etc.
+// Allow more than 2 arguments for multiply etc.
 // eigenvalues, eigenvectors
+// dot product, cross product
+// move arrayToMatrix to constructor
+// contains method
+// rank
+// getDiag, getMinor
 // LGS

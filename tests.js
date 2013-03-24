@@ -94,6 +94,12 @@ new Test( function (identifier) {
     assertDimension( new Matrix( 3, 4 ), 3, 4 );
     assertDimension( new Matrix( 4, 3 ), 4, 3 );
     assertDimension( new Matrix( 3 ), 3, 3 );
+
+    assertDimension( new Matrix( [
+        [0, 0, 0],
+        [0, 0, 0],
+        [0, 0, 0]
+    ] ), 3, 3 );
 }, 'Create Matrix' );
 
 new Test( function (identifier) {
