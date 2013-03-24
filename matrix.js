@@ -188,6 +188,14 @@ function Matrix () {
         return diag;
     }
 
+    this.round = function () {
+        return this.roundTo( 0 );
+    }
+
+    this.roundTo = function (precision) {
+        return Matrix.roundTo( this, precision );
+    }
+
     this.__getIndexFromPosition = function (row, column) {
         return __columns * (row - 1) + column - 1;
     }
@@ -559,6 +567,27 @@ Matrix.augment = function (A, B) {
     for( var i = 1; i <= B.getDimension().columns; i++ ) {
         Result.setColumn( i + A.getDimension().columns, B.getColumn( i ) );
     }
+
+    return Result;
+}
+
+/**
+ * Rounds each element in a matrix with a specified precision.
+ * @param {Matrix} M Matrix
+ * @param {Number} [precision=0] Precision in digits after the comma
+ * @returns {Matrix} Matrix with rounded entries.
+ */
+Matrix.roundTo = function (M, precision) {
+    var Result = M.copy(),
+        elements = Result._getElements(),
+        precision = precision || 0,
+        power = Math.pow( 10, precision );
+
+    for( var i = 0; i < elements.length; i++ ) {
+        elements[i] = Math.round( elements[i] * power ) / power;
+    }
+
+    Result._setElements( elements );
 
     return Result;
 }

@@ -252,6 +252,16 @@ new Test( function (identifier) {
 }, 'Diag' );
 
 new Test( function (identifier) {
+    var M = new Matrix( [
+        [1.1, 0, 0],
+        [0, 2.1, 0],
+        [0, 0, 3.1]
+    ] ).scale( 0.5 ).roundTo( 0 );
+
+    assertArray( M.diag(), [1, 1, 2] );
+}, 'RoundTo' );
+
+new Test( function (identifier) {
 }, '' );
 
 // ##########
