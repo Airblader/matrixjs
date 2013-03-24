@@ -41,6 +41,10 @@ function Matrix (rows, columns) {
         return this;
     }
 
+    this.isSquare = function () {
+        return __rows === __columns;
+    }
+
     this.get = function (row, column) {
         if( row < 1 || column < 1 || row > __rows || column > __columns ) {
             throw new TypeError();
@@ -122,7 +126,7 @@ function Matrix (rows, columns) {
         }
 
         for( var i = 0; i < elements.length; i++ ) {
-            __elements[this.__getIndexFromPosition(i + 1, column)] = elements[i];
+            __elements[this.__getIndexFromPosition( i + 1, column )] = elements[i];
         }
 
         return this;
@@ -220,6 +224,8 @@ Matrix.scale = function (A, k) {
 }
 
 Matrix.multiply = function (A, B) {
+    // TODO Idea: Strassen Algorithm for big matrices
+
     if( A.getDimension().columns !== B.getDimension().rows ) {
         throw new TypeError();
     }
@@ -236,6 +242,47 @@ Matrix.multiply = function (A, B) {
     }
 
     return Result;
+}
+
+Matrix.transpose = function (M) {
+    var Result = new Matrix( M.getDimension().columns, M.getDimension().rows );
+    for( var i = 1; i <= M.getDimension().rows; i++ ) {
+        Result.setColumn( i, M.getRow( i ) );
+    }
+
+    return Result;
+}
+
+Matrix.trace = function (M) {
+    if( !M.isSquare() ) {
+        throw new TypeError( 'Matrix is not square.' );
+    }
+
+    var trace = 0;
+    
+    for( var i = 1; i <= M.getDimension().rows; i++ ) {
+        trace += M.get(i, i);
+    }
+
+    return trace;
+}
+
+Matrix.det = function (M) {
+    /* TODO Ideas:
+     *   1. Sparse matrix: Use Laplace?
+     *   2. If triangular -> product of diagonal
+     *   3. Direct calculation for up to 3x3 or similar
+     */
+
+    if( !M.isSquare() ) {
+        throw new TypeError( 'Matrix is not square.' );
+    }
+
+    // TODO
+}
+
+Matrix.inverse = function (M) {
+    // TODO
 }
 
 Matrix.zeros = function (rows, columns) {
@@ -263,15 +310,6 @@ Matrix.eye = function (n) {
     var Result = new Matrix( n, n );
     for( var i = 1; i <= n; i++ ) {
         Result.set( i, i, 1 );
-    }
-
-    return Result;
-}
-
-Matrix.transpose = function (M) {
-    var Result = new Matrix( M.getDimension().columns, M.getDimension().rows );
-    for( var i = 1; i <= M.getDimension().rows; i++ ) {
-        Result.setColumn( i, M.getRow( i ) );
     }
 
     return Result;
