@@ -229,6 +229,12 @@ function Matrix (rows, columns) {
 }
 
 
+/**
+ * Calculate the sum of two matrices.
+ * @param A Matrix
+ * @param B Matrix
+ * @returns {Matrix} Component-wise sum of A and B.
+ */
 Matrix.add = function (A, B) {
     if( A.getDimension().rows !== B.getDimension().rows || A.getDimension().columns !== B.getDimension().columns ) {
         throw new TypeError( 'Dimensions do not match.' );
@@ -252,7 +258,17 @@ Matrix.subtract = function (A, B) {
     return Matrix.add( A, Matrix.scale( B, -1 ) );
 }
 
+/**
+ * Scale a matrix with a factor (i.e. calculate k * A)
+ * @param A Matrix
+ * @param k Factor
+ * @returns {Matrix} Matrix A with all entries multiplied by k.
+ */
 Matrix.scale = function (A, k) {
+    if( typeof k !== 'number' || isNaN( k ) ) {
+        throw new TypeError( 'Factor is not a number.' );
+    }
+
     var elementsA = Array.prototype.slice.call( A._getElements() );
     for( var i = 0; i < A.getLength(); i++ ) {
         if( elementsA[i] ) {
@@ -263,6 +279,12 @@ Matrix.scale = function (A, k) {
     return new Matrix( A.getDimension().rows, A.getDimension().columns )._setElements( elementsA );
 }
 
+/**
+ * Multiply two matrices.
+ * @param A Matrix
+ * @param B Matrix
+ * @returns {Matrix} Matrix A * B.
+ */
 Matrix.multiply = function (A, B) {
     // TODO Idea: Strassen Algorithm for big matrices
 
@@ -284,6 +306,11 @@ Matrix.multiply = function (A, B) {
     return Result;
 }
 
+/**
+ * Transpose a matrix, i.e. take the rows as the columns of the resulting matrix.
+ * @param M Matrix
+ * @returns {Matrix} Transposed matrix M^T
+ */
 Matrix.transpose = function (M) {
     var Result = new Matrix( M.getDimension().columns, M.getDimension().rows );
     for( var i = 1; i <= M.getDimension().rows; i++ ) {
@@ -293,6 +320,11 @@ Matrix.transpose = function (M) {
     return Result;
 }
 
+/**
+ * Calculate the trace of a matrix, i.e. the sum of all diagonal entries.
+ * @param M Matrix
+ * @returns {number} Sum of diagonal entries.
+ */
 Matrix.trace = function (M) {
     if( !M.isSquare() ) {
         throw new TypeError( 'Matrix is not square.' );
@@ -307,6 +339,13 @@ Matrix.trace = function (M) {
     return trace;
 }
 
+/**
+ * Performs a LU decomposition. Both matrices will be written in the same matrix, i.e. the trivial
+ * diagonal entries will not be stored.
+ * @param M Matrix
+ * @returns {Matrix} Matrix with the LU entries. There is also a hidden property swappedRows with the number
+ * of rows that were swapped in the process.
+ */
 Matrix.LUDecomposition = function (M) {
     var m = M.getDimension().rows,
         n = M.getDimension().columns,
@@ -354,6 +393,11 @@ Matrix.LUDecomposition = function (M) {
     return LU;
 }
 
+/**
+ * Calculate the determinant of a Matrix.
+ * @param M Matrix
+ * @returns {number} Determinant of M.
+ */
 Matrix.det = function (M) {
     /* TODO Ideas:
      *   1. Sparse matrix: Use Laplace?
@@ -376,6 +420,11 @@ Matrix.det = function (M) {
     return det;
 }
 
+/**
+ * Calculate the inverse of a Matrix.
+ * @param M Matrix
+ * @returns {Matrix} Inverse of M, a.k.a. M^(-1).
+ */
 Matrix.inverse = function (M) {
     if( !M.isSquare() ) {
         throw new TypeError( 'Matrix is not square.' );
@@ -412,6 +461,15 @@ Matrix.inverse = function (M) {
         1, augmentedM.getDimension().rows, M.getDimension().columns + 1, augmentedM.getDimension().columns );
 }
 
+/**
+ * Extract a submatrix.
+ * @param M Matrix
+ * @param rowStart Row index where to start the cut
+ * @param rowEnd Row index where to end the cut
+ * @param columnStart Column index where to start the cut
+ * @param columnEnd Column index where to end the cut
+ * @returns {Matrix} Submatrix of M in the specified area.
+ */
 Matrix.submatrix = function (M, rowStart, rowEnd, columnStart, columnEnd) {
     var m = M.getDimension().rows,
         n = M.getDimension().columns;
@@ -434,6 +492,12 @@ Matrix.submatrix = function (M, rowStart, rowEnd, columnStart, columnEnd) {
     return Result;
 }
 
+/**
+ * Augment to matrices.
+ * @param A Matrix
+ * @param B Matrix
+ * @returns {Matrix} Augmented matrix A|B.
+ */
 Matrix.augment = function (A, B) {
     if( A.getDimension().rows !== B.getDimension().rows ) {
         throw new TypeError( 'Matrices do not have the same number of rows.' );
@@ -451,6 +515,12 @@ Matrix.augment = function (A, B) {
     return Result;
 }
 
+/**
+ * Returns a matrix of zeros.
+ * @param rows Number of rows
+ * @param columns Number of columns (defaults to the value of rows)
+ * @returns {Matrix} A new matrix of the specified size containing zeros everywhere.
+ */
 Matrix.zeros = function (rows, columns) {
     if( !columns ) {
         columns = rows;
@@ -459,6 +529,12 @@ Matrix.zeros = function (rows, columns) {
     return new Matrix( rows, columns );
 }
 
+/**
+ * Returns a matrix of ones.
+ * @param rows Number of rows
+ * @param columns Number of columns (defaults to the value of rows)
+ * @returns {Matrix} A new matrix of the specified size containing ones everywhere.
+ */
 Matrix.ones = function (rows, columns) {
     if( !columns ) {
         columns = rows;
@@ -472,6 +548,11 @@ Matrix.ones = function (rows, columns) {
     return new Matrix( rows, columns )._setElements( elements );
 }
 
+/**
+ * Returns an identity matrix.
+ * @param n Size of the matrix
+ * @returns {Matrix} A new n-by-n identity matrix.
+ */
 Matrix.eye = function (n) {
     var Result = new Matrix( n, n );
     for( var i = 1; i <= n; i++ ) {
@@ -481,6 +562,15 @@ Matrix.eye = function (n) {
     return Result;
 }
 
+/**
+ * Creates and returns a matrix from an array of elements.
+ * If no size arguments (rows, columns) are given and the number of elements is a square number, a square matrix
+ * will be created.
+ * @param elements Array of elements, wherein the elements are listed from left to right, top to bottom.
+ * @param rows Number of rows
+ * @param columns Number of columns
+ * @returns {Matrix} A new matrix containing the given elements as entries.
+ */
 Matrix.arrayToMatrix = function (elements, rows, columns) {
     if( !rows && !columns ) {
         var sqrtNumberOfElements = Number( Math.sqrt( elements.length ) );
@@ -503,7 +593,6 @@ Matrix.arrayToMatrix = function (elements, rows, columns) {
 // Allow more than 2 arguments for add etc.
 // eigenvalues, eigenvectors
 // LGS
-// way more validation
 
 
 // ####################################
