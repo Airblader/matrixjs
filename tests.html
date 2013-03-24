@@ -29,10 +29,18 @@
         .success {
             background: #229922;
         }
+
+        #timer {
+            width: 50%;
+            text-align: right;
+            margin: 0 auto;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
 <div id="logger"></div>
+<p id="timer">Total time to execute tests: <span id="time"></span>s</p>
 
 <script type="text/javascript" src="matrix.js"></script>
 <script type="text/javascript" src="tests.js"></script>

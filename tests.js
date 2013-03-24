@@ -70,7 +70,8 @@ Test.prototype.run = function (identifier) {
 
 Test.runAll = function () {
     document.getElementById( 'logger' ).innerHTML = '';
-    var isGreen = true;
+    var isGreen = true,
+        start = new Date().getTime();
 
     for( var i = 0; i < Test.tests.length; i++ ) {
         var success = Test.tests[i].run( i + 1 );
@@ -79,6 +80,9 @@ Test.runAll = function () {
             isGreen = false;
         }
     }
+
+    var time = ( new Date().getTime() - start ) / 1000;
+    document.getElementById( 'time' ).innerHTML = time;
 
     if( !isGreen ) {
         alert( 'There are failed tests.' );
@@ -271,12 +275,20 @@ new Test( function (identifier) {
     ] );
 
     assertEquals( A.dot( B ), 10 );
+    assertEquals( B.dot( A ), 10 );
+
+    assertEquals( A.dot( A ), 14 );
+    assertEquals( B.dot( B ), 14 );
 }, 'Dot Product' );
 
 new Test( function (identifier) {
     assertEquals( Matrix.eye( 3 ).contains( 1 ) !== -1, true );
     assertEquals( Matrix.eye( 3 ).contains( 0 ) !== -1, true );
     assertEquals( Matrix.eye( 3 ).contains( 2 ) !== -1, false );
+
+    assertEquals( new Matrix( [
+        [0, 0, 1]
+    ] ).contains( 1 ) !== -1, true );
 }, 'Contains' );
 
 new Test( function (identifier) {

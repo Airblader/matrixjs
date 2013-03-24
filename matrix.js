@@ -765,7 +765,7 @@ Matrix.arrayToMatrix = function (elements, rows, columns) {
 // ######################
 // Allow more than 2 arguments for multiply etc.
 // eigenvalues, eigenvectors
-// dot product, cross product, abs
+// cross product, abs
 // norm(s)
 // move arrayToMatrix to constructor
 // rank
