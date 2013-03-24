@@ -262,6 +262,24 @@ new Test( function (identifier) {
 }, 'RoundTo' );
 
 new Test( function (identifier) {
+    var A = new Matrix( [
+        [1, 2, 3]
+    ] );
+
+    var B = new Matrix( [
+        [3, 2, 1]
+    ] );
+
+    assertEquals( A.dot( B ), 10 );
+}, 'Dot Product' );
+
+new Test( function (identifier) {
+    assertEquals( Matrix.eye( 3 ).contains( 1 ) !== -1, true );
+    assertEquals( Matrix.eye( 3 ).contains( 0 ) !== -1, true );
+    assertEquals( Matrix.eye( 3 ).contains( 2 ) !== -1, false );
+}, 'Contains' );
+
+new Test( function (identifier) {
 }, '' );
 
 // ##########

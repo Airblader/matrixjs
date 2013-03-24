@@ -61,6 +61,10 @@ function Matrix () {
         return Matrix.multiply( this, M );
     }
 
+    this.dot = function (M) {
+        return Matrix.dot( this, M );
+    }
+
     this.trace = function () {
         return Matrix.trace( this );
     }
@@ -91,17 +95,13 @@ function Matrix () {
 
     this.get = function () {
         if( arguments.length === 1 ) {
-            if( !this.isVector() ) {
-                throw new TypeError( 'Invalid number of arguments.' );
-            }
-
             var index = arguments[0];
 
-            if( index < 1 || index > Math.max( __rows, __columns ) ) {
+            if( index < 1 || index > __elements.length ) {
                 throw new TypeError( 'Cannot access element at index ' + index );
             }
 
-            return __elements[index] || 0;
+            return __elements[index - 1] || 0;
         } else if( arguments.length === 2 ) {
             var row = arguments[0],
                 column = arguments[1];
@@ -118,19 +118,15 @@ function Matrix () {
 
     this.set = function () {
         if( arguments.length === 2 ) {
-            if( !this.isVector() ) {
-                throw new TypeError( 'Invalid number of arguments.' );
-            }
-
             var index = arguments[0],
                 value = arguments[1];
 
-            if( index < 1 || index > Math.max( __rows, __columns ) ) {
+            if( index < 1 || index > __elements.length ) {
                 throw new TypeError( 'Cannot access element at index ' + index );
             }
 
             if( value !== 0 ) {
-                __elements[index] = value;
+                __elements[index - 1] = value;
             }
         } else if( arguments.length === 3 ) {
             var row = arguments[0],
@@ -269,7 +265,15 @@ function Matrix () {
     }
 
     this.contains = function (needle) {
-        return __elements.indexOf( needle );
+        if( needle !== 0 ) {
+            return __elements.indexOf( needle );
+        } else {
+            for( var i = 1; i <= this.getLength(); i++ ) {
+                if( this.get( i ) === 0 ) {
+                    return true;
+                }
+            }
+        }
     }
 
     this.equals = function (M) {
@@ -617,6 +621,12 @@ Matrix.augment = function (A, B) {
     return Result;
 }
 
+/**
+ * Calculate the dot product of two vectors. It doesn't matter whether the vectors are row or column vectors.
+ * @param {Matrix} A Matrix
+ * @param {Matrix} B Matrix
+ * @returns {Number} Euclidean dot product of A and B.
+ */
 Matrix.dot = function (A, B) {
     if( !A.isVector() || !B.isVector() ) {
         throw new TypeError( 'Parameter is not a vector.' );
