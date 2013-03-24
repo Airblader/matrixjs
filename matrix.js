@@ -85,22 +85,68 @@ function Matrix () {
         return __rows === __columns;
     }
 
-    this.get = function (row, column) {
-        if( row < 1 || column < 1 || row > __rows || column > __columns ) {
-            throw new TypeError( 'Cannot access element (' + row + ',' + column + ')' );
-        }
-
-        return __elements[this.__getIndexFromPosition( row, column )] || 0;
+    this.isVector = function () {
+        return __rows === 1 || __columns === 1;
     }
 
-    this.set = function (row, column, value) {
-        if( row < 1 || column < 1 || row > __rows || column > __columns ) {
-            throw new TypeError( 'Cannot access element (' + row + ',' + column + ')' );
-        }
+    this.get = function () {
+        if( arguments.length === 1 ) {
+            if( !this.isVector() ) {
+                throw new TypeError( 'Invalid number of arguments.' );
+            }
 
-        var index = this.__getIndexFromPosition( row, column );
-        if( __elements[index] || value !== 0 ) {
-            __elements[index] = value;
+            var index = arguments[0];
+
+            if( index < 1 || index > Math.max( __rows, __columns ) ) {
+                throw new TypeError( 'Cannot access element at index ' + index );
+            }
+
+            return __elements[index] || 0;
+        } else if( arguments.length === 2 ) {
+            var row = arguments[0],
+                column = arguments[1];
+
+            if( row < 1 || column < 1 || row > __rows || column > __columns ) {
+                throw new TypeError( 'Cannot access element (' + row + ',' + column + ')' );
+            }
+
+            return __elements[this.__getIndexFromPosition( row, column )] || 0;
+        } else {
+            throw new TypeError( 'Invalid number of arguments.' );
+        }
+    }
+
+    this.set = function () {
+        if( arguments.length === 2 ) {
+            if( !this.isVector() ) {
+                throw new TypeError( 'Invalid number of arguments.' );
+            }
+
+            var index = arguments[0],
+                value = arguments[1];
+
+            if( index < 1 || index > Math.max( __rows, __columns ) ) {
+                throw new TypeError( 'Cannot access element at index ' + index );
+            }
+
+            if( value !== 0 ) {
+                __elements[index] = value;
+            }
+        } else if( arguments.length === 3 ) {
+            var row = arguments[0],
+                column = arguments[1],
+                value = arguments[2];
+
+            if( row < 1 || column < 1 || row > __rows || column > __columns ) {
+                throw new TypeError( 'Cannot access element (' + row + ',' + column + ')' );
+            }
+
+            var index = this.__getIndexFromPosition( row, column );
+            if( __elements[index] || value !== 0 ) {
+                __elements[index] = value;
+            }
+        } else {
+            throw new TypeError( 'Invalid number of arguments.' );
         }
 
         return this;
@@ -571,6 +617,26 @@ Matrix.augment = function (A, B) {
     return Result;
 }
 
+Matrix.dot = function (A, B) {
+    if( !A.isVector() || !B.isVector() ) {
+        throw new TypeError( 'Parameter is not a vector.' );
+    }
+
+    var dimA = Math.max( A.getDimension().rows, A.getDimension().columns ),
+        dimB = Math.max( B.getDimension().rows, B.getDimension().columns );
+
+    if( dimA !== dimB ) {
+        throw new TypeError( 'Dimensions do not match.' );
+    }
+
+    var result = 0;
+    for( var i = 1; i <= dimA; i++ ) {
+        result += A.get( i ) * B.get( i );
+    }
+
+    return result;
+}
+
 /**
  * Rounds each element in a matrix with a specified precision.
  * @param {Matrix} M Matrix
@@ -689,9 +755,9 @@ Matrix.arrayToMatrix = function (elements, rows, columns) {
 // ######################
 // Allow more than 2 arguments for multiply etc.
 // eigenvalues, eigenvectors
-// dot product, cross product
+// dot product, cross product, abs
+// norm(s)
 // move arrayToMatrix to constructor
-// roundTo
 // rank
 // getDiag, getMinor
 // LGS solve
