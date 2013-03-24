@@ -9,8 +9,8 @@
 
 /**
  * Creates a new Matrix
- * @param rows Number of rows (defaults to 1)
- * @param columns Number of columns (defaults to the value of rows)
+ * @param {Number} [rows=1] Number of rows
+ * @param {Number} [columns=rows] Number of columns
  * @constructor
  */
 function Matrix (rows, columns) {
@@ -213,8 +213,8 @@ function Matrix (rows, columns) {
 
 /**
  * Calculate the sum of two matrices.
- * @param A Matrix
- * @param B Matrix
+ * @param {Matrix} A Matrix
+ * @param {Matrix} B Matrix
  * @returns {Matrix} Component-wise sum of A and B.
  */
 Matrix.add = function (A, B) {
@@ -242,8 +242,8 @@ Matrix.subtract = function (A, B) {
 
 /**
  * Scale a matrix with a factor (i.e. calculate k * A)
- * @param A Matrix
- * @param k Factor
+ * @param {Matrix} A Matrix
+ * @param {Number} k Factor
  * @returns {Matrix} Matrix A with all entries multiplied by k.
  */
 Matrix.scale = function (A, k) {
@@ -263,8 +263,8 @@ Matrix.scale = function (A, k) {
 
 /**
  * Multiply two matrices.
- * @param A Matrix
- * @param B Matrix
+ * @param {Matrix} A Matrix
+ * @param {Matrix} B Matrix
  * @returns {Matrix} Matrix A * B.
  */
 Matrix.multiply = function (A, B) {
@@ -290,7 +290,7 @@ Matrix.multiply = function (A, B) {
 
 /**
  * Transpose a matrix, i.e. take the rows as the columns of the resulting matrix.
- * @param M Matrix
+ * @param {Matrix} M Matrix
  * @returns {Matrix} Transposed matrix M^T
  */
 Matrix.transpose = function (M) {
@@ -304,8 +304,8 @@ Matrix.transpose = function (M) {
 
 /**
  * Calculate the trace of a matrix, i.e. the sum of all diagonal entries.
- * @param M Matrix
- * @returns {number} Sum of diagonal entries.
+ * @param {Matrix} M Matrix
+ * @returns {Number} Sum of diagonal entries.
  */
 Matrix.trace = function (M) {
     if( !M.isSquare() ) {
@@ -324,7 +324,7 @@ Matrix.trace = function (M) {
 /**
  * Performs a LU decomposition. Both matrices will be written in the same matrix, i.e. the trivial
  * diagonal entries will not be stored.
- * @param M Matrix
+ * @param {Matrix} M Matrix
  * @returns {Matrix} Matrix with the LU entries. There is also a hidden property swappedRows with the number
  * of rows that were swapped in the process.
  */
@@ -377,8 +377,8 @@ Matrix.LUDecomposition = function (M) {
 
 /**
  * Calculate the determinant of a Matrix.
- * @param M Matrix
- * @returns {number} Determinant of M.
+ * @param {Matrix} M Matrix
+ * @returns {Number} Determinant of M.
  */
 Matrix.det = function (M) {
     /* TODO Ideas:
@@ -404,7 +404,7 @@ Matrix.det = function (M) {
 
 /**
  * Calculate the inverse of a Matrix.
- * @param M Matrix
+ * @param {Matrix} M Matrix
  * @returns {Matrix} Inverse of M, a.k.a. M^(-1).
  */
 Matrix.inverse = function (M) {
@@ -445,11 +445,11 @@ Matrix.inverse = function (M) {
 
 /**
  * Extract a submatrix.
- * @param M Matrix
- * @param rowStart Row index where to start the cut
- * @param rowEnd Row index where to end the cut
- * @param columnStart Column index where to start the cut
- * @param columnEnd Column index where to end the cut
+ * @param {Matrix} M Matrix
+ * @param {Number} rowStart Row index where to start the cut
+ * @param {Number} rowEnd Row index where to end the cut
+ * @param {Number} columnStart Column index where to start the cut
+ * @param {Number} columnEnd Column index where to end the cut
  * @returns {Matrix} Submatrix of M in the specified area.
  */
 Matrix.submatrix = function (M, rowStart, rowEnd, columnStart, columnEnd) {
@@ -476,8 +476,8 @@ Matrix.submatrix = function (M, rowStart, rowEnd, columnStart, columnEnd) {
 
 /**
  * Augment to matrices.
- * @param A Matrix
- * @param B Matrix
+ * @param {Matrix} A Matrix
+ * @param {Matrix} B Matrix
  * @returns {Matrix} Augmented matrix A|B.
  */
 Matrix.augment = function (A, B) {
@@ -499,8 +499,8 @@ Matrix.augment = function (A, B) {
 
 /**
  * Returns a matrix of zeros.
- * @param rows Number of rows
- * @param columns Number of columns (defaults to the value of rows)
+ * @param {Number} rows Number of rows
+ * @param {Number} columns Number of columns (defaults to the value of rows)
  * @returns {Matrix} A new matrix of the specified size containing zeros everywhere.
  */
 Matrix.zeros = function (rows, columns) {
@@ -513,8 +513,8 @@ Matrix.zeros = function (rows, columns) {
 
 /**
  * Returns a matrix of ones.
- * @param rows Number of rows
- * @param columns Number of columns (defaults to the value of rows)
+ * @param {Number} rows Number of rows
+ * @param {Number} [columns=rows] Number of columns
  * @returns {Matrix} A new matrix of the specified size containing ones everywhere.
  */
 Matrix.ones = function (rows, columns) {
@@ -532,7 +532,7 @@ Matrix.ones = function (rows, columns) {
 
 /**
  * Returns an identity matrix.
- * @param n Size of the matrix
+ * @param {Number} n Size of the matrix
  * @returns {Matrix} A new n-by-n identity matrix.
  */
 Matrix.eye = function (n) {
@@ -548,9 +548,9 @@ Matrix.eye = function (n) {
  * Creates and returns a matrix from an array of elements.
  * If no size arguments (rows, columns) are given and the number of elements is a square number, a square matrix
  * will be created.
- * @param elements Array of elements, wherein the elements are listed from left to right, top to bottom.
- * @param rows Number of rows
- * @param columns Number of columns
+ * @param {Number[]} elements Array of elements, wherein the elements are listed from left to right, top to bottom.
+ * @param {Number} rows Number of rows
+ * @param {Number} columns Number of columns
  * @returns {Matrix} A new matrix containing the given elements as entries.
  */
 Matrix.arrayToMatrix = function (elements, rows, columns) {
