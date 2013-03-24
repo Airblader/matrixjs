@@ -556,14 +556,19 @@ Matrix.eye = function (n) {
 Matrix.arrayToMatrix = function (elements, rows, columns) {
     if( !rows && !columns ) {
         var sqrtNumberOfElements = Number( Math.sqrt( elements.length ) );
-        if( isNaN( sqrtNumberOfElements ) ) {
+        if( ( sqrtNumberOfElements | 0 ) !== sqrtNumberOfElements ) {
             throw new TypeError( 'Number of elements is not a square number.' );
         } else {
             rows = sqrtNumberOfElements;
             columns = sqrtNumberOfElements;
         }
-    } else if( !rows || !columns ) {
-        // TODO : Allow to pass one, but not both parameters and calculate the other one if possible
+    } else if( !rows && typeof columns === 'number' ) {
+        rows = Number( elements.length / columns );
+    } else if( typeof rows === 'number' && !columns ) {
+        columns = Number( elements.length / rows );
+    }
+
+    if( ( rows | 0 ) !== rows || ( columns | 0 ) !== columns ) {
         throw new TypeError( 'Array has to represent a square matrix or the size has to be specified.' );
     }
 
