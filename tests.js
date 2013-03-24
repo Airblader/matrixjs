@@ -162,6 +162,10 @@ new Test( function (identifier) {
 
     assertMatrix( C.subtract( C ), Matrix.zeros( 3 ) );
     assertMatrix( C.subtract( D ), Matrix.ones( 3 ) );
+
+    assertMatrix( Matrix.add( D, D, D ), Matrix.ones( 3 ).scale( 3 ) );
+    assertMatrix( Matrix.subtract( Matrix.ones( 3 ).scale( 2 ), Matrix.ones( 3 ), Matrix.ones( 3 ) ),
+        Matrix.zeros( 3 ) );
 }, 'Add/Subtract Matrices' );
 
 new Test( function (identifier) {

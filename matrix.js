@@ -213,11 +213,19 @@ function Matrix (rows, columns) {
 
 /**
  * Calculate the sum of two matrices.
+ * If more than two matrices are passed, they will be added in order, i.e. A + B + C + ...
  * @param {Matrix} A Matrix
  * @param {Matrix} B Matrix
- * @returns {Matrix} Component-wise sum of A and B.
+ * @returns {Matrix} Component-wise sum of A and B, i.e. A+B.
  */
 Matrix.add = function (A, B) {
+    if( arguments.length > 2 ) {
+        var args = [].slice.call( arguments );
+        args.unshift( Matrix.add( args.shift(), args.shift() ) );
+
+        return Matrix.add.apply( this, args );
+    }
+
     if( A.getDimension().rows !== B.getDimension().rows || A.getDimension().columns !== B.getDimension().columns ) {
         throw new TypeError( 'Dimensions do not match.' );
     }
@@ -236,7 +244,21 @@ Matrix.add = function (A, B) {
     return Result;
 }
 
+/**
+ * Calculate the difference of two matrices.
+ * If more than two matrices are passed, they wll be subtracted in order, i.e. A - B - C - ...
+ * @param {Matrix} A Matrix
+ * @param {Matrix} B Matrix
+ * @returns {Matrix} Component-wise difference of A and B, i.e. A-B.
+ */
 Matrix.subtract = function (A, B) {
+    if( arguments.length > 2 ) {
+        var args = [].slice.call( arguments );
+        args.unshift( Matrix.subtract( args.shift(), args.shift() ) );
+
+        return Matrix.subtract.apply( this, args );
+    }
+
     return Matrix.add( A, Matrix.scale( B, -1 ) );
 }
 
