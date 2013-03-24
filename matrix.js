@@ -19,21 +19,15 @@ function Matrix (rows, columns) {
         __elements = [];
 
     this.add = function (M) {
-        __elements = Matrix.add( this, M )._getElements();
-
-        return this;
+        return Matrix.add( this, M );
     }
 
     this.subtract = function (M) {
-        __elements = Matrix.subtract( this, M )._getElements();
-
-        return this;
+        return Matrix.subtract( this, M );
     }
 
     this.scale = function (k) {
-        __elements = Matrix.scale( this, k )._getElements();
-
-        return this;
+        return Matrix.scale( this, k );
     }
 
     this.multiply = function (M) {
@@ -41,12 +35,7 @@ function Matrix (rows, columns) {
             return this.scale( M );
         }
 
-        var result = Matrix.multiply( this, M );
-        __elements = result._getElements();
-        __rows = result.getDimension().rows;
-        __columns = result.getDimension().columns;
-
-        return this;
+        return Matrix.multiply( this, M );
     }
 
     this.trace = function () {
@@ -54,13 +43,7 @@ function Matrix (rows, columns) {
     }
 
     this.transpose = function () {
-        var result = Matrix.transpose( this ),
-            temp = __rows;
-        __elements = result._getElements();
-        __rows = __columns;
-        __columns = temp;
-
-        return this;
+        return Matrix.transpose( this );
     }
 
     this.det = function () {
@@ -68,9 +51,7 @@ function Matrix (rows, columns) {
     }
 
     this.inverse = function () {
-        __elements = Matrix.inverse( this )._getElements();
-
-        return this;
+        return Matrix.inverse( this );
     }
 
     this.isSquare = function () {
