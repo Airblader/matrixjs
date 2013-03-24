@@ -175,6 +175,19 @@ function Matrix () {
         return this;
     }
 
+    this.diag = function () {
+        if( !this.isSquare() ) {
+            throw new TypeError( 'Matrix is not square.' );
+        }
+
+        var diag = [];
+        for( var i = 1; i <= __rows; i++ ) {
+            diag.push( this.get( i, i ) );
+        }
+
+        return diag;
+    }
+
     this.__getIndexFromPosition = function (row, column) {
         return __columns * (row - 1) + column - 1;
     }
@@ -605,7 +618,7 @@ Matrix.eye = function (n) {
 Matrix.diag = function (elements) {
     var Result = new Matrix( elements.length );
     for( var i = 1; i <= Result.getDimension().rows; i++ ) {
-        Result.set( i, i, elements[i] );
+        Result.set( i, i, elements[i - 1] );
     }
 
     return Result;
@@ -652,4 +665,4 @@ Matrix.arrayToMatrix = function (elements, rows, columns) {
 // roundTo
 // rank
 // getDiag, getMinor
-// LGS
+// LGS solve

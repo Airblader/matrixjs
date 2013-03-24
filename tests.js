@@ -239,6 +239,19 @@ new Test( function (identifier) {
 }, 'Submatrix' );
 
 new Test( function (identifier) {
+    var M = new Matrix( [
+        [1, 0, 0],
+        [0, 2, 0],
+        [0, 0, 3]
+    ] );
+
+    assertMatrix( Matrix.diag( [1, 1, 1] ), Matrix.eye( 3 ) );
+    assertMatrix( Matrix.diag( [1, 2, 3] ), M );
+
+    assertArray( M.diag(), [1, 2, 3] );
+}, 'Diag' );
+
+new Test( function (identifier) {
 }, '' );
 
 // ##########
