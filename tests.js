@@ -305,6 +305,16 @@ new Test( function (identifier) {
 }, 'Equals' );
 
 new Test( function (identifier) {
+    var A = Matrix.eye( 3 ),
+        B = Matrix.ones( 3 ),
+        C = B.subtract( A.scale( 2 ) );
+
+    assertMatrix( A.abs(), A );
+    assertMatrix( B.abs(), B );
+    assertMatrix( C.abs(), A );
+}, 'Abs' );
+
+new Test( function (identifier) {
 }, '' );
 
 // ##########

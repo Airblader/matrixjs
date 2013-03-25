@@ -238,6 +238,10 @@ function Matrix () {
         return Matrix.roundTo( this, precision );
     }
 
+    this.abs = function () {
+        return Matrix.abs( this );
+    }
+
     this.__getIndexFromPosition = function (row, column) {
         return __columns * (row - 1) + column - 1;
     }
@@ -660,7 +664,29 @@ Matrix.roundTo = function (M, precision) {
         power = Math.pow( 10, precision );
 
     for( var i = 0; i < elements.length; i++ ) {
-        elements[i] = Math.round( elements[i] * power ) / power;
+        if( elements[i] ) {
+            elements[i] = Math.round( elements[i] * power ) / power;
+        }
+    }
+
+    Result._setElements( elements );
+
+    return Result;
+}
+
+/**
+ * Returns a matrix with the absolute values of each entry of a given matrix.
+ * @param {Matrix} M Matrix
+ * @returns {Matrix} Matrix N with N(i,j) = abs( M(i,j) ) for all i,j.
+ */
+Matrix.abs = function (M) {
+    var Result = M.copy(),
+        elements = Result._getElements();
+
+    for( var i = 0; i < elements.length; i++ ) {
+        if( elements[i] ) {
+            elements[i] = Math.abs( elements[i] );
+        }
     }
 
     Result._setElements( elements );
