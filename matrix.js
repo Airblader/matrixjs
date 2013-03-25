@@ -101,7 +101,7 @@ function Matrix () {
         if( arguments.length === 1 ) {
             var index = arguments[0];
 
-            if( index < 1 || index > __elements.length ) {
+            if( index < 1 || index > this.getDominantDimension() ) {
                 throw new TypeError( 'Cannot access element at index ' + index );
             }
 
@@ -125,7 +125,7 @@ function Matrix () {
             var index = arguments[0],
                 value = arguments[1];
 
-            if( index < 1 || index > __elements.length ) {
+            if( index < 1 || index > this.getDominantDimension() ) {
                 throw new TypeError( 'Cannot access element at index ' + index );
             }
 
@@ -170,7 +170,7 @@ function Matrix () {
 
         var start = this.__getIndexFromPosition( row, 1 ),
             elements = __elements.slice( start, start + __columns );
-        for( var i = 0; i < elements.length; i++ ) {
+        for( var i = 0; i < __columns; i++ ) {
             elements[i] = elements[i] || 0;
         }
 
@@ -293,7 +293,7 @@ function Matrix () {
             return false;
         }
 
-        for( var i = 0; i < __elements.length; i++ ) {
+        for( var i = 0; i < this.getLength(); i++ ) {
             if( this._getElement( i ) !== M._getElement( i ) ) {
                 return false;
             }
@@ -691,7 +691,7 @@ Matrix.abs = function (M) {
     var Result = M.copy(),
         elements = Result._getElements();
 
-    for( var i = 0; i < elements.length; i++ ) {
+    for( var i = 0; i < M.getLength(); i++ ) {
         if( elements[i] ) {
             elements[i] = Math.abs( elements[i] );
         }
@@ -704,6 +704,7 @@ Matrix.abs = function (M) {
 
 /**
  * Returns the cross product of two vectors. It doesn't matter whether the vectors are row or column vectors.
+ * The resulting vector will always be a column vector.
  * @param {Matrix} A Three-dimensional vector
  * @param {Matrix} B Three-dimensional vector
  * @returns {Matrix} The three-dimensional vector V = A x B.
