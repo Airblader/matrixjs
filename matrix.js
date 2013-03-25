@@ -86,7 +86,7 @@ function Matrix () {
     }
 
     this.submatrix = function (rowStart, rowEnd, columnStart, columnEnd) {
-        return Matrix.submatrix( rowstart, rowEnd, columnStart, columnEnd );
+        return Matrix.submatrix( this, rowStart, rowEnd, columnStart, columnEnd );
     }
 
     this.isSquare = function () {
