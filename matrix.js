@@ -65,6 +65,10 @@ function Matrix () {
         return Matrix.dot( this, M );
     }
 
+    this.cross = function (M) {
+        return Matrix.cross( this, M );
+    }
+
     this.trace = function () {
         return Matrix.trace( this );
     }
@@ -262,6 +266,10 @@ function Matrix () {
         __elements = elements;
 
         return this;
+    }
+
+    this.getDominantDimension = function () {
+        return Math.max( __rows, __columns );
     }
 
     this.copy = function () {
@@ -636,8 +644,8 @@ Matrix.dot = function (A, B) {
         throw new TypeError( 'Parameter is not a vector.' );
     }
 
-    var dimA = Math.max( A.getDimension().rows, A.getDimension().columns ),
-        dimB = Math.max( B.getDimension().rows, B.getDimension().columns );
+    var dimA = A.getDominantDimension(),
+        dimB = B.getDominantDimension();
 
     if( dimA !== dimB ) {
         throw new TypeError( 'Dimensions do not match.' );
@@ -692,6 +700,24 @@ Matrix.abs = function (M) {
     Result._setElements( elements );
 
     return Result;
+}
+
+/**
+ * Returns the cross product of two vectors. It doesn't matter whether the vectors are row or column vectors.
+ * @param {Matrix} A Three-dimensional vector
+ * @param {Matrix} B Three-dimensional vector
+ * @returns {Matrix} The three-dimensional vector V = A x B.
+ */
+Matrix.cross = function (A, B) {
+    if( !A.isVector() || !B.isVector() || A.getDominantDimension() !== 3 || B.getDominantDimension() !== 3 ) {
+        throw new TypeError( 'Parameters are not three-dimensional vectors.' );
+    }
+
+    return new Matrix( [
+        [A.get( 2 ) * B.get( 3 ) - A.get( 3 ) * B.get( 2 )],
+        [A.get( 3 ) * B.get( 1 ) - A.get( 1 ) * B.get( 3 )],
+        [A.get( 1 ) * B.get( 2 ) - A.get( 2 ) * B.get( 1 )]
+    ] );
 }
 
 /**
@@ -791,7 +817,7 @@ Matrix.arrayToMatrix = function (elements, rows, columns) {
 // ######################
 // Allow more than 2 arguments for multiply etc.
 // eigenvalues, eigenvectors
-// cross product, abs
+// cross product
 // norm(s)
 // move arrayToMatrix to constructor
 // rank
