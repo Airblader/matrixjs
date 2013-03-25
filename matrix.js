@@ -97,7 +97,7 @@ function Matrix () {
         if( arguments.length === 1 ) {
             var index = arguments[0];
 
-            if( index < 1 || index > this.getDominantDimension() ) {
+            if( index < 1 || index > this.getLength() ) {
                 throw new TypeError( 'Cannot access element at index ' + index );
             }
 
@@ -121,7 +121,7 @@ function Matrix () {
             var index = arguments[0],
                 value = arguments[1];
 
-            if( index < 1 || index > this.getDominantDimension() ) {
+            if( index < 1 || index > this.getLength() ) {
                 throw new TypeError( 'Cannot access element at index ' + index );
             }
 
@@ -269,6 +269,7 @@ function Matrix () {
     }
 
     this.copy = function () {
+        // TODO can be shortened when constructor is capable of more
         return new Matrix( __rows, __columns )._setElements( [].slice.call( __elements ) );
     }
 
