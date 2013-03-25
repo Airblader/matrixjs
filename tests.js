@@ -30,8 +30,8 @@ function assertMatrix (found, expected) {
 }
 
 function assertDimension (M, rows, columns) {
-    assertEquals( M.getDimension().rows, rows );
-    assertEquals( M.getDimension().columns, columns );
+    assertEquals( M.dim().rows, rows );
+    assertEquals( M.dim().columns, columns );
 }
 
 // ##########
@@ -377,9 +377,9 @@ new Test( function (identifier) {
     ] );
 
     assertEquals( Math.round( V.multiply( A.cross( B ) ) ), Math.round( new Matrix( 3 )
-        .setColumn( 1, V._getElements() )
-        .setColumn( 2, A._getElements() )
-        .setColumn( 3, B._getElements() )
+        .setColumn( 1, V.__getElements() )
+        .setColumn( 2, A.__getElements() )
+        .setColumn( 3, B.__getElements() )
         .det()
     ) );
 }, 'Cross Product' );

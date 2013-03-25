@@ -57,6 +57,10 @@ function Matrix () {
         return (typeof M === 'number') ? this.scale( M ) : Matrix.multiply( this, M );
     }
 
+    this.mult = function (M) {
+        return this.multiply( M );
+    }
+
     this.dot = function (M) {
         return Matrix.dot( this, M );
     }
@@ -110,7 +114,7 @@ function Matrix () {
                 throw new TypeError( 'Cannot access element (' + row + ',' + column + ')' );
             }
 
-            return __elements[this.__getIndexFromPosition( row, column )] || 0;
+            return __elements[this.__convertToIndex( row, column )] || 0;
         } else {
             throw new TypeError( 'Invalid number of arguments.' );
         }
@@ -137,7 +141,7 @@ function Matrix () {
                 throw new TypeError( 'Cannot access element (' + row + ',' + column + ')' );
             }
 
-            var index = this.__getIndexFromPosition( row, column );
+            var index = this.__convertToIndex( row, column );
             if( __elements[index] || value !== 0 ) {
                 __elements[index] = value;
             }
@@ -152,11 +156,15 @@ function Matrix () {
         return __rows * __columns;
     }
 
-    this.getDimension = function () {
+    this.getDimensions = function () {
         return {
             rows: __rows,
             columns: __columns
         };
+    }
+
+    this.dim = function () {
+        return this.getDimensions();
     }
 
     this.getRow = function (row) {
@@ -164,7 +172,7 @@ function Matrix () {
             throw new TypeError( 'Invalid row index.' );
         }
 
-        var start = this.__getIndexFromPosition( row, 1 ),
+        var start = this.__convertToIndex( row, 1 ),
             elements = __elements.slice( start, start + __columns );
         for( var i = 0; i < __columns; i++ ) {
             elements[i] = elements[i] || 0;
@@ -177,12 +185,13 @@ function Matrix () {
         if( row < 1 || row > __rows ) {
             throw new TypeError( 'Invalid row index.' );
         }
+
         if( elements.length !== __columns ) {
             throw new TypeError( 'Wrong number of columns in row (found '
                 + elements.length + ' but expected ' + __columns + ').' );
         }
 
-        __elements.splice.apply( __elements, [this.__getIndexFromPosition( row, 1 ), __columns].concat( elements ) );
+        __elements.splice.apply( __elements, [this.__convertToIndex( row, 1 ), __columns].concat( elements ) );
 
         return this;
     }
@@ -192,7 +201,7 @@ function Matrix () {
             throw new TypeError( 'Invalid column index.' );
         }
 
-        var start = this.__getIndexFromPosition( 1, column ),
+        var start = this.__convertToIndex( 1, column ),
             elements = [];
         for( var i = 0; i < __rows; i++ ) {
             elements[i] = __elements[start + i * __columns] || 0;
@@ -205,13 +214,14 @@ function Matrix () {
         if( column < 1 || column > __columns ) {
             throw new TypeError( 'Invalid column index.' );
         }
+
         if( elements.length !== __rows ) {
             throw new TypeError( 'Wrong number of rows in column (found '
                 + elements.length + ' but expected ' + __rows + ').' );
         }
 
         for( var i = 0; i < elements.length; i++ ) {
-            __elements[this.__getIndexFromPosition( i + 1, column )] = elements[i];
+            __elements[this.__convertToIndex( i + 1, column )] = elements[i];
         }
 
         return this;
@@ -242,19 +252,19 @@ function Matrix () {
         return Matrix.abs( this );
     }
 
-    this.__getIndexFromPosition = function (row, column) {
+    this.__convertToIndex = function (row, column) {
         return __columns * (row - 1) + column - 1;
     }
 
-    this._getElement = function (i) {
+    this.__getElement = function (i) {
         return __elements[i] || 0;
     }
 
-    this._getElements = function () {
+    this.__getElements = function () {
         return __elements;
     }
 
-    this._setElements = function (elements) {
+    this.__setElements = function (elements) {
         if( __elements.length !== 0 && __elements.length !== elements.length ) {
             throw new TypeError( 'Invalid number of elements. The size of a matrix cannot be changed afterwards.' );
         }
@@ -270,7 +280,7 @@ function Matrix () {
 
     this.copy = function () {
         // TODO can be shortened when constructor is capable of more
-        return new Matrix( __rows, __columns )._setElements( [].slice.call( __elements ) );
+        return new Matrix( __rows, __columns ).__setElements( [].slice.call( __elements ) );
     }
 
     this.contains = function (needle) {
@@ -286,12 +296,12 @@ function Matrix () {
     }
 
     this.equals = function (M) {
-        if( M.getDimension().rows !== __rows || M.getDimension().columns !== __columns ) {
+        if( M.getDimensions().rows !== __rows || M.getDimensions().columns !== __columns ) {
             return false;
         }
 
         for( var i = 0; i < this.getLength(); i++ ) {
-            if( this._getElement( i ) !== M._getElement( i ) ) {
+            if( this.__getElement( i ) !== M.__getElement( i ) ) {
                 return false;
             }
         }
@@ -337,20 +347,20 @@ Matrix.add = function (A, B) {
         return Matrix.add.apply( this, args );
     }
 
-    if( A.getDimension().rows !== B.getDimension().rows || A.getDimension().columns !== B.getDimension().columns ) {
+    if( A.getDimensions().rows !== B.getDimensions().rows || A.getDimensions().columns !== B.getDimensions().columns ) {
         throw new TypeError( 'Dimensions do not match.' );
     }
 
-    var Result = new Matrix( A.getDimension().rows, A.getDimension().columns ),
+    var Result = new Matrix( A.getDimensions().rows, A.getDimensions().columns ),
         elementsResult = [];
 
     for( var i = 0; i < A.getLength(); i++ ) {
-        if( A._getElement( i ) !== 0 && B._getElement( i ) !== 0 ) {
-            elementsResult[i] = A._getElement( i ) + B._getElement( i );
+        if( A.__getElement( i ) !== 0 && B.__getElement( i ) !== 0 ) {
+            elementsResult[i] = A.__getElement( i ) + B.__getElement( i );
         }
     }
 
-    Result._setElements( elementsResult );
+    Result.__setElements( elementsResult );
 
     return Result;
 }
@@ -384,14 +394,14 @@ Matrix.scale = function (A, k) {
         throw new TypeError( 'Factor is not a number.' );
     }
 
-    var elementsA = Array.prototype.slice.call( A._getElements() );
+    var elementsA = Array.prototype.slice.call( A.__getElements() );
     for( var i = 0; i < A.getLength(); i++ ) {
         if( elementsA[i] ) {
             elementsA[i] = k * elementsA[i];
         }
     }
 
-    return new Matrix( A.getDimension().rows, A.getDimension().columns )._setElements( elementsA );
+    return new Matrix( A.getDimensions().rows, A.getDimensions().columns ).__setElements( elementsA );
 }
 
 /**
@@ -403,15 +413,15 @@ Matrix.scale = function (A, k) {
 Matrix.multiply = function (A, B) {
     // TODO Idea: Strassen Algorithm for big matrices
 
-    if( A.getDimension().columns !== B.getDimension().rows ) {
+    if( A.getDimensions().columns !== B.getDimensions().rows ) {
         throw new TypeError( 'Inner dimensions do not match.' );
     }
 
-    var Result = new Matrix( A.getDimension().rows, B.getDimension().columns );
-    for( var i = 1; i <= Result.getDimension().rows; i++ ) {
-        for( var j = 1; j <= Result.getDimension().columns; j++ ) {
+    var Result = new Matrix( A.getDimensions().rows, B.getDimensions().columns );
+    for( var i = 1; i <= Result.getDimensions().rows; i++ ) {
+        for( var j = 1; j <= Result.getDimensions().columns; j++ ) {
             var temp = 0;
-            for( var k = 1; k <= A.getDimension().columns; k++ ) {
+            for( var k = 1; k <= A.getDimensions().columns; k++ ) {
                 temp += A.get( i, k ) * B.get( k, j );
             }
             Result.set( i, j, temp );
@@ -427,8 +437,8 @@ Matrix.multiply = function (A, B) {
  * @returns {Matrix} Transposed matrix M^T
  */
 Matrix.transpose = function (M) {
-    var Result = new Matrix( M.getDimension().columns, M.getDimension().rows );
-    for( var i = 1; i <= M.getDimension().rows; i++ ) {
+    var Result = new Matrix( M.getDimensions().columns, M.getDimensions().rows );
+    for( var i = 1; i <= M.getDimensions().rows; i++ ) {
         Result.setColumn( i, M.getRow( i ) );
     }
 
@@ -447,7 +457,7 @@ Matrix.trace = function (M) {
 
     var trace = 0;
 
-    for( var i = 1; i <= M.getDimension().rows; i++ ) {
+    for( var i = 1; i <= M.getDimensions().rows; i++ ) {
         trace += M.get( i, i );
     }
 
@@ -462,8 +472,8 @@ Matrix.trace = function (M) {
  * of rows that were swapped in the process.
  */
 Matrix.LUDecomposition = function (M) {
-    var m = M.getDimension().rows,
-        n = M.getDimension().columns,
+    var m = M.getDimensions().rows,
+        n = M.getDimensions().columns,
         swappedRows = 0,
         LU = M.copy();
 
@@ -524,7 +534,7 @@ Matrix.det = function (M) {
         throw new TypeError( 'Matrix is not square.' );
     }
 
-    var n = M.getDimension().rows,
+    var n = M.getDimensions().rows,
         LU = Matrix.LUDecomposition( M );
 
     var det = Math.pow( -1, LU.swappedRows );
@@ -545,13 +555,13 @@ Matrix.inverse = function (M) {
         throw new TypeError( 'Matrix is not square.' );
     }
 
-    var augmentedM = Matrix.augment( M, Matrix.eye( M.getDimension().rows ) );
+    var augmentedM = Matrix.augment( M, Matrix.eye( M.getDimensions().rows ) );
 
     try {
         augmentedM = Matrix.LUDecomposition( augmentedM );
 
         // TODO The following two loops can probably be rewritten into something smarter
-        for( var i = augmentedM.getDimension().rows; i > 1; i-- ) {
+        for( var i = augmentedM.getDimensions().rows; i > 1; i-- ) {
             var row = augmentedM.getRow( i ),
                 factor = augmentedM.get( i - 1, i ) / augmentedM.get( i, i );
 
@@ -560,7 +570,7 @@ Matrix.inverse = function (M) {
             }
         }
 
-        for( var i = 1; i <= augmentedM.getDimension().rows; i++ ) {
+        for( var i = 1; i <= augmentedM.getDimensions().rows; i++ ) {
             var row = augmentedM.getRow( i );
             for( var j = 0; j < row.length; j++ ) {
                 row[j] = row[j] / augmentedM.get( i, i );
@@ -573,7 +583,7 @@ Matrix.inverse = function (M) {
     }
 
     return Matrix.submatrix( augmentedM,
-        1, augmentedM.getDimension().rows, M.getDimension().columns + 1, augmentedM.getDimension().columns );
+        1, augmentedM.getDimensions().rows, M.getDimensions().columns + 1, augmentedM.getDimensions().columns );
 }
 
 /**
@@ -586,8 +596,8 @@ Matrix.inverse = function (M) {
  * @returns {Matrix} Submatrix of M in the specified area.
  */
 Matrix.submatrix = function (M, rowStart, rowEnd, columnStart, columnEnd) {
-    var m = M.getDimension().rows,
-        n = M.getDimension().columns;
+    var m = M.getDimensions().rows,
+        n = M.getDimensions().columns;
 
     if( rowStart < 1 || rowStart > m || columnStart < 1 || columnStart > n
         || rowEnd < 1 || rowEnd > m || columnEnd < 1 || columnEnd > n
@@ -614,17 +624,17 @@ Matrix.submatrix = function (M, rowStart, rowEnd, columnStart, columnEnd) {
  * @returns {Matrix} Augmented matrix A|B.
  */
 Matrix.augment = function (A, B) {
-    if( A.getDimension().rows !== B.getDimension().rows ) {
+    if( A.getDimensions().rows !== B.getDimensions().rows ) {
         throw new TypeError( 'Matrices do not have the same number of rows.' );
     }
 
-    var Result = new Matrix( A.getDimension().rows, A.getDimension().columns + B.getDimension().columns );
+    var Result = new Matrix( A.getDimensions().rows, A.getDimensions().columns + B.getDimensions().columns );
 
-    for( var i = 1; i <= A.getDimension().columns; i++ ) {
+    for( var i = 1; i <= A.getDimensions().columns; i++ ) {
         Result.setColumn( i, A.getColumn( i ) );
     }
-    for( var i = 1; i <= B.getDimension().columns; i++ ) {
-        Result.setColumn( i + A.getDimension().columns, B.getColumn( i ) );
+    for( var i = 1; i <= B.getDimensions().columns; i++ ) {
+        Result.setColumn( i + A.getDimensions().columns, B.getColumn( i ) );
     }
 
     return Result;
@@ -664,7 +674,7 @@ Matrix.dot = function (A, B) {
  */
 Matrix.roundTo = function (M, precision) {
     var Result = M.copy(),
-        elements = Result._getElements(),
+        elements = Result.__getElements(),
         precision = precision || 0,
         power = Math.pow( 10, precision );
 
@@ -674,7 +684,7 @@ Matrix.roundTo = function (M, precision) {
         }
     }
 
-    Result._setElements( elements );
+    Result.__setElements( elements );
 
     return Result;
 }
@@ -686,7 +696,7 @@ Matrix.roundTo = function (M, precision) {
  */
 Matrix.abs = function (M) {
     var Result = M.copy(),
-        elements = Result._getElements();
+        elements = Result.__getElements();
 
     for( var i = 0; i < M.getLength(); i++ ) {
         if( elements[i] ) {
@@ -694,7 +704,7 @@ Matrix.abs = function (M) {
         }
     }
 
-    Result._setElements( elements );
+    Result.__setElements( elements );
 
     return Result;
 }
@@ -748,7 +758,7 @@ Matrix.ones = function (rows, columns) {
         elements[i] = 1;
     }
 
-    return new Matrix( rows, columns )._setElements( elements );
+    return new Matrix( rows, columns ).__setElements( elements );
 }
 
 /**
@@ -772,7 +782,7 @@ Matrix.eye = function (n) {
  */
 Matrix.diag = function (elements) {
     var Result = new Matrix( elements.length );
-    for( var i = 1; i <= Result.getDimension().rows; i++ ) {
+    for( var i = 1; i <= Result.getDimensions().rows; i++ ) {
         Result.set( i, i, elements[i - 1] );
     }
 
@@ -808,5 +818,5 @@ Matrix.arrayToMatrix = function (elements, rows, columns) {
         throw new TypeError( 'Array has to represent a square matrix or the size has to be specified.' );
     }
 
-    return new Matrix( rows, columns )._setElements( elements );
+    return new Matrix( rows, columns ).__setElements( elements );
 }
