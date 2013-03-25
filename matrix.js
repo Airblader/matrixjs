@@ -54,11 +54,7 @@ function Matrix () {
     }
 
     this.multiply = function (M) {
-        if( typeof M === 'number' ) {
-            return this.scale( M );
-        }
-
-        return Matrix.multiply( this, M );
+        return (typeof M === 'number') ? this.scale( M ) : Matrix.multiply( this, M );
     }
 
     this.dot = function (M) {
@@ -813,15 +809,3 @@ Matrix.arrayToMatrix = function (elements, rows, columns) {
 
     return new Matrix( rows, columns )._setElements( elements );
 }
-
-
-// ######################
-// Allow more than 2 arguments for multiply etc.
-// eigenvalues, eigenvectors
-// cross product
-// norm(s)
-// move arrayToMatrix to constructor
-// rank
-// getDiag, getMinor
-// LGS solve
-// partial sort
