@@ -307,12 +307,30 @@ new Test( function (identifier) {
 new Test( function (identifier) {
     var A = Matrix.eye( 3 ),
         B = Matrix.ones( 3 ),
-        C = B.subtract( A.scale( 2 ) );
+        C = B.subtract( A.scale( 2 ) ),
+        D = Matrix.zeros( 3 );
 
     assertMatrix( A.abs(), A );
     assertMatrix( B.abs(), B );
     assertMatrix( C.abs(), A );
+    assertMatrix( D.abs(), D );
 }, 'Abs' );
+
+new Test( function (identifier) {
+    var A = new Matrix( [
+            [1, 2, 3]
+        ] ),
+        B = new Matrix( [
+            [-7, 8, 9]
+        ] ),
+        C = new Matrix( [
+            [-6, -30, 22]
+        ] ),
+        D = Matrix.zeros( 1, 3 );
+
+    assertMatrix( A.cross( B ), C.transpose() );
+    assertMatrix( D.cross( D ), D.transpose() );
+}, 'Cross Product' );
 
 new Test( function (identifier) {
 }, '' );
