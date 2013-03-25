@@ -292,6 +292,19 @@ new Test( function (identifier) {
 }, 'Contains' );
 
 new Test( function (identifier) {
+    var A = Matrix.eye( 3 ),
+        B = Matrix.zeros( 3 ),
+        C = Matrix.ones( 2, 3 ),
+        D = Matrix.ones( 3, 2 ),
+        E = Matrix.zeros( 2, 3 );
+
+    assertEquals( A.equals( A ), true );
+    assertEquals( A.equals( B ), false );
+    assertEquals( C.equals( D ), false );
+    assertEquals( C.equals( E ), false );
+}, 'Equals' );
+
+new Test( function (identifier) {
 }, '' );
 
 // ##########

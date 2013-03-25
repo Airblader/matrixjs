@@ -771,3 +771,4 @@ Matrix.arrayToMatrix = function (elements, rows, columns) {
 // rank
 // getDiag, getMinor
 // LGS solve
+// partial sort
