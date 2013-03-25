@@ -273,7 +273,7 @@ function Matrix () {
     }
 
     this.copy = function () {
-        return new Matrix( __rows, __columns )._setElements( __elements );
+        return new Matrix( __rows, __columns )._setElements( [].slice.call( __elements ) );
     }
 
     this.contains = function (needle) {
