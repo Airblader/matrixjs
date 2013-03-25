@@ -107,6 +107,8 @@ new Test( function (identifier) {
 }, 'Create Matrix' );
 
 new Test( function (identifier) {
+    assertEquals( Matrix.zeros( 3 ).get( 2, 3 ), 0 );
+
     var M = new Matrix( 3 );
     M.set( 1, 1, 1 );
     M.set( 2, 2, 2 );
@@ -134,6 +136,9 @@ new Test( function (identifier) {
 }, 'Helper Methods' );
 
 new Test( function (identifier) {
+    assertArray( Matrix.zeros( 3 ).getRow( 3 ), [0, 0, 0] );
+    assertArray( Matrix.zeros( 3 ).getColumn( 3 ), [0, 0, 0] );
+
     var M = Matrix.arrayToMatrix( [1, 2, 3, 4, 5, 6, 7, 8, 9] );
 
     assertArray( M.getRow( 1 ), [1, 2, 3] );
@@ -161,6 +166,8 @@ new Test( function (identifier) {
 }, 'Set/Get Rows/Columns' );
 
 new Test( function (identifier) {
+    assertMatrix( Matrix.zeros( 3 ).add( Matrix.zeros( 3 ) ), Matrix.zeros( 3 ) );
+
     var A = Matrix.arrayToMatrix( [1, 2, 3, 4, 5, 6, 7, 8, 9] ),
         B = Matrix.arrayToMatrix( [9, 8, 7, 6, 5, 4, 3, 2, 1] );
 
@@ -179,6 +186,8 @@ new Test( function (identifier) {
 }, 'Add/Subtract Matrices' );
 
 new Test( function (identifier) {
+    assertMatrix( Matrix.zeros( 3 ).multiply( Matrix.zeros( 3 ) ), Matrix.zeros( 3 ) );
+    assertMatrix( Matrix.zeros( 3 ).multiply( Matrix.eye( 3 ) ), Matrix.zeros( 3 ) );
     assertMatrix( Matrix.eye( 3 ).multiply( Matrix.eye( 3 ) ), Matrix.eye( 3 ) );
 
     var A = Matrix.arrayToMatrix( [1, 2, 1, 2, 3, 2, 3, 4, 3] ),
@@ -194,6 +203,7 @@ new Test( function (identifier) {
 }, 'Multiply' );
 
 new Test( function (identifier) {
+    assertEquals( Matrix.zeros( 3 ).trace(), 0 );
     assertEquals( Matrix.eye( 5 ).trace(), 5 );
 
     var M = Matrix.ones( 3 ).set( 1, 1, 2 ).set( 2, 2, 3 ).set( 3, 3, 5 );
@@ -201,6 +211,7 @@ new Test( function (identifier) {
 }, 'Trace' );
 
 new Test( function (identifier) {
+    assertMatrix( Matrix.zeros( 3 ).transpose(), Matrix.zeros( 3 ) );
     assertMatrix( Matrix.eye( 3 ).transpose(), Matrix.eye( 3 ) );
 
     assertMatrix( Matrix.arrayToMatrix( [1, 2, 3, 4, 5, 6, 7, 8, 9] ).transpose(),
@@ -233,6 +244,17 @@ new Test( function (identifier) {
 
     assertMatrix( Matrix.arrayToMatrix( [4, 7, 2, 6], 2, 2 ).inverse(),
         Matrix.arrayToMatrix( [0.6, -0.7, -0.2, 0.4], 2, 2 ) );
+
+    var isSingular = false;
+    try {
+        Matrix.zeros( 3 ).inverse();
+    } catch( e ) {
+        isSingular = true;
+    } finally {
+        if( !isSingular ) {
+            fail( 'Expected error for singular matrix.' );
+        }
+    }
 }, 'Inverse' );
 
 new Test( function (identifier) {
@@ -240,6 +262,8 @@ new Test( function (identifier) {
 
     assertMatrix( Matrix.submatrix( M, 1, 3, 1, 3 ), M );
     assertMatrix( Matrix.submatrix( M, 2, 3, 2, 3 ), Matrix.arrayToMatrix( [2, 1, 1, 3], 2, 2 ) );
+
+    assertMatrix( Matrix.zeros( 3 ).submatrix( 2, 3, 2, 3 ), Matrix.zeros( 2 ) );
 }, 'Submatrix' );
 
 new Test( function (identifier) {
@@ -249,10 +273,12 @@ new Test( function (identifier) {
         [0, 0, 3]
     ] );
 
+    assertArray( M.diag(), [1, 2, 3] );
+    assertArray( Matrix.zeros( 3 ).diag(), [0, 0, 0] );
+
     assertMatrix( Matrix.diag( [1, 1, 1] ), Matrix.eye( 3 ) );
     assertMatrix( Matrix.diag( [1, 2, 3] ), M );
-
-    assertArray( M.diag(), [1, 2, 3] );
+    assertMatrix( Matrix.diag( [0, 0, 0] ), Matrix.zeros( 3 ) );
 }, 'Diag' );
 
 new Test( function (identifier) {
@@ -260,31 +286,37 @@ new Test( function (identifier) {
         [1.1, 0, 0],
         [0, 2.1, 0],
         [0, 0, 3.1]
-    ] ).scale( 0.5 ).roundTo( 0 );
+    ] ).scale( 0.5 );
 
-    assertArray( M.diag(), [1, 1, 2] );
+    assertArray( M.roundTo( 0 ).diag(), [1, 1, 2] );
+    assertArray( M.roundTo( 1 ).diag(), [0.6, 1.1, 1.6] );
+
+    assertMatrix( Matrix.zeros( 3 ).roundTo( 0 ), Matrix.zeros( 3 ) );
 }, 'RoundTo' );
 
 new Test( function (identifier) {
     var A = new Matrix( [
-        [1, 2, 3]
-    ] );
-
-    var B = new Matrix( [
-        [3, 2, 1]
-    ] );
+            [1, 2, 3]
+        ] ),
+        B = new Matrix( [
+            [3, 2, 1]
+        ] ),
+        C = Matrix.zeros( 1, 3 );
 
     assertEquals( A.dot( B ), 10 );
     assertEquals( B.dot( A ), 10 );
 
     assertEquals( A.dot( A ), 14 );
     assertEquals( B.dot( B ), 14 );
+
+    assertEquals( C.dot( C ), 0 );
 }, 'Dot Product' );
 
 new Test( function (identifier) {
     assertEquals( Matrix.eye( 3 ).contains( 1 ) !== -1, true );
     assertEquals( Matrix.eye( 3 ).contains( 0 ) !== -1, true );
     assertEquals( Matrix.eye( 3 ).contains( 2 ) !== -1, false );
+    assertEquals( Matrix.zeros( 3 ).contains( 0 ) !== -1, true );
 
     assertEquals( new Matrix( [
         [0, 0, 1]
@@ -300,6 +332,7 @@ new Test( function (identifier) {
 
     assertEquals( A.equals( A ), true );
     assertEquals( A.equals( B ), false );
+    assertEquals( B.equals( B ), true );
     assertEquals( C.equals( D ), false );
     assertEquals( C.equals( E ), false );
 }, 'Equals' );
