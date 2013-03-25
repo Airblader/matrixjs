@@ -121,6 +121,9 @@ new Test( function (identifier) {
     assertEquals( M.get( 2, 2 ), 2 );
     assertEquals( M.get( 3, 3 ), 3 );
     assertEquals( M.get( 2, 3 ), 7 );
+
+    assertEquals( M.get( 1 ), 1 );
+    assertEquals( M.get( 6 ), 7 );
 }, 'Set/Get Single Element' );
 
 new Test( function (identifier) {
@@ -321,6 +324,8 @@ new Test( function (identifier) {
     assertEquals( new Matrix( [
         [0, 0, 1]
     ] ).contains( 1 ) !== -1, true );
+
+    assertEquals( Matrix.zeros( 3 ).set( 3, 3, 1 ).contains( 1 ) !== -1, true );
 }, 'Contains' );
 
 new Test( function (identifier) {
