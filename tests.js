@@ -363,6 +363,20 @@ new Test( function (identifier) {
 
     assertMatrix( A.cross( B ), C.transpose() );
     assertMatrix( D.cross( D ), D.transpose() );
+
+    assertMatrix( A.cross( B ), B.cross( A ).scale( -1 ) );
+    assertMatrix( A.cross( A ), Matrix.zeros( 3, 1 ) );
+
+    var V = new Matrix( [
+        [1, 2, 5]
+    ] );
+
+    assertEquals( Math.round( V.multiply( A.cross( B ) ) ), Math.round( new Matrix( 3 )
+        .setColumn( 1, V._getElements() )
+        .setColumn( 2, A._getElements() )
+        .setColumn( 3, B._getElements() )
+        .det()
+    ) );
 }, 'Cross Product' );
 
 new Test( function (identifier) {
