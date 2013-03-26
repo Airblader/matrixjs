@@ -315,6 +315,8 @@ function Matrix () {
                     return true;
                 }
             }
+
+            return false;
         }
     }
 

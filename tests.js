@@ -320,6 +320,7 @@ new Test( function (identifier) {
     assertEquals( Matrix.eye( 3 ).contains( 0 ), true );
     assertEquals( Matrix.eye( 3 ).contains( 2 ), false );
     assertEquals( Matrix.zeros( 3 ).contains( 0 ), true );
+    assertEquals( Matrix.ones( 3 ).contains( 0 ), false );
 
     assertEquals( new Matrix( [
         [0, 0, 1]
