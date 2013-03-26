@@ -187,7 +187,8 @@ function Matrix () {
      * Get the dimensions of the matrix.
      * Without any arguments, this is a short-hand notation for <Matrix>.getDimensions(). If called with the argument
      * 1 or 'rows', it returns the number of rows. If called with 2 or 'columns', it returns the number of columns.
-     * @returns {{rows: Number, columns: Number}|Number} Object with the dimensions of requested dimension.
+     * @returns {{rows: Number, columns: Number}|Number} Object with the dimensions of requested dimension or just
+     * the requested dimension.
      */
     this.dim = function () {
         var dim = this.getDimensions();
@@ -269,7 +270,7 @@ function Matrix () {
     /**
      * Get the diagonal of the matrix.
      * @param {Number} [k=0] Specified which diagonal to return, i.e. 1 for the first upper secondary diagonal.
-     * @returns {Array} Diagonal of the matrix.
+     * @returns {Number[]} Diagonal of the matrix.
      */
     this.diag = function (k) {
         k = k || 0;
@@ -829,7 +830,7 @@ Matrix.eye = function (n) {
 
 /**
  * Returns a diagonal matrix.
- * @param {Array} elements Array of diagonal elements
+ * @param {Number[]} elements Array of diagonal elements
  * @returns {Matrix} Matrix with the specified elements on its diagonal.
  */
 Matrix.diag = function (elements) {
