@@ -338,7 +338,7 @@ function Matrix () {
             return __elements.indexOf( needle ) !== -1;
         } else {
             for( var i = 1; i <= this.getLength(); i++ ) {
-                if( !__elements[i] ) {
+                if( this.get( i ) === 0 ) {
                     return true;
                 }
             }
