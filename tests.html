@@ -3,13 +3,19 @@
 <head>
     <title>matrix.js -- Tests</title>
     <style type="text/css">
-        #logger {
+        #result, #logger {
             width: 50%;
             margin: 0 auto;
-
             margin-top: 20px;
 
             border: 1px solid black;
+        }
+
+        #result {
+            text-align: center;
+        }
+
+        #logger {
             border-bottom-width: 0;
             background: #ddd;
         }
@@ -39,6 +45,9 @@
     </style>
 </head>
 <body>
+<div id="result">
+    <h2>Test Result</h2>
+</div>
 <div id="logger"></div>
 <p id="timer">Total time to execute tests: <span id="time"></span>s</p>
 

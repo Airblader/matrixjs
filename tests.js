@@ -84,9 +84,7 @@ Test.runAll = function () {
     var time = ( new Date().getTime() - start ) / 1000;
     document.getElementById( 'time' ).innerHTML = time;
 
-    if( !isGreen ) {
-        alert( 'There are failed tests.' );
-    }
+    document.getElementById( 'result' ).className = (isGreen) ? 'success' : 'error';
 }
 
 // ##########
