@@ -271,17 +271,27 @@ new Test( function (identifier) {
 
 new Test( function (identifier) {
     var M = new Matrix( [
-        [1, 0, 0],
-        [0, 2, 0],
-        [0, 0, 3]
+        [1, 4, 6],
+        [7, 2, 5],
+        [9, 8, 3]
     ] );
 
     assertArray( M.diag(), [1, 2, 3] );
+
+    assertArray( M.diag( 1 ), [4, 5] );
+    assertArray( M.diag( 2 ), [6] );
+    assertArray( M.diag( -1 ), [7, 8] );
+    assertArray( M.diag( -2 ), [9] );
+
     assertArray( Matrix.zeros( 3 ).diag(), [0, 0, 0] );
 
     assertMatrix( Matrix.diag( [1, 1, 1] ), Matrix.eye( 3 ) );
-    assertMatrix( Matrix.diag( [1, 2, 3] ), M );
     assertMatrix( Matrix.diag( [0, 0, 0] ), Matrix.zeros( 3 ) );
+    assertMatrix( Matrix.diag( [1, 2, 3] ), new Matrix( [
+        [1, 0, 0],
+        [0, 2, 0],
+        [0, 0, 3]
+    ] ) );
 }, 'Diag' );
 
 new Test( function (identifier) {

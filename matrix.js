@@ -97,6 +97,12 @@ function Matrix () {
         return __rows === 1 || __columns === 1;
     }
 
+    /**
+     * Get an element in the matrix.
+     * If called with one argument, the matrix will be accessed in a linear way (left to right, top to bottom).
+     * If called with two arguments i and j, it will return the (i,j)-th element.
+     * @returns {Number} Specified element of the matrix.
+     */
     this.get = function () {
         if( arguments.length === 1 ) {
             var index = arguments[0];
@@ -120,6 +126,12 @@ function Matrix () {
         }
     }
 
+    /**
+     * Set an element in the matrix.
+     * If called with two arguments, the first argument specifies the linear position of the entry (left to right,
+     * top to bottom) and the second the new value. If called with three arguments i, j and x, it will assign x to
+     * the (i,j)-th element.
+     */
     this.set = function () {
         if( arguments.length === 2 ) {
             var index = arguments[0],
@@ -152,6 +164,10 @@ function Matrix () {
         return this;
     }
 
+    /**
+     * Get the number of elements in the matrix.
+     * @returns {Number} Number of elements (number of rows times number of columns).
+     */
     this.getLength = function () {
         return __rows * __columns;
     }
@@ -250,14 +266,25 @@ function Matrix () {
         return this;
     }
 
-    this.diag = function () {
-        if( !this.isSquare() ) {
-            throw new TypeError( 'Matrix is not square.' );
+    /**
+     * Get the diagonal of the matrix.
+     * @param {Number} [k=0] Specified which diagonal to return, i.e. 1 for the first upper secondary diagonal.
+     * @returns {Array} Diagonal of the matrix.
+     */
+    this.diag = function (k) {
+        k = k || 0;
+
+        var diag = [],
+            rowOffset = -Math.min( k, 0 ),
+            columnOffset = Math.max( k, 0 ),
+            endOfLoop = (rowOffset === 0 ) ? (__columns - columnOffset) : (__rows - rowOffset);
+
+        if( endOfLoop <= 0 ) {
+            throw new TypeError( 'Matrix does not have that many diagonals.' );
         }
 
-        var diag = [];
-        for( var i = 1; i <= __rows; i++ ) {
-            diag.push( this.get( i, i ) );
+        for( var i = 1; i <= endOfLoop; i++ ) {
+            diag.push( this.get( i + rowOffset, i + columnOffset ) );
         }
 
         return diag;
