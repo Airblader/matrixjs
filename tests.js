@@ -385,6 +385,25 @@ new Test( function (identifier) {
 }, 'Cross Product' );
 
 new Test( function (identifier) {
+    var A = Matrix.eye( 3 ),
+        B = Matrix.ones( 2, 3 ),
+        C = Matrix.zeros( 3, 2 );
+
+    assertEquals( A.getDimensions().rows, 3 );
+    assertEquals( A.getDimensions().columns, 3 );
+    assertEquals( A.dim().rows, 3 );
+    assertEquals( A.dim().columns, 3 );
+
+    assertEquals( B.dim( 1 ), 2 );
+    assertEquals( B.dim( 2 ), 3 );
+    assertEquals( B.dim( 'rows' ), 2 );
+    assertEquals( B.dim( 'columns' ), 3 );
+
+    assertEquals( C.dim( 1 ), 3 );
+    assertEquals( C.dim( 2 ), 2 );
+}, 'Get Dimensions' );
+
+new Test( function (identifier) {
 }, '' );
 
 // ##########
