@@ -156,6 +156,10 @@ function Matrix () {
         return __rows * __columns;
     }
 
+    /**
+     * Get the dimensions of the matrix.
+     * @returns {{rows: Number, columns: Number}} Object containing the number of rows/columns in the matrix.
+     */
     this.getDimensions = function () {
         return {
             rows: __rows,
@@ -163,8 +167,27 @@ function Matrix () {
         };
     }
 
+    /**
+     * Get the dimensions of the matrix.
+     * Without any arguments, this is a short-hand notation for <Matrix>.getDimensions(). If called with the argument
+     * 1 or 'rows', it returns the number of rows. If called with 2 or 'columns', it returns the number of columns.
+     * @returns {{rows: Number, columns: Number}|Number} Object with the dimensions of requested dimension.
+     */
     this.dim = function () {
-        return this.getDimensions();
+        var dim = this.getDimensions();
+
+        if( arguments.length === 0 ) {
+            return dim;
+        } else if( arguments.length === 1 ) {
+            var requestedDim = arguments[0];
+            if( requestedDim === 1 || requestedDim === 'rows' ) {
+                return dim.rows;
+            } else if( requestedDim === 2 || requestedDim === 'columns' ) {
+                return dim.columns;
+            }
+        }
+
+        throw new TypeError( 'Invalid parameter(s).' );
     }
 
     this.getRow = function (row) {
@@ -296,7 +319,7 @@ function Matrix () {
     }
 
     this.equals = function (M) {
-        if( M.getDimensions().rows !== __rows || M.getDimensions().columns !== __columns ) {
+        if( M.dim( 1 ) !== __rows || M.dim( 2 ) !== __columns ) {
             return false;
         }
 
@@ -347,11 +370,11 @@ Matrix.add = function (A, B) {
         return Matrix.add.apply( this, args );
     }
 
-    if( A.getDimensions().rows !== B.getDimensions().rows || A.getDimensions().columns !== B.getDimensions().columns ) {
+    if( A.dim( 1 ) !== B.dim( 1 ) || A.dim( 2 ) !== B.dim( 2 ) ) {
         throw new TypeError( 'Dimensions do not match.' );
     }
 
-    var Result = new Matrix( A.getDimensions().rows, A.getDimensions().columns ),
+    var Result = new Matrix( A.dim( 1 ), A.dim( 2 ) ),
         elementsResult = [];
 
     for( var i = 0; i < A.getLength(); i++ ) {
@@ -401,7 +424,7 @@ Matrix.scale = function (A, k) {
         }
     }
 
-    return new Matrix( A.getDimensions().rows, A.getDimensions().columns ).__setElements( elementsA );
+    return new Matrix( A.dim( 1 ), A.dim( 2 ) ).__setElements( elementsA );
 }
 
 /**
@@ -413,15 +436,15 @@ Matrix.scale = function (A, k) {
 Matrix.multiply = function (A, B) {
     // TODO Idea: Strassen Algorithm for big matrices
 
-    if( A.getDimensions().columns !== B.getDimensions().rows ) {
+    if( A.dim( 2 ) !== B.dim( 1 ) ) {
         throw new TypeError( 'Inner dimensions do not match.' );
     }
 
-    var Result = new Matrix( A.getDimensions().rows, B.getDimensions().columns );
-    for( var i = 1; i <= Result.getDimensions().rows; i++ ) {
-        for( var j = 1; j <= Result.getDimensions().columns; j++ ) {
+    var Result = new Matrix( A.dim( 1 ), B.dim( 2 ) );
+    for( var i = 1; i <= Result.dim( 1 ); i++ ) {
+        for( var j = 1; j <= Result.dim( 2 ); j++ ) {
             var temp = 0;
-            for( var k = 1; k <= A.getDimensions().columns; k++ ) {
+            for( var k = 1; k <= A.dim( 2 ); k++ ) {
                 temp += A.get( i, k ) * B.get( k, j );
             }
             Result.set( i, j, temp );
@@ -437,8 +460,8 @@ Matrix.multiply = function (A, B) {
  * @returns {Matrix} Transposed matrix M^T
  */
 Matrix.transpose = function (M) {
-    var Result = new Matrix( M.getDimensions().columns, M.getDimensions().rows );
-    for( var i = 1; i <= M.getDimensions().rows; i++ ) {
+    var Result = new Matrix( M.dim( 2 ), M.dim( 1 ) );
+    for( var i = 1; i <= M.dim( 1 ); i++ ) {
         Result.setColumn( i, M.getRow( i ) );
     }
 
@@ -457,7 +480,7 @@ Matrix.trace = function (M) {
 
     var trace = 0;
 
-    for( var i = 1; i <= M.getDimensions().rows; i++ ) {
+    for( var i = 1; i <= M.dim( 1 ); i++ ) {
         trace += M.get( i, i );
     }
 
@@ -472,8 +495,8 @@ Matrix.trace = function (M) {
  * of rows that were swapped in the process.
  */
 Matrix.LUDecomposition = function (M) {
-    var m = M.getDimensions().rows,
-        n = M.getDimensions().columns,
+    var m = M.dim( 1 ),
+        n = M.dim( 2 ),
         swappedRows = 0,
         LU = M.copy();
 
@@ -534,7 +557,7 @@ Matrix.det = function (M) {
         throw new TypeError( 'Matrix is not square.' );
     }
 
-    var n = M.getDimensions().rows,
+    var n = M.dim( 1 ),
         LU = Matrix.LUDecomposition( M );
 
     var det = Math.pow( -1, LU.swappedRows );
@@ -555,13 +578,13 @@ Matrix.inverse = function (M) {
         throw new TypeError( 'Matrix is not square.' );
     }
 
-    var augmentedM = Matrix.augment( M, Matrix.eye( M.getDimensions().rows ) );
+    var augmentedM = Matrix.augment( M, Matrix.eye( M.dim( 1 ) ) );
 
     try {
         augmentedM = Matrix.LUDecomposition( augmentedM );
 
         // TODO The following two loops can probably be rewritten into something smarter
-        for( var i = augmentedM.getDimensions().rows; i > 1; i-- ) {
+        for( var i = augmentedM.dim( 1 ); i > 1; i-- ) {
             var row = augmentedM.getRow( i ),
                 factor = augmentedM.get( i - 1, i ) / augmentedM.get( i, i );
 
@@ -570,7 +593,7 @@ Matrix.inverse = function (M) {
             }
         }
 
-        for( var i = 1; i <= augmentedM.getDimensions().rows; i++ ) {
+        for( var i = 1; i <= augmentedM.dim( 1 ); i++ ) {
             var row = augmentedM.getRow( i );
             for( var j = 0; j < row.length; j++ ) {
                 row[j] = row[j] / augmentedM.get( i, i );
@@ -583,7 +606,7 @@ Matrix.inverse = function (M) {
     }
 
     return Matrix.submatrix( augmentedM,
-        1, augmentedM.getDimensions().rows, M.getDimensions().columns + 1, augmentedM.getDimensions().columns );
+        1, augmentedM.dim( 1 ), M.dim( 2 ) + 1, augmentedM.dim( 2 ) );
 }
 
 /**
@@ -596,8 +619,8 @@ Matrix.inverse = function (M) {
  * @returns {Matrix} Submatrix of M in the specified area.
  */
 Matrix.submatrix = function (M, rowStart, rowEnd, columnStart, columnEnd) {
-    var m = M.getDimensions().rows,
-        n = M.getDimensions().columns;
+    var m = M.dim( 1 ),
+        n = M.dim( 2 );
 
     if( rowStart < 1 || rowStart > m || columnStart < 1 || columnStart > n
         || rowEnd < 1 || rowEnd > m || columnEnd < 1 || columnEnd > n
@@ -624,17 +647,17 @@ Matrix.submatrix = function (M, rowStart, rowEnd, columnStart, columnEnd) {
  * @returns {Matrix} Augmented matrix A|B.
  */
 Matrix.augment = function (A, B) {
-    if( A.getDimensions().rows !== B.getDimensions().rows ) {
+    if( A.dim( 1 ) !== B.dim( 1 ) ) {
         throw new TypeError( 'Matrices do not have the same number of rows.' );
     }
 
-    var Result = new Matrix( A.getDimensions().rows, A.getDimensions().columns + B.getDimensions().columns );
+    var Result = new Matrix( A.dim( 1 ), A.dim( 2 ) + B.dim( 2 ) );
 
-    for( var i = 1; i <= A.getDimensions().columns; i++ ) {
+    for( var i = 1; i <= A.dim( 2 ); i++ ) {
         Result.setColumn( i, A.getColumn( i ) );
     }
-    for( var i = 1; i <= B.getDimensions().columns; i++ ) {
-        Result.setColumn( i + A.getDimensions().columns, B.getColumn( i ) );
+    for( var i = 1; i <= B.dim( 2 ); i++ ) {
+        Result.setColumn( i + A.dim( 2 ), B.getColumn( i ) );
     }
 
     return Result;
@@ -782,7 +805,7 @@ Matrix.eye = function (n) {
  */
 Matrix.diag = function (elements) {
     var Result = new Matrix( elements.length );
-    for( var i = 1; i <= Result.getDimensions().rows; i++ ) {
+    for( var i = 1; i <= Result.dim( 1 ); i++ ) {
         Result.set( i, i, elements[i - 1] );
     }
 
