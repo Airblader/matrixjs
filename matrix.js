@@ -308,7 +308,7 @@ function Matrix () {
 
     this.contains = function (needle) {
         if( needle !== 0 ) {
-            return __elements.indexOf( needle );
+            return __elements.indexOf( needle ) !== -1;
         } else {
             for( var i = 1; i <= this.getLength(); i++ ) {
                 if( this.get( i ) === 0 ) {
