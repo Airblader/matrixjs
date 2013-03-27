@@ -56,12 +56,13 @@ Test.prototype.run = function (identifier) {
         this.func( identifier );
     } catch( e ) {
         success = false;
+
         document.getElementById( 'logger' ).innerHTML +=
             '<div class="error">Test ' + identifier + ' [' + this.name + '] failed: ' + e + '</div>';
     } finally {
         if( success ) {
             document.getElementById( 'logger' ).innerHTML +=
-                '<div class="success">Test ' + identifier + ' successful.</div>';
+                '<div class="success">Test ' + identifier + ' [' + this.name + '] successful.</div>';
         }
 
         return success;
