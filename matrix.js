@@ -321,6 +321,14 @@ function Matrix () {
         return this;
     }
 
+    this.addRow = function (elements) {
+        // TODO
+    }
+
+    this.addColumn = function (elements) {
+        // TODO
+    }
+
     /**
      * Returns whether the matrix is square.
      * @returns {boolean} True if row and column dimensions equal, false otherwise.
@@ -342,8 +350,7 @@ function Matrix () {
      * @returns {Matrix} Actual copy of the matrix.
      */
     this.copy = function () {
-        // TODO can be shortened when constructor is capable of more
-        return new Matrix( __rows, __columns ).__setElements( [].slice.call( __elements ) );
+        return new Matrix( [].slice.call( __elements ), __rows, __columns );
     }
 
     /**
@@ -470,8 +477,8 @@ function Matrix () {
                 __elements.push( args[0][i][j] );
             }
         }
-    } else if( args.length >= 1 && args.length <= 3
-        && args[0] instanceof Array && args[0].length !== 0 && this.__isNumber( args[0][0] ) ) {
+    } else if( args.length >= 1 && args.length <= 3 && args[0] instanceof Array
+        && ( args[0].length === 0 || (args[0].length !== 0 && this.__isNumber( args[0][0] ) ) ) ) {
 
         __elements = args[0];
         var rows = args[1],
