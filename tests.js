@@ -349,6 +349,22 @@ new Test( function (identifier) {
 }, 'Diag 4' );
 
 new Test( function (identifier) {
+    assertMatrix( Matrix.diag( [1, 2], 1 ), new Matrix( [
+        [0, 1, 0],
+        [0, 0, 2],
+        [0, 0, 0]
+    ] ) );
+}, 'Diag 5' );
+
+new Test( function (identifier) {
+    assertMatrix( Matrix.diag( [1, 2], -1 ), new Matrix( [
+        [0, 0, 0],
+        [1, 0, 0],
+        [0, 2, 0]
+    ] ) );
+}, 'Diag 6' );
+
+new Test( function (identifier) {
     assertMatrix( Matrix.diag( [1, 2, 3] ), new Matrix( [
         [1, 0, 0],
         [0, 2, 0],

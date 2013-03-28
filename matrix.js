@@ -830,13 +830,20 @@ Matrix.eye = function (n) {
 
 /**
  * Returns a diagonal matrix.
+ * If called with a second parameter k, the k-th diagonal will be filled instead of the main diagonal.
  * @param {Number[]} elements Array of diagonal elements
+ * @param {Number} [k=0] Offset specifying the diagonal, i.e. k = 1 is the first upper diagonal
  * @returns {Matrix} Matrix with the specified elements on its diagonal.
  */
-Matrix.diag = function (elements) {
-    var Result = new Matrix( elements.length );
-    for( var i = 1; i <= Result.dim( 1 ); i++ ) {
-        Result.set( i, i, elements[i - 1] );
+Matrix.diag = function (elements, k) {
+    k = k || 0;
+
+    var Result = new Matrix( elements.length + Math.abs( k ) ),
+        rowOffset = -Math.min( k, 0 ),
+        columnOffset = Math.max( k, 0 );
+
+    for( var i = 1; i <= ( Result.dim( 1 ) - Math.abs( k ) ); i++ ) {
+        Result.set( i + rowOffset, i + columnOffset, elements[i - 1] );
     }
 
     return Result;
