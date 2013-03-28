@@ -85,12 +85,40 @@ function Matrix () {
         return Matrix.submatrix( this, rowStart, rowEnd, columnStart, columnEnd );
     }
 
-    this.isSquare = function () {
-        return __rows === __columns;
+    this.round = function () {
+        return this.roundTo( 0 );
     }
 
-    this.isVector = function () {
-        return __rows === 1 || __columns === 1;
+    this.roundTo = function (precision) {
+        return Matrix.roundTo( this, precision );
+    }
+
+    this.abs = function () {
+        return Matrix.abs( this );
+    }
+
+    /**
+     * Get the diagonal of the matrix.
+     * @param {Number} [k=0] Specified which diagonal to return, i.e. 1 for the first upper secondary diagonal.
+     * @returns {Number[]} Diagonal of the matrix.
+     */
+    this.diag = function (k) {
+        k = k || 0;
+
+        var diag = [],
+            rowOffset = -Math.min( k, 0 ),
+            columnOffset = Math.max( k, 0 ),
+            endOfLoop = (rowOffset === 0 ) ? (__columns - columnOffset) : (__rows - rowOffset);
+
+        if( endOfLoop <= 0 ) {
+            throw new TypeError( 'Matrix does not have that many diagonals.' );
+        }
+
+        for( var i = 1; i <= endOfLoop; i++ ) {
+            diag.push( this.get( i + rowOffset, i + columnOffset ) );
+        }
+
+        return diag;
     }
 
     /**
@@ -203,6 +231,19 @@ function Matrix () {
         throw new TypeError( 'Invalid parameter(s).' );
     }
 
+    /**
+     * Returns the dominant dimension, i.e. the bigger one of row and column dimension.
+     * @returns {number} Dominant dimension.
+     */
+    this.getDominantDimension = function () {
+        return Math.max( __rows, __columns );
+    }
+
+    /**
+     * Get a row from the matrix as an array.
+     * @param {Number} row The row index of the row that shall be returned
+     * @returns {Array} Array of the elements in the specified row.
+     */
     this.getRow = function (row) {
         if( row < 1 || row > __rows ) {
             throw new TypeError( 'Invalid row index.' );
@@ -217,6 +258,12 @@ function Matrix () {
         return elements;
     }
 
+    /**
+     * Replace a row in the matrix with a new one.
+     * @param {Number} row The row index of the row to replace
+     * @param {Array} elements An array containing the new entries for the row
+     * @returns {*}
+     */
     this.setRow = function (row, elements) {
         if( row < 1 || row > __rows ) {
             throw new TypeError( 'Invalid row index.' );
@@ -232,6 +279,11 @@ function Matrix () {
         return this;
     }
 
+    /**
+     * Get a column from the matrix as an array.
+     * @param {Number} column The column index of the column that shall be returned
+     * @returns {Array} Array of the elements in the specified column.
+     */
     this.getColumn = function (column) {
         if( column < 1 || column > __columns ) {
             throw new TypeError( 'Invalid column index.' );
@@ -246,6 +298,12 @@ function Matrix () {
         return elements;
     }
 
+    /**
+     * Replace a column in the matrix with a new one.
+     * @param {Number} column The column index of the column to replace
+     * @param {Array} elements An array containing the new entries for the column
+     * @returns {*}
+     */
     this.setColumn = function (column, elements) {
         if( column < 1 || column > __columns ) {
             throw new TypeError( 'Invalid column index.' );
@@ -264,81 +322,40 @@ function Matrix () {
     }
 
     /**
-     * Get the diagonal of the matrix.
-     * @param {Number} [k=0] Specified which diagonal to return, i.e. 1 for the first upper secondary diagonal.
-     * @returns {Number[]} Diagonal of the matrix.
+     * Returns whether the matrix is square.
+     * @returns {boolean} True if row and column dimensions equal, false otherwise.
      */
-    this.diag = function (k) {
-        k = k || 0;
-
-        var diag = [],
-            rowOffset = -Math.min( k, 0 ),
-            columnOffset = Math.max( k, 0 ),
-            endOfLoop = (rowOffset === 0 ) ? (__columns - columnOffset) : (__rows - rowOffset);
-
-        if( endOfLoop <= 0 ) {
-            throw new TypeError( 'Matrix does not have that many diagonals.' );
-        }
-
-        for( var i = 1; i <= endOfLoop; i++ ) {
-            diag.push( this.get( i + rowOffset, i + columnOffset ) );
-        }
-
-        return diag;
+    this.isSquare = function () {
+        return __rows === __columns;
     }
 
-    this.round = function () {
-        return this.roundTo( 0 );
+    /**
+     * Returns whether the matrix is a vector.
+     * @returns {boolean} True if at least one dimension is 1, false otherwise.
+     */
+    this.isVector = function () {
+        return __rows === 1 || __columns === 1;
     }
 
-    this.roundTo = function (precision) {
-        return Matrix.roundTo( this, precision );
-    }
-
-    this.abs = function () {
-        return Matrix.abs( this );
-    }
-
-    this.__convertToIndex = function (row, column) {
-        return __columns * (row - 1) + column - 1;
-    }
-
-    this.__getElement = function (i) {
-        return __elements[i] || 0;
-    }
-
-    this.__getElements = function () {
-        return __elements;
-    }
-
-    this.__setElements = function (elements) {
-        if( __elements.length !== 0 && __elements.length !== elements.length ) {
-            throw new TypeError( 'Invalid number of elements. The size of a matrix cannot be changed afterwards.' );
-        }
-
-        __elements = elements;
-
-        return this;
-    }
-
-    this.__isNumber = function (k) {
-        return typeof k === 'number';
-    }
-
-    this.__isInteger = function (k) {
-        return this.__isNumber( k ) && (k | 0) === k;
-    }
-
-    this.getDominantDimension = function () {
-        return Math.max( __rows, __columns );
-    }
-
+    /**
+     * Returns a copy of the matrix (and not just a reference).
+     * @returns {Matrix} Actual copy of the matrix.
+     */
     this.copy = function () {
         // TODO can be shortened when constructor is capable of more
         return new Matrix( __rows, __columns ).__setElements( [].slice.call( __elements ) );
     }
 
+    /**
+     * Search the matrix for a certain value.
+     * @param {Number} needle Value to look for
+     * @returns {boolean}
+     */
     this.contains = function (needle) {
+        if( !this.__isNumber( needle ) ) {
+            throw new TypeError( 'Parameter is not a number.' );
+        }
+
         if( needle !== 0 ) {
             return __elements.indexOf( needle ) !== -1;
         } else {
@@ -352,13 +369,18 @@ function Matrix () {
         }
     }
 
+    /**
+     * Check whether the matrix is the same as another one.
+     * @param {Matrix} M Matrix to compare against
+     * @returns {boolean}
+     */
     this.equals = function (M) {
         if( M.dim( 1 ) !== __rows || M.dim( 2 ) !== __columns ) {
             return false;
         }
 
-        for( var i = 0; i < this.getLength(); i++ ) {
-            if( this.__getElement( i ) !== M.__getElement( i ) ) {
+        for( var i = 1; i <= this.getLength(); i++ ) {
+            if( this.get( i ) !== M.get( i ) ) {
                 return false;
             }
         }
@@ -366,23 +388,69 @@ function Matrix () {
         return true;
     }
 
-    this.toString = function () {
+    /**
+     * Return a string representation of the matrix.
+     * @param {String} [rowSeparator='\r\n'] Delimiter between rows
+     * @param {String} [columnSeparator='\t'] Delimiter between columns
+     * @returns {string}
+     */
+    this.toString = function (rowSeparator, columnSeparator) {
+        rowSeparator = rowSeparator || '\r\n';
+        columnSeparator = columnSeparator || '\t';
+
         var str = '';
         for( var i = 1; i <= __rows; i++ ) {
             for( var j = 1; j <= __columns; j++ ) {
                 str += this.get( i, j );
 
                 if( j !== __columns ) {
-                    str += '\t';
+                    str += columnSeparator;
                 }
             }
 
             if( i !== __rows ) {
-                str += '\r\n';
+                str += rowSeparator;
             }
         }
 
         return str;
+    }
+
+    /**
+     * Converts a position in the matrix into its internal linear representation.
+     * @private
+     */
+    this.__convertToIndex = function (row, column) {
+        return __columns * (row - 1) + column - 1;
+    }
+
+    /**
+     * Return the internal array containing the elements.
+     * @private
+     */
+    this.__getElements = function () {
+        return __elements;
+    }
+
+    /**
+     * Set the internal array.
+     * @private
+     */
+    this.__setElements = function (elements) {
+        if( __elements.length !== 0 && __elements.length !== elements.length ) {
+            throw new TypeError( 'Invalid number of elements. The size of a matrix cannot be changed afterwards.' );
+        }
+
+        __elements = elements;
+        return this;
+    }
+
+    this.__isNumber = function (k) {
+        return typeof k === 'number';
+    }
+
+    this.__isInteger = function (k) {
+        return this.__isNumber( k ) && (k | 0) === k;
     }
 
 
@@ -462,9 +530,9 @@ Matrix.add = function (A, B) {
     var Result = new Matrix( A.dim( 1 ), A.dim( 2 ) ),
         elementsResult = [];
 
-    for( var i = 0; i < A.getLength(); i++ ) {
-        if( A.__getElement( i ) !== 0 && B.__getElement( i ) !== 0 ) {
-            elementsResult[i] = A.__getElement( i ) + B.__getElement( i );
+    for( var i = 1; i <= A.getLength(); i++ ) {
+        if( A.get( i ) !== 0 && B.get( i ) !== 0 ) {
+            elementsResult[i - 1] = A.get( i ) + B.get( i );
         }
     }
 
