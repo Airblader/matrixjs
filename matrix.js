@@ -8,7 +8,28 @@
  */
 
 /**
- * Creates a new Matrix
+ * Creates a new Matrix.
+ * There is a number of different signatures for the parameter(s) to define the matrix:
+ *  - Use one number n to create a n-by-n matrix filled with zeros.
+ *    Example:
+ *      new Matrix( 3 );
+ *  - Use two numbers m, n to create a m-by-n matrix filled with zeros.
+ *    Example:
+ *      new Matrix( 2, 3 );
+ *  - Use an array of arrays, wherein the inner arrays represent entire rows.
+ *    Example:
+ *      new Matrix( [
+ *          [1,2,3],
+ *          [4,5,6]
+ *      ] );
+ *  - Use an array of numbers defining the elements from left to right, top to bottom. If no other argument
+ *    is given, the matrix will be assumed to be square. Alternatively, pass two arguments to specify the row and
+ *    column dimension of the matrix. If either one is null/undefined, it will be computed from the other one.
+ *    Examples:
+ *      new Matrix( [1, 2, 3, 4, 5, 6, 7, 8, 9] );
+ *      new Matrix( [1, 2, 3, 4, 5, 6], 2, 3 );
+ *      new Matrix( [1, 2, 3, 4, 5, 6], 2 );
+ *      new Matrix( [1, 2, 3, 4, 5, 6], null, 3 );
  * @constructor
  */
 function Matrix () {
