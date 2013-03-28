@@ -117,6 +117,31 @@ new Test( function (identifier) {
 }, 'Create Matrix 5' );
 
 new Test( function (identifier) {
+    assertMatrix( new Matrix( [1, 0, 0, 0, 1, 0, 0, 0, 1] ), Matrix.eye( 3 ) );
+}, 'Create Matrix 6' );
+
+new Test( function (identifier) {
+    assertMatrix( new Matrix( [1, 2, 3, 4, 5, 6], 2, 3 ), new Matrix( [
+        [1, 2, 3],
+        [4, 5, 6]
+    ] ) );
+}, 'Create Matrix 7' );
+
+new Test( function (identifier) {
+    assertMatrix( new Matrix( [1, 2, 3, 4, 5, 6], 2 ), new Matrix( [
+        [1, 2, 3],
+        [4, 5, 6]
+    ] ) );
+}, 'Create Matrix 8' );
+
+new Test( function (identifier) {
+    assertMatrix( new Matrix( [1, 2, 3, 4, 5, 6], null, 3 ), new Matrix( [
+        [1, 2, 3],
+        [4, 5, 6]
+    ] ) );
+}, 'Create Matrix 9' );
+
+new Test( function (identifier) {
     assertEquals( Matrix.zeros( 3 ).get( 2, 3 ), 0 );
 }, 'Set/Get Single Element 1' );
 
@@ -127,7 +152,7 @@ new Test( function (identifier) {
     M.set( 3, 3, 3 );
     M.set( 2, 3, 7 );
 
-    assertMatrix( M, Matrix.arrayToMatrix( [1, 0, 0, 0, 2, 7, 0, 0, 3] ) );
+    assertMatrix( M, new Matrix( [1, 0, 0, 0, 2, 7, 0, 0, 3] ) );
 
     assertEquals( M.get( 1, 1 ), 1 );
     assertEquals( M.get( 2, 2 ), 2 );
@@ -158,7 +183,7 @@ new Test( function (identifier) {
 }, 'Set/Get Rows/Columns 1' );
 
 new Test( function (identifier) {
-    var M = Matrix.arrayToMatrix( [1, 2, 3, 4, 5, 6, 7, 8, 9] );
+    var M = new Matrix( [1, 2, 3, 4, 5, 6, 7, 8, 9] );
 
     assertArray( M.getRow( 1 ), [1, 2, 3] );
     assertArray( M.getRow( 2 ), [4, 5, 6] );
@@ -172,7 +197,7 @@ new Test( function (identifier) {
 new Test( function (identifier) {
     var A = new Matrix( 3 ),
         B = new Matrix( 3 ),
-        M = Matrix.arrayToMatrix( [1, 2, 3, 4, 5, 6, 7, 8, 9] );
+        M = new Matrix( [1, 2, 3, 4, 5, 6, 7, 8, 9] );
 
     A.setRow( 1, [1, 2, 3] );
     A.setRow( 2, [4, 5, 6] );
@@ -191,8 +216,8 @@ new Test( function (identifier) {
 }, 'Add/Subtract Matrices 1' );
 
 new Test( function (identifier) {
-    var A = Matrix.arrayToMatrix( [1, 2, 3, 4, 5, 6, 7, 8, 9] ),
-        B = Matrix.arrayToMatrix( [9, 8, 7, 6, 5, 4, 3, 2, 1] );
+    var A = new Matrix( [1, 2, 3, 4, 5, 6, 7, 8, 9] ),
+        B = new Matrix( [9, 8, 7, 6, 5, 4, 3, 2, 1] );
 
     assertMatrix( A.add( A ), A.scale( 2 ) );
     assertMatrix( A.add( B ), Matrix.ones( 3 ).scale( 10 ) );
@@ -217,18 +242,18 @@ new Test( function (identifier) {
 }, 'Multiply 1' );
 
 new Test( function (identifier) {
-    var A = Matrix.arrayToMatrix( [1, 2, 1, 2, 3, 2, 3, 4, 3] ),
-        B = Matrix.arrayToMatrix( [1, 0, 1, 2, 1, 2, 3, 2, 3] );
+    var A = new Matrix( [1, 2, 1, 2, 3, 2, 3, 4, 3] ),
+        B = new Matrix( [1, 0, 1, 2, 1, 2, 3, 2, 3] );
 
-    assertMatrix( A.multiply( B ), Matrix.arrayToMatrix( [8, 4, 8, 14, 7, 14, 20, 10, 20] ) );
-    assertMatrix( B.multiply( A ), Matrix.arrayToMatrix( [4, 6, 4, 10, 15, 10, 16, 24, 16] ) );
+    assertMatrix( A.multiply( B ), new Matrix( [8, 4, 8, 14, 7, 14, 20, 10, 20] ) );
+    assertMatrix( B.multiply( A ), new Matrix( [4, 6, 4, 10, 15, 10, 16, 24, 16] ) );
 }, 'Multiply 2' );
 
 new Test( function (identifier) {
-    var A = Matrix.arrayToMatrix( [1, 2, 3, 4, 5, 6], 2, 3 ),
-        B = Matrix.arrayToMatrix( [1, 2, 3, 4, 5, 6], 3, 2 );
+    var A = new Matrix( [1, 2, 3, 4, 5, 6], 2, 3 ),
+        B = new Matrix( [1, 2, 3, 4, 5, 6], 3, 2 );
 
-    assertMatrix( A.multiply( B ), Matrix.arrayToMatrix( [22, 28, 49, 64], 2, 2 ) );
+    assertMatrix( A.multiply( B ), new Matrix( [22, 28, 49, 64], 2, 2 ) );
 }, 'Multiply 3' );
 
 new Test( function (identifier) {
@@ -250,13 +275,13 @@ new Test( function (identifier) {
 }, 'Transpose 2' );
 
 new Test( function (identifier) {
-    assertMatrix( Matrix.arrayToMatrix( [1, 2, 3, 4, 5, 6, 7, 8, 9] ).transpose(),
-        Matrix.arrayToMatrix( [1, 4, 7, 2, 5, 8, 3, 6, 9] ) );
+    assertMatrix( new Matrix( [1, 2, 3, 4, 5, 6, 7, 8, 9] ).transpose(),
+        new Matrix( [1, 4, 7, 2, 5, 8, 3, 6, 9] ) );
 }, 'Transpose 3' );
 
 new Test( function (identifier) {
-    assertMatrix( Matrix.arrayToMatrix( [1, 2, 3, 4, 5, 6], 2, 3 ).transpose(),
-        Matrix.arrayToMatrix( [1, 4, 2, 5, 3, 6], 3, 2 ) );
+    assertMatrix( new Matrix( [1, 2, 3, 4, 5, 6], 2, 3 ).transpose(),
+        new Matrix( [1, 4, 2, 5, 3, 6], 3, 2 ) );
 }, 'Transpose 4' );
 
 new Test( function (identifier) {
@@ -264,11 +289,11 @@ new Test( function (identifier) {
 }, 'Determinant 1' );
 
 new Test( function (identifier) {
-    assertEquals( Matrix.arrayToMatrix( [1, 2, 3, 1, 1, 1, 3, 3, 1], 3, 3 ).det(), 2 );
+    assertEquals( new Matrix( [1, 2, 3, 1, 1, 1, 3, 3, 1], 3, 3 ).det(), 2 );
 }, 'Determinant 2' );
 
 new Test( function (identifier) {
-    assertEquals( Matrix.arrayToMatrix( [1, 2, 3, 3, 2, 1, 2, 1, 3], 3, 3 ).det(), -12 );
+    assertEquals( new Matrix( [1, 2, 3, 3, 2, 1, 2, 1, 3], 3, 3 ).det(), -12 );
 }, 'Determinant 3' );
 
 new Test( function (identifier) {
@@ -293,8 +318,8 @@ new Test( function (identifier) {
 }, 'Inverse 2' );
 
 new Test( function (identifier) {
-    assertMatrix( Matrix.arrayToMatrix( [4, 7, 2, 6], 2, 2 ).inverse(),
-        Matrix.arrayToMatrix( [0.6, -0.7, -0.2, 0.4], 2, 2 ) );
+    assertMatrix( new Matrix( [4, 7, 2, 6], 2, 2 ).inverse(),
+        new Matrix( [0.6, -0.7, -0.2, 0.4], 2, 2 ) );
 }, 'Inverse 3' );
 
 new Test( function (identifier) {
@@ -315,10 +340,10 @@ new Test( function (identifier) {
 }, 'Submatrix 1' );
 
 new Test( function (identifier) {
-    var M = Matrix.arrayToMatrix( [1, 2, 3, 3, 2, 1, 2, 1, 3], 3, 3 );
+    var M = new Matrix( [1, 2, 3, 3, 2, 1, 2, 1, 3], 3, 3 );
 
     assertMatrix( Matrix.submatrix( M, 1, 3, 1, 3 ), M );
-    assertMatrix( Matrix.submatrix( M, 2, 3, 2, 3 ), Matrix.arrayToMatrix( [2, 1, 1, 3], 2, 2 ) );
+    assertMatrix( Matrix.submatrix( M, 2, 3, 2, 3 ), new Matrix( [2, 1, 1, 3], 2, 2 ) );
 }, 'Submatrix 2' );
 
 new Test( function (identifier) {

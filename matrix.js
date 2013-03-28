@@ -16,31 +16,6 @@ function Matrix () {
         __rows, __columns,
         __elements = [];
 
-    if( args.length === 1 && args[0] instanceof Array ) {
-        __rows = args[0].length;
-        __columns = -1;
-
-        for( var i = 0; i < args[0].length; i++ ) {
-            if( args[0][i].length !== __columns && __columns !== -1 ) {
-                throw new TypeError( 'Invalid parameters.' );
-            }
-            __columns = Math.max( __columns, args[0][i].length );
-
-            for( var j = 0; j < args[0][i].length; j++ ) {
-                __elements.push( args[0][i][j] );
-            }
-        }
-    } else if( args.length === 1 ) {
-        __rows = args[0];
-        __columns = args[0];
-    } else if( args.length === 2 ) {
-        __rows = args[0];
-        __columns = args[1];
-    } else {
-        throw new TypeError( 'Invalid parameters.' );
-    }
-
-
     this.add = function (M) {
         return Matrix.add( this, M );
     }
@@ -54,7 +29,7 @@ function Matrix () {
     }
 
     this.multiply = function (M) {
-        return (typeof M === 'number') ? this.scale( M ) : Matrix.multiply( this, M );
+        return (this.__isNumber( M )) ? this.scale( M ) : Matrix.multiply( this, M );
     }
 
     this.mult = function (M) {
@@ -325,6 +300,14 @@ function Matrix () {
         return this;
     }
 
+    this.__isNumber = function (k) {
+        return typeof k === 'number';
+    }
+
+    this.__isInteger = function (k) {
+        return this.__isNumber( k ) && (k | 0) === k;
+    }
+
     this.getDominantDimension = function () {
         return Math.max( __rows, __columns );
     }
@@ -379,6 +362,57 @@ function Matrix () {
         }
 
         return str;
+    }
+
+
+    // Constructor
+
+    if( args.length === 1 && args[0] instanceof Array && args[0].length !== 0 && args[0][0] instanceof Array ) {
+        __rows = args[0].length;
+        __columns = -1;
+
+        for( var i = 0; i < args[0].length; i++ ) {
+            if( args[0][i].length !== __columns && __columns !== -1 ) {
+                throw new TypeError( 'Invalid parameters.' );
+            }
+            __columns = Math.max( __columns, args[0][i].length );
+
+            for( var j = 0; j < args[0][i].length; j++ ) {
+                __elements.push( args[0][i][j] );
+            }
+        }
+    } else if( args.length >= 1 && args.length <= 3
+        && args[0] instanceof Array && args[0].length !== 0 && this.__isNumber( args[0][0] ) ) {
+
+        __elements = args[0];
+        var rows = args[1],
+            columns = args[2];
+
+        if( !rows && !columns ) {
+            var dim = Math.sqrt( __elements.length );
+
+            rows = dim;
+            columns = dim;
+        } else if( !rows && typeof this.__isInteger( columns ) ) {
+            rows = __elements.length / columns;
+        } else if( typeof rows === 'number' && !columns ) {
+            columns = __elements.length / rows;
+        }
+
+        if( !this.__isInteger( rows ) || !this.__isInteger( columns ) ) {
+            throw new TypeError( 'Array has to represent a square matrix or the size has to be specified.' );
+        }
+
+        __rows = rows;
+        __columns = columns;
+    } else if( args.length === 1 && this.__isInteger( args[0] ) ) {
+        __rows = args[0];
+        __columns = args[0];
+    } else if( args.length === 2 && this.__isInteger( args[0] ) && this.__isInteger( args[1] ) ) {
+        __rows = args[0];
+        __columns = args[1];
+    } else {
+        throw new TypeError( 'Invalid parameters.' );
     }
 
     return this;
@@ -847,36 +881,4 @@ Matrix.diag = function (elements, k) {
     }
 
     return Result;
-}
-
-/**
- * Creates and returns a matrix from an array of elements.
- * If no size arguments (rows, columns) are given and the number of elements is a square number, a square matrix
- * will be created.
- * @param {Number[]} elements Array of elements, wherein the elements are listed from left to right, top to bottom.
- * @param {Number} rows Number of rows
- * @param {Number} columns Number of columns
- * @returns {Matrix} A new matrix containing the given elements as entries.
- * @deprecated
- */
-Matrix.arrayToMatrix = function (elements, rows, columns) {
-    if( !rows && !columns ) {
-        var sqrtNumberOfElements = Number( Math.sqrt( elements.length ) );
-        if( ( sqrtNumberOfElements | 0 ) !== sqrtNumberOfElements ) {
-            throw new TypeError( 'Number of elements is not a square number.' );
-        } else {
-            rows = sqrtNumberOfElements;
-            columns = sqrtNumberOfElements;
-        }
-    } else if( !rows && typeof columns === 'number' ) {
-        rows = Number( elements.length / columns );
-    } else if( typeof rows === 'number' && !columns ) {
-        columns = Number( elements.length / rows );
-    }
-
-    if( ( rows | 0 ) !== rows || ( columns | 0 ) !== columns ) {
-        throw new TypeError( 'Array has to represent a square matrix or the size has to be specified.' );
-    }
-
-    return new Matrix( rows, columns ).__setElements( elements );
 }
