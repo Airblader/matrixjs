@@ -97,6 +97,40 @@ function Matrix () {
         return Matrix.abs( this );
     };
 
+    this.addRow = function (elements) {
+        // TODO : allow specifying an index
+        return Matrix.addRow( this, elements );
+    };
+
+    this.addColumn = function (elements) {
+        // TODO : allow specifying an index
+        return Matrix.addColumn( this, elements );
+    };
+
+    this.isSquare = function () {
+        return Matrix.isSquare( this );
+    };
+
+    this.isVector = function () {
+        return Matrix.isVector( this );
+    };
+
+    this.copy = function () {
+        return Matrix.copy( this );
+    };
+
+    this.contains = function (needle, precision) {
+        return Matrix.contains( this, needle, precision );
+    };
+
+    this.equals = function (M) {
+        return Matrix.equals( this, M );
+    };
+
+    this.toString = function (rowSeparator, columnSeparator) {
+        return Matrix.toString( this, rowSeparator, columnSeparator );
+    };
+
     /**
      * Get the diagonal of the matrix.
      * @param {Number} [k=0] Specified which diagonal to return, i.e. 1 for the first upper secondary diagonal.
@@ -183,57 +217,6 @@ function Matrix () {
     };
 
     /**
-     * Returns the number of elements in the matrix.
-     * @returns {number}
-     * @override
-     */
-    this.length = function () {
-        return __rows * __columns;
-    };
-
-    /**
-     * Get the dimensions of the matrix.
-     * @returns {{rows: Number, columns: Number}} Object containing the number of rows/columns in the matrix.
-     */
-    this.getDimensions = function () {
-        return {
-            rows: __rows,
-            columns: __columns
-        };
-    };
-
-    /**
-     * Get the dimensions of the matrix.
-     * Without any arguments, this is a short-hand notation for Matrix.prototype.getDimensions(). Other arguments are:
-     *  - 1 or 'rows' : Number of rows
-     *  - 2 or 'columns' : Number of columns
-     *  - 'max' : Dominant dimension
-     *  - 'min' : Smaller dimension
-     * @returns {{rows: Number, columns: Number}|Number} Object with the dimensions of requested dimension or just
-     * the requested dimension.
-     */
-    this.dim = function () {
-        var dim = this.getDimensions();
-
-        if( arguments.length === 0 ) {
-            return dim;
-        } else if( arguments.length === 1 ) {
-            var requestedDim = arguments[0];
-            if( requestedDim === 1 || requestedDim === 'rows' ) {
-                return dim.rows;
-            } else if( requestedDim === 2 || requestedDim === 'columns' ) {
-                return dim.columns;
-            } else if( requestedDim === 'max' ) {
-                return Math.max( __rows, __columns );
-            } else if( requestedDim === 'min' ) {
-                return Math.min( __rows, __columns );
-            }
-        }
-
-        throw new TypeError( 'Invalid parameter(s).' );
-    };
-
-    /**
      * Get a row from the matrix as an array.
      * @param {Number} row The row index of the row that shall be returned
      * @returns {Number[]} Array of the elements in the specified row.
@@ -315,38 +298,55 @@ function Matrix () {
         return this;
     };
 
-    this.addRow = function (elements) {
-        // TODO : allow specifying an index
-        return Matrix.addRow( this, elements );
+    /**
+     * Returns the number of elements in the matrix.
+     * @returns {number}
+     * @override
+     */
+    this.length = function () {
+        return __rows * __columns;
     };
 
-    this.addColumn = function (elements) {
-        // TODO : allow specifying an index
-        return Matrix.addColumn( this, elements );
+    /**
+     * Get the dimensions of the matrix.
+     * @returns {{rows: Number, columns: Number}} Object containing the number of rows/columns in the matrix.
+     */
+    this.getDimensions = function () {
+        return {
+            rows: __rows,
+            columns: __columns
+        };
     };
 
-    this.isSquare = function () {
-        return Matrix.isSquare( this );
-    };
+    /**
+     * Get the dimensions of the matrix.
+     * Without any arguments, this is a short-hand notation for Matrix.prototype.getDimensions(). Other arguments are:
+     *  - 1 or 'rows' : Number of rows
+     *  - 2 or 'columns' : Number of columns
+     *  - 'max' : Dominant dimension
+     *  - 'min' : Smaller dimension
+     * @returns {{rows: Number, columns: Number}|Number} Object with the dimensions of requested dimension or just
+     * the requested dimension.
+     */
+    this.dim = function () {
+        var dim = this.getDimensions();
 
-    this.isVector = function () {
-        return Matrix.isVector( this );
-    };
+        if( arguments.length === 0 ) {
+            return dim;
+        } else if( arguments.length === 1 ) {
+            var requestedDim = arguments[0];
+            if( requestedDim === 1 || requestedDim === 'rows' ) {
+                return dim.rows;
+            } else if( requestedDim === 2 || requestedDim === 'columns' ) {
+                return dim.columns;
+            } else if( requestedDim === 'max' ) {
+                return Math.max( __rows, __columns );
+            } else if( requestedDim === 'min' ) {
+                return Math.min( __rows, __columns );
+            }
+        }
 
-    this.copy = function () {
-        return Matrix.copy( this );
-    };
-
-    this.contains = function (needle, precision) {
-        return Matrix.contains( this, needle, precision );
-    };
-
-    this.equals = function (M) {
-        return Matrix.equals( this, M );
-    };
-
-    this.toString = function (rowSeparator, columnSeparator) {
-        return Matrix.toString( this, rowSeparator, columnSeparator );
+        throw new TypeError( 'Invalid parameter(s).' );
     };
 
     this.__convertToIndex = function (row, column) {
