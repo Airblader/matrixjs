@@ -131,7 +131,7 @@ function Matrix () {
         if( arguments.length === 1 ) {
             var index = arguments[0];
 
-            if( index < 1 || index > this.getLength() ) {
+            if( index < 1 || index > this.length() ) {
                 throw new TypeError( 'Cannot access element at index ' + index );
             }
 
@@ -163,7 +163,7 @@ function Matrix () {
             index = arguments[0];
             value = arguments[1];
 
-            if( index < 1 || index > this.getLength() ) {
+            if( index < 1 || index > this.length() ) {
                 throw new TypeError( 'Cannot access element at index ' + index );
             }
 
@@ -191,10 +191,11 @@ function Matrix () {
     };
 
     /**
-     * Get the number of elements in the matrix.
-     * @returns {Number} Number of elements (number of rows times number of columns).
+     * Returns the number of elements in the matrix.
+     * @returns {number}
+     * @override
      */
-    this.getLength = function () {
+    this.length = function () {
         return __rows * __columns;
     };
 
@@ -368,7 +369,7 @@ function Matrix () {
         if( needle !== 0 ) {
             return __elements.indexOf( needle ) !== -1;
         } else {
-            for( var i = 1; i <= this.getLength(); i++ ) {
+            for( var i = 1; i <= this.length(); i++ ) {
                 if( this.get( i ) === 0 ) {
                     return true;
                 }
@@ -388,7 +389,7 @@ function Matrix () {
             return false;
         }
 
-        for( var i = 1; i <= this.getLength(); i++ ) {
+        for( var i = 1; i <= this.length(); i++ ) {
             if( this.get( i ) !== M.get( i ) ) {
                 return false;
             }
@@ -539,7 +540,7 @@ Matrix.add = function (A, B) {
     var Result = new Matrix( A.dim( 1 ), A.dim( 2 ) ),
         elementsResult = [];
 
-    for( var i = 1; i <= A.getLength(); i++ ) {
+    for( var i = 1; i <= A.length(); i++ ) {
         if( A.get( i ) !== 0 && B.get( i ) !== 0 ) {
             elementsResult[i - 1] = A.get( i ) + B.get( i );
         }
@@ -580,7 +581,7 @@ Matrix.scale = function (A, k) {
     }
 
     var elementsA = Array.prototype.slice.call( A.__getElements() );
-    for( var i = 0; i < A.getLength(); i++ ) {
+    for( var i = 0; i < A.length(); i++ ) {
         if( elementsA[i] ) {
             elementsA[i] = k * elementsA[i];
         }
@@ -888,7 +889,7 @@ Matrix.abs = function (M) {
     var Result = M.copy(),
         elements = Result.__getElements();
 
-    for( var i = 0; i < M.getLength(); i++ ) {
+    for( var i = 0; i < M.length(); i++ ) {
         if( elements[i] ) {
             elements[i] = Math.abs( elements[i] );
         }
