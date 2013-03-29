@@ -53,10 +53,6 @@ function Matrix () {
         return (this.__isNumber( M )) ? this.scale( M ) : Matrix.multiply( this, M );
     };
 
-    this.mult = function (M) {
-        return this.multiply( M );
-    };
-
     this.dot = function (M) {
         return Matrix.dot( this, M );
     };
