@@ -333,12 +333,8 @@ function Matrix () {
         return Matrix.isVector( this );
     };
 
-    /**
-     * Returns a copy of the matrix (and not just a reference).
-     * @returns {Matrix} Actual copy of the matrix.
-     */
     this.copy = function () {
-        return new Matrix( this.__getElements(), __rows, __columns );
+        return Matrix.copy( this );
     };
 
     this.contains = function (needle, precision) {
@@ -436,12 +432,31 @@ Matrix.__convertToIndex = function (M, row, column) {
     return M.dim( 2 ) * (row - 1) + column - 1;
 };
 
+/**
+ * Check if a matrix is a vector.
+ * @param {Matrix} M Matrix
+ * @returns {boolean} True if at least one dimension is 1.
+ */
 Matrix.isVector = function (M) {
     return M.dim( 'min' ) === 1;
 };
 
+/**
+ * Check if a matrix is a square matrix.
+ * @param {Matrix} M Matrix
+ * @returns {boolean} True if the number of rows and columns equal, false otherwise.
+ */
 Matrix.isSquare = function (M) {
     return M.dim( 1 ) === M.dim( 2 );
+};
+
+/**
+ * Return a copy of a matrix. This prevents accidental usage of references.
+ * @param M
+ * @returns {Matrix}
+ */
+Matrix.copy = function (M) {
+    return new Matrix( M.__getElements(), M.dim( 1 ), M.dim( 2 ) );
 };
 
 /**
