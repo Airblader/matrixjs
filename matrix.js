@@ -122,13 +122,15 @@ function Matrix () {
     };
 
     /**
-     * Get an element in the matrix.
-     * If called with one argument, the matrix will be accessed in a linear way (left to right, top to bottom).
-     * If called with two arguments i and j, it will return the (i,j)-th element.
-     * @returns {Number} Specified element of the matrix.
+     * Get an element from the matrix.
+     * If called with both arguments, the entry (row, column) will be returned. If called with only one argument,
+     * that argument will be mapped linearly (left to right, top to bottom).
+     * @param {Number} row Row index if column is set or linear index
+     * @param {Number} [column] Column index
+     * @returns {Number}
      */
-    this.get = function () {
-        if( arguments.length === 1 ) {
+    this.get = function (row, column) {
+        if( typeof column === 'undefined' ) {
             var index = arguments[0];
 
             if( index < 1 || index > this.length() ) {
@@ -136,55 +138,45 @@ function Matrix () {
             }
 
             return __elements[index - 1] || 0;
-        } else if( arguments.length === 2 ) {
-            var row = arguments[0],
-                column = arguments[1];
-
+        } else {
             if( row < 1 || column < 1 || row > __rows || column > __columns ) {
                 throw new TypeError( 'Cannot access element (' + row + ',' + column + ')' );
             }
 
             return __elements[this.__convertToIndex( row, column )] || 0;
-        } else {
-            throw new TypeError( 'Invalid number of arguments.' );
         }
     };
 
     /**
      * Set an element in the matrix.
-     * If called with two arguments, the first argument specifies the linear position of the entry (left to right,
-     * top to bottom) and the second the new value. If called with three arguments i, j and x, it will assign x to
-     * the (i,j)-th element.
+     * If called with all three arguments, the entry (row, column) will be set to value. If called with only two
+     * arguments, the first argument will be mapped linearly (left to right, top to bottom) and then be set
+     * to value.
+     * @param {Number} row Row index of column is set or linear index
+     * @param {Number} [column] Column index
+     * @param {Number} value Value to assign
+     * @returns {*}
      */
-    this.set = function () {
-        var index, value;
+    this.set = function (row, column, value) {
+        var index;
 
-        if( arguments.length === 2 ) {
-            index = arguments[0];
-            value = arguments[1];
+        if( typeof value === 'undefined' ) {
+            index = row - 1;
+            value = column;
 
-            if( index < 1 || index > this.length() ) {
+            if( index < 0 || index >= this.length() ) {
                 throw new TypeError( 'Cannot access element at index ' + index );
             }
-
-            if( value !== 0 ) {
-                __elements[index - 1] = value;
-            }
-        } else if( arguments.length === 3 ) {
-            var row = arguments[0],
-                column = arguments[1];
-            value = arguments[2];
-
+        } else {
             if( row < 1 || column < 1 || row > __rows || column > __columns ) {
                 throw new TypeError( 'Cannot access element (' + row + ',' + column + ')' );
             }
 
             index = this.__convertToIndex( row, column );
-            if( __elements[index] || value !== 0 ) {
-                __elements[index] = value;
-            }
-        } else {
-            throw new TypeError( 'Invalid number of arguments.' );
+        }
+
+        if( __elements[index] || value !== 0 ) {
+            __elements[index] = value;
         }
 
         return this;
@@ -610,6 +602,7 @@ Matrix.multiply = function (A, B) {
             for( var k = 1; k <= A.dim( 2 ); k++ ) {
                 temp += A.get( i, k ) * B.get( k, j );
             }
+
             Result.set( i, j, temp );
         }
     }
