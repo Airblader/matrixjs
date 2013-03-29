@@ -420,14 +420,23 @@ function Matrix () {
     return this;
 }
 
+/**
+ * @private
+ */
 Matrix.__isNumber = function (k) {
     return typeof k === 'number';
 };
 
+/**
+ * @private
+ */
 Matrix.__isInteger = function (k) {
     return Matrix.__isNumber( k ) && (k | 0) === k;
 };
 
+/**
+ * @private
+ */
 Matrix.__convertToIndex = function (M, row, column) {
     return M.dim( 2 ) * (row - 1) + column - 1;
 };
