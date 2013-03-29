@@ -316,10 +316,12 @@ function Matrix () {
     };
 
     this.addRow = function (elements) {
+        // TODO : allow specifying an index
         return Matrix.addRow( this, elements );
     };
 
     this.addColumn = function (elements) {
+        // TODO : allow specifying an index
         return Matrix.addColumn( this, elements );
     };
 
@@ -446,10 +448,16 @@ function Matrix () {
         return this;
     };
 
+    /**
+     * @deprecated
+     */
     this.__isNumber = function (k) {
         return typeof k === 'number';
     };
 
+    /**
+     * @deprecated
+     */
     this.__isInteger = function (k) {
         return this.__isNumber( k ) && (k | 0) === k;
     };
