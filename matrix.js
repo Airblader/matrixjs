@@ -204,8 +204,11 @@ function Matrix () {
 
     /**
      * Get the dimensions of the matrix.
-     * Without any arguments, this is a short-hand notation for <Matrix>.getDimensions(). If called with the argument
-     * 1 or 'rows', it returns the number of rows. If called with 2 or 'columns', it returns the number of columns.
+     * Without any arguments, this is a short-hand notation for Matrix.prototype.getDimensions(). Other arguments are:
+     *  - 1 or 'rows' : Number of rows
+     *  - 2 or 'columns' : Number of columns
+     *  - 'max' : Dominant dimension
+     *  - 'min' : Smaller dimension
      * @returns {{rows: Number, columns: Number}|Number} Object with the dimensions of requested dimension or just
      * the requested dimension.
      */
@@ -220,18 +223,14 @@ function Matrix () {
                 return dim.rows;
             } else if( requestedDim === 2 || requestedDim === 'columns' ) {
                 return dim.columns;
+            } else if( requestedDim === 'max' ) {
+                return Math.max( __rows, __columns );
+            } else if( requestedDim === 'min' ) {
+                return Math.min( __rows, __columns );
             }
         }
 
         throw new TypeError( 'Invalid parameter(s).' );
-    };
-
-    /**
-     * Returns the dominant dimension, i.e. the bigger one of row and column dimension.
-     * @returns {number} Dominant dimension.
-     */
-    this.getDominantDimension = function () {
-        return Math.max( __rows, __columns );
     };
 
     /**
@@ -834,8 +833,8 @@ Matrix.dot = function (A, B) {
         throw new TypeError( 'Parameter is not a vector.' );
     }
 
-    var dimA = A.getDominantDimension(),
-        dimB = B.getDominantDimension();
+    var dimA = A.dim( 'max' ),
+        dimB = B.dim( 'max' );
 
     if( dimA !== dimB ) {
         throw new TypeError( 'Dimensions do not match.' );
@@ -901,7 +900,7 @@ Matrix.abs = function (M) {
  * @returns {Matrix} The three-dimensional vector V = A x B.
  */
 Matrix.cross = function (A, B) {
-    if( !A.isVector() || !B.isVector() || A.getDominantDimension() !== 3 || B.getDominantDimension() !== 3 ) {
+    if( !A.isVector() || !B.isVector() || A.dim( 'max' ) !== 3 || B.dim( 'max' ) !== 3 ) {
         throw new TypeError( 'Parameters are not three-dimensional vectors.' );
     }
 
