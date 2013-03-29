@@ -353,23 +353,8 @@ function Matrix () {
         return Matrix.contains( this, needle, precision );
     };
 
-    /**
-     * Check whether the matrix is the same as another one.
-     * @param {Matrix} M Matrix to compare against
-     * @returns {boolean}
-     */
     this.equals = function (M) {
-        if( M.dim( 1 ) !== __rows || M.dim( 2 ) !== __columns ) {
-            return false;
-        }
-
-        for( var i = 1; i <= this.length(); i++ ) {
-            if( this.get( i ) !== M.get( i ) ) {
-                return false;
-            }
-        }
-
-        return true;
+        return Matrix.equals( this, M );
     };
 
     this.toString = function (rowSeparator, columnSeparator) {
@@ -952,6 +937,26 @@ Matrix.toString = function (M, rowSeparator, columnSeparator) {
     }
 
     return str;
+};
+
+/**
+ * Compare two matrices for equality.
+ * @param {Matrix} A Matrix
+ * @param {Matrix} B Matrix
+ * @returns {boolean} True if A = B, false otherwise.
+ */
+Matrix.equals = function (A, B) {
+    if( A.dim( 1 ) !== B.dim( 1 ) || A.dim( 2 ) !== B.dim( 2 ) ) {
+        return false;
+    }
+
+    for( var i = 1; i <= A.length(); i++ ) {
+        if( A.get( i ) !== B.get( i ) ) {
+            return false;
+        }
+    }
+
+    return true;
 };
 
 /**
