@@ -368,54 +368,55 @@ function Matrix () {
 
 
     // Constructor
+    (function () {
+        if( args.length === 1 && args[0] instanceof Array && args[0].length !== 0 && args[0][0] instanceof Array ) {
+            __rows = args[0].length;
+            __columns = -1;
 
-    if( args.length === 1 && args[0] instanceof Array && args[0].length !== 0 && args[0][0] instanceof Array ) {
-        __rows = args[0].length;
-        __columns = -1;
+            for( var i = 0; i < args[0].length; i++ ) {
+                if( args[0][i].length !== __columns && __columns !== -1 ) {
+                    throw new TypeError( 'Invalid parameters.' );
+                }
+                __columns = Math.max( __columns, args[0][i].length );
 
-        for( var i = 0; i < args[0].length; i++ ) {
-            if( args[0][i].length !== __columns && __columns !== -1 ) {
-                throw new TypeError( 'Invalid parameters.' );
+                for( var j = 0; j < args[0][i].length; j++ ) {
+                    __elements.push( args[0][i][j] );
+                }
             }
-            __columns = Math.max( __columns, args[0][i].length );
+        } else if( args.length >= 1 && args.length <= 3 && args[0] instanceof Array
+            && ( args[0].length === 0 || (args[0].length !== 0 && Matrix.__isNumber( args[0][0] ) ) ) ) {
 
-            for( var j = 0; j < args[0][i].length; j++ ) {
-                __elements.push( args[0][i][j] );
+            __elements = args[0];
+            var rows = args[1],
+                columns = args[2];
+
+            if( !rows && !columns ) {
+                var dim = Math.sqrt( __elements.length );
+
+                rows = dim;
+                columns = dim;
+            } else if( !rows && typeof Matrix.__isInteger( columns ) ) {
+                rows = __elements.length / columns;
+            } else if( typeof rows === 'number' && !columns ) {
+                columns = __elements.length / rows;
             }
+
+            if( !Matrix.__isInteger( rows ) || !Matrix.__isInteger( columns ) ) {
+                throw new TypeError( 'Array has to represent a square matrix or the size has to be specified.' );
+            }
+
+            __rows = rows;
+            __columns = columns;
+        } else if( args.length === 1 && Matrix.__isInteger( args[0] ) ) {
+            __rows = args[0];
+            __columns = args[0];
+        } else if( args.length === 2 && Matrix.__isInteger( args[0] ) && Matrix.__isInteger( args[1] ) ) {
+            __rows = args[0];
+            __columns = args[1];
+        } else {
+            throw new TypeError( 'Invalid parameters.' );
         }
-    } else if( args.length >= 1 && args.length <= 3 && args[0] instanceof Array
-        && ( args[0].length === 0 || (args[0].length !== 0 && Matrix.__isNumber( args[0][0] ) ) ) ) {
-
-        __elements = args[0];
-        var rows = args[1],
-            columns = args[2];
-
-        if( !rows && !columns ) {
-            var dim = Math.sqrt( __elements.length );
-
-            rows = dim;
-            columns = dim;
-        } else if( !rows && typeof Matrix.__isInteger( columns ) ) {
-            rows = __elements.length / columns;
-        } else if( typeof rows === 'number' && !columns ) {
-            columns = __elements.length / rows;
-        }
-
-        if( !Matrix.__isInteger( rows ) || !Matrix.__isInteger( columns ) ) {
-            throw new TypeError( 'Array has to represent a square matrix or the size has to be specified.' );
-        }
-
-        __rows = rows;
-        __columns = columns;
-    } else if( args.length === 1 && Matrix.__isInteger( args[0] ) ) {
-        __rows = args[0];
-        __columns = args[0];
-    } else if( args.length === 2 && Matrix.__isInteger( args[0] ) && Matrix.__isInteger( args[1] ) ) {
-        __rows = args[0];
-        __columns = args[1];
-    } else {
-        throw new TypeError( 'Invalid parameters.' );
-    }
+    })();
 
     return this;
 }
