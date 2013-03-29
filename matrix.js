@@ -39,63 +39,67 @@ function Matrix () {
 
     this.add = function (M) {
         return Matrix.add( this, M );
-    }
+    };
 
     this.subtract = function (M) {
         return Matrix.subtract( this, M );
-    }
+    };
 
     this.scale = function (k) {
         return Matrix.scale( this, k );
-    }
+    };
 
     this.multiply = function (M) {
         return (this.__isNumber( M )) ? this.scale( M ) : Matrix.multiply( this, M );
-    }
+    };
 
     this.mult = function (M) {
         return this.multiply( M );
-    }
+    };
 
     this.dot = function (M) {
         return Matrix.dot( this, M );
-    }
+    };
 
     this.cross = function (M) {
         return Matrix.cross( this, M );
-    }
+    };
 
     this.trace = function () {
         return Matrix.trace( this );
-    }
+    };
 
     this.transpose = function () {
         return Matrix.transpose( this );
-    }
+    };
 
     this.det = function () {
         return Matrix.det( this );
-    }
+    };
 
     this.inverse = function () {
         return Matrix.inverse( this );
-    }
+    };
+
+    this.augment = function (M) {
+        return Matrix.augment( this, M );
+    };
 
     this.submatrix = function (rowStart, rowEnd, columnStart, columnEnd) {
         return Matrix.submatrix( this, rowStart, rowEnd, columnStart, columnEnd );
-    }
+    };
 
     this.round = function () {
         return this.roundTo( 0 );
-    }
+    };
 
     this.roundTo = function (precision) {
         return Matrix.roundTo( this, precision );
-    }
+    };
 
     this.abs = function () {
         return Matrix.abs( this );
-    }
+    };
 
     /**
      * Get the diagonal of the matrix.
@@ -119,7 +123,7 @@ function Matrix () {
         }
 
         return diag;
-    }
+    };
 
     /**
      * Get an element in the matrix.
@@ -148,7 +152,7 @@ function Matrix () {
         } else {
             throw new TypeError( 'Invalid number of arguments.' );
         }
-    }
+    };
 
     /**
      * Set an element in the matrix.
@@ -157,9 +161,11 @@ function Matrix () {
      * the (i,j)-th element.
      */
     this.set = function () {
+        var index, value;
+
         if( arguments.length === 2 ) {
-            var index = arguments[0],
-                value = arguments[1];
+            index = arguments[0];
+            value = arguments[1];
 
             if( index < 1 || index > this.getLength() ) {
                 throw new TypeError( 'Cannot access element at index ' + index );
@@ -170,14 +176,14 @@ function Matrix () {
             }
         } else if( arguments.length === 3 ) {
             var row = arguments[0],
-                column = arguments[1],
-                value = arguments[2];
+                column = arguments[1];
+            value = arguments[2];
 
             if( row < 1 || column < 1 || row > __rows || column > __columns ) {
                 throw new TypeError( 'Cannot access element (' + row + ',' + column + ')' );
             }
 
-            var index = this.__convertToIndex( row, column );
+            index = this.__convertToIndex( row, column );
             if( __elements[index] || value !== 0 ) {
                 __elements[index] = value;
             }
@@ -186,7 +192,7 @@ function Matrix () {
         }
 
         return this;
-    }
+    };
 
     /**
      * Get the number of elements in the matrix.
@@ -194,7 +200,7 @@ function Matrix () {
      */
     this.getLength = function () {
         return __rows * __columns;
-    }
+    };
 
     /**
      * Get the dimensions of the matrix.
@@ -205,7 +211,7 @@ function Matrix () {
             rows: __rows,
             columns: __columns
         };
-    }
+    };
 
     /**
      * Get the dimensions of the matrix.
@@ -229,7 +235,7 @@ function Matrix () {
         }
 
         throw new TypeError( 'Invalid parameter(s).' );
-    }
+    };
 
     /**
      * Returns the dominant dimension, i.e. the bigger one of row and column dimension.
@@ -237,12 +243,12 @@ function Matrix () {
      */
     this.getDominantDimension = function () {
         return Math.max( __rows, __columns );
-    }
+    };
 
     /**
      * Get a row from the matrix as an array.
      * @param {Number} row The row index of the row that shall be returned
-     * @returns {Array} Array of the elements in the specified row.
+     * @returns {Number[]} Array of the elements in the specified row.
      */
     this.getRow = function (row) {
         if( row < 1 || row > __rows ) {
@@ -256,12 +262,12 @@ function Matrix () {
         }
 
         return elements;
-    }
+    };
 
     /**
      * Replace a row in the matrix with a new one.
      * @param {Number} row The row index of the row to replace
-     * @param {Array} elements An array containing the new entries for the row
+     * @param {Number[]} elements An array containing the new entries for the row
      * @returns {*}
      */
     this.setRow = function (row, elements) {
@@ -277,12 +283,12 @@ function Matrix () {
         __elements.splice.apply( __elements, [this.__convertToIndex( row, 1 ), __columns].concat( elements ) );
 
         return this;
-    }
+    };
 
     /**
      * Get a column from the matrix as an array.
      * @param {Number} column The column index of the column that shall be returned
-     * @returns {Array} Array of the elements in the specified column.
+     * @returns {Number[]} Array of the elements in the specified column.
      */
     this.getColumn = function (column) {
         if( column < 1 || column > __columns ) {
@@ -296,12 +302,12 @@ function Matrix () {
         }
 
         return elements;
-    }
+    };
 
     /**
      * Replace a column in the matrix with a new one.
      * @param {Number} column The column index of the column to replace
-     * @param {Array} elements An array containing the new entries for the column
+     * @param {Number[]} elements An array containing the new entries for the column
      * @returns {*}
      */
     this.setColumn = function (column, elements) {
@@ -319,15 +325,15 @@ function Matrix () {
         }
 
         return this;
-    }
+    };
 
     this.addRow = function (elements) {
-        // TODO
-    }
+        return Matrix.addRow( this, elements );
+    };
 
     this.addColumn = function (elements) {
-        // TODO
-    }
+        return Matrix.addColumn( this, elements );
+    };
 
     /**
      * Returns whether the matrix is square.
@@ -335,7 +341,7 @@ function Matrix () {
      */
     this.isSquare = function () {
         return __rows === __columns;
-    }
+    };
 
     /**
      * Returns whether the matrix is a vector.
@@ -343,15 +349,15 @@ function Matrix () {
      */
     this.isVector = function () {
         return __rows === 1 || __columns === 1;
-    }
+    };
 
     /**
      * Returns a copy of the matrix (and not just a reference).
      * @returns {Matrix} Actual copy of the matrix.
      */
     this.copy = function () {
-        return new Matrix( [].slice.call( __elements ), __rows, __columns );
-    }
+        return new Matrix( this.__getElements(), __rows, __columns );
+    };
 
     /**
      * Search the matrix for a certain value.
@@ -374,7 +380,7 @@ function Matrix () {
 
             return false;
         }
-    }
+    };
 
     /**
      * Check whether the matrix is the same as another one.
@@ -393,7 +399,7 @@ function Matrix () {
         }
 
         return true;
-    }
+    };
 
     /**
      * Return a string representation of the matrix.
@@ -421,7 +427,7 @@ function Matrix () {
         }
 
         return str;
-    }
+    };
 
     /**
      * Converts a position in the matrix into its internal linear representation.
@@ -429,15 +435,15 @@ function Matrix () {
      */
     this.__convertToIndex = function (row, column) {
         return __columns * (row - 1) + column - 1;
-    }
+    };
 
     /**
      * Return the internal array containing the elements.
      * @private
      */
     this.__getElements = function () {
-        return __elements;
-    }
+        return [].slice.call( __elements );
+    };
 
     /**
      * Set the internal array.
@@ -450,15 +456,15 @@ function Matrix () {
 
         __elements = elements;
         return this;
-    }
+    };
 
     this.__isNumber = function (k) {
         return typeof k === 'number';
-    }
+    };
 
     this.__isInteger = function (k) {
         return this.__isNumber( k ) && (k | 0) === k;
-    }
+    };
 
 
     // Constructor
@@ -546,7 +552,7 @@ Matrix.add = function (A, B) {
     Result.__setElements( elementsResult );
 
     return Result;
-}
+};
 
 /**
  * Calculate the difference of two matrices.
@@ -564,7 +570,7 @@ Matrix.subtract = function (A, B) {
     }
 
     return Matrix.add( A, Matrix.scale( B, -1 ) );
-}
+};
 
 /**
  * Scale a matrix with a factor (i.e. calculate k * A)
@@ -585,7 +591,7 @@ Matrix.scale = function (A, k) {
     }
 
     return new Matrix( A.dim( 1 ), A.dim( 2 ) ).__setElements( elementsA );
-}
+};
 
 /**
  * Multiply two matrices.
@@ -612,7 +618,7 @@ Matrix.multiply = function (A, B) {
     }
 
     return Result;
-}
+};
 
 /**
  * Transpose a matrix, i.e. take the rows as the columns of the resulting matrix.
@@ -626,7 +632,7 @@ Matrix.transpose = function (M) {
     }
 
     return Result;
-}
+};
 
 /**
  * Calculate the trace of a matrix, i.e. the sum of all diagonal entries.
@@ -645,7 +651,7 @@ Matrix.trace = function (M) {
     }
 
     return trace;
-}
+};
 
 /**
  * Performs a LU decomposition. Both matrices will be written in the same matrix, i.e. the trivial
@@ -660,11 +666,13 @@ Matrix.LUDecomposition = function (M) {
         swappedRows = 0,
         LU = M.copy();
 
-    for( var k = 1; k <= m; k++ ) {
+    var i, j, k;
+
+    for( k = 1; k <= m; k++ ) {
         var pivot = 0,
             maxArg = -1;
 
-        for( var i = k; i <= m; i++ ) {
+        for( i = k; i <= m; i++ ) {
             var currArg = Math.abs( LU.get( i, k ) );
 
             if( currArg >= maxArg ) {
@@ -686,8 +694,8 @@ Matrix.LUDecomposition = function (M) {
             swappedRows++;
         }
 
-        for( var i = k + 1; i <= m; i++ ) {
-            for( var j = k + 1; j <= n; j++ ) {
+        for( i = k + 1; i <= m; i++ ) {
+            for( j = k + 1; j <= n; j++ ) {
                 LU.set( i, j, LU.get( i, j ) - LU.get( k, j ) * ( LU.get( i, k ) / LU.get( k, k ) ) );
             }
 
@@ -699,7 +707,7 @@ Matrix.LUDecomposition = function (M) {
     LU.swappedRows = swappedRows;
 
     return LU;
-}
+};
 
 /**
  * Calculate the determinant of a Matrix.
@@ -726,7 +734,7 @@ Matrix.det = function (M) {
     }
 
     return det;
-}
+};
 
 /**
  * Calculate the inverse of a Matrix.
@@ -738,28 +746,30 @@ Matrix.inverse = function (M) {
         throw new TypeError( 'Matrix is not square.' );
     }
 
-    var augmentedM = Matrix.augment( M, Matrix.eye( M.dim( 1 ) ) );
+    var augmentedM = Matrix.augment( M, Matrix.eye( M.dim( 1 ) ) ),
+        row, i, j, k;
 
     try {
         augmentedM = Matrix.LUDecomposition( augmentedM );
 
         // TODO The following two loops can probably be rewritten into something smarter
-        for( var i = augmentedM.dim( 1 ); i > 1; i-- ) {
-            var row = augmentedM.getRow( i ),
-                factor = augmentedM.get( i - 1, i ) / augmentedM.get( i, i );
+        for( i = augmentedM.dim( 1 ); i > 1; i-- ) {
+            row = augmentedM.getRow( i );
+            var factor = augmentedM.get( i - 1, i ) / augmentedM.get( i, i );
 
-            for( var k = 0; k < row.length; k++ ) {
+            for( k = 0; k < row.length; k++ ) {
                 augmentedM.set( i - 1, k + 1, augmentedM.get( i - 1, k + 1 ) - (row[k] * factor ) );
             }
         }
 
-        for( var i = 1; i <= augmentedM.dim( 1 ); i++ ) {
-            var row = augmentedM.getRow( i );
-            for( var j = 0; j < row.length; j++ ) {
-                row[j] = row[j] / augmentedM.get( i, i );
+        for( j = 1; j <= augmentedM.dim( 1 ); j++ ) {
+            row = augmentedM.getRow( j );
+
+            for( k = 0; k < row.length; k++ ) {
+                row[k] = row[k] / augmentedM.get( j, j );
             }
 
-            augmentedM.setRow( i, row );
+            augmentedM.setRow( j, row );
         }
     } catch( e ) {
         throw new TypeError( 'Matrix is not invertible.' );
@@ -767,7 +777,7 @@ Matrix.inverse = function (M) {
 
     return Matrix.submatrix( augmentedM,
         1, augmentedM.dim( 1 ), M.dim( 2 ) + 1, augmentedM.dim( 2 ) );
-}
+};
 
 /**
  * Extract a submatrix.
@@ -798,7 +808,7 @@ Matrix.submatrix = function (M, rowStart, rowEnd, columnStart, columnEnd) {
     }
 
     return Result;
-}
+};
 
 /**
  * Augment to matrices.
@@ -816,12 +826,12 @@ Matrix.augment = function (A, B) {
     for( var i = 1; i <= A.dim( 2 ); i++ ) {
         Result.setColumn( i, A.getColumn( i ) );
     }
-    for( var i = 1; i <= B.dim( 2 ); i++ ) {
-        Result.setColumn( i + A.dim( 2 ), B.getColumn( i ) );
+    for( var j = 1; j <= B.dim( 2 ); j++ ) {
+        Result.setColumn( j + A.dim( 2 ), B.getColumn( j ) );
     }
 
     return Result;
-}
+};
 
 /**
  * Calculate the dot product of two vectors. It doesn't matter whether the vectors are row or column vectors.
@@ -847,7 +857,7 @@ Matrix.dot = function (A, B) {
     }
 
     return result;
-}
+};
 
 /**
  * Rounds each element in a matrix with a specified precision.
@@ -856,9 +866,10 @@ Matrix.dot = function (A, B) {
  * @returns {Matrix} Matrix with rounded entries.
  */
 Matrix.roundTo = function (M, precision) {
+    precision = precision || 0;
+
     var Result = M.copy(),
         elements = Result.__getElements(),
-        precision = precision || 0,
         power = Math.pow( 10, precision );
 
     for( var i = 0; i < elements.length; i++ ) {
@@ -870,7 +881,7 @@ Matrix.roundTo = function (M, precision) {
     Result.__setElements( elements );
 
     return Result;
-}
+};
 
 /**
  * Returns a matrix with the absolute values of each entry of a given matrix.
@@ -890,7 +901,7 @@ Matrix.abs = function (M) {
     Result.__setElements( elements );
 
     return Result;
-}
+};
 
 /**
  * Returns the cross product of two vectors. It doesn't matter whether the vectors are row or column vectors.
@@ -909,12 +920,42 @@ Matrix.cross = function (A, B) {
         [A.get( 3 ) * B.get( 1 ) - A.get( 1 ) * B.get( 3 )],
         [A.get( 1 ) * B.get( 2 ) - A.get( 2 ) * B.get( 1 )]
     ] );
-}
+};
+
+/**
+ * Add a row to an existing matrix.
+ * @param {Matrix} M Matrix
+ * @param {Number[]} elements Array of entries to add
+ * @returns {Matrix}
+ */
+Matrix.addRow = function (M, elements) {
+    var Result = new Matrix( M.dim( 1 ) + 1, M.dim( 2 ) ),
+        __elements = M.__getElements(),
+        oldLength = __elements.length;
+
+    for( var i = 0; i < Result.dim( 2 ); i++ ) {
+        __elements[oldLength + i] = elements[i];
+    }
+
+    Result.__setElements( __elements );
+    return Result;
+};
+
+/**
+ * Add a column to an existing matrix.
+ * @param {Matrix} M Matrix
+ * @param {Number[]} elements Array of entries to add
+ * @returns {Matrix}
+ */
+Matrix.addColumn = function (M, elements) {
+    return M.copy().augment( new Matrix( elements, null, 1 ) );
+};
 
 /**
  * Returns a matrix of zeros.
+ * If called with only one argument n, it will return a n-by-n matrix with zeros.
  * @param {Number} rows Number of rows
- * @param {Number} columns Number of columns (defaults to the value of rows)
+ * @param {Number} [columns=rows] Number of columns (defaults to the value of rows)
  * @returns {Matrix} A new matrix of the specified size containing zeros everywhere.
  */
 Matrix.zeros = function (rows, columns) {
@@ -923,7 +964,7 @@ Matrix.zeros = function (rows, columns) {
     }
 
     return new Matrix( rows, columns );
-}
+};
 
 /**
  * Returns a matrix of ones.
@@ -942,7 +983,7 @@ Matrix.ones = function (rows, columns) {
     }
 
     return new Matrix( rows, columns ).__setElements( elements );
-}
+};
 
 /**
  * Returns an identity matrix.
@@ -956,7 +997,7 @@ Matrix.eye = function (n) {
     }
 
     return Result;
-}
+};
 
 /**
  * Returns a diagonal matrix.
@@ -977,4 +1018,4 @@ Matrix.diag = function (elements, k) {
     }
 
     return Result;
-}
+};
