@@ -325,20 +325,12 @@ function Matrix () {
         return Matrix.addColumn( this, elements );
     };
 
-    /**
-     * Returns whether the matrix is square.
-     * @returns {boolean} True if row and column dimensions equal, false otherwise.
-     */
     this.isSquare = function () {
-        return __rows === __columns;
+        return Matrix.isSquare( this );
     };
 
-    /**
-     * Returns whether the matrix is a vector.
-     * @returns {boolean} True if at least one dimension is 1, false otherwise.
-     */
     this.isVector = function () {
-        return __rows === 1 || __columns === 1;
+        return Matrix.isVector( this );
     };
 
     /**
@@ -442,6 +434,14 @@ Matrix.__isInteger = function (k) {
 
 Matrix.__convertToIndex = function (M, row, column) {
     return M.dim( 2 ) * (row - 1) + column - 1;
+};
+
+Matrix.isVector = function (M) {
+    return M.dim( 'min' ) === 1;
+};
+
+Matrix.isSquare = function (M) {
+    return M.dim( 1 ) === M.dim( 2 );
 };
 
 /**

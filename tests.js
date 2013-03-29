@@ -168,6 +168,10 @@ new Test( function () {
 
     assertEquals( M.length(), 9 );
     assertEquals( M.isSquare(), true );
+    assertEquals( M.isVector(), false );
+
+    assertEquals( Matrix.zeros( 1, 3 ).isVector(), true );
+    assertEquals( Matrix.zeros( 3, 1 ).isVector(), true );
 }, 'Helper Methods 1' );
 
 new Test( function () {
@@ -175,6 +179,7 @@ new Test( function () {
 
     assertEquals( M.length(), 6 );
     assertEquals( M.isSquare(), false );
+    assertEquals( M.isVector(), false );
 }, 'Helper Methods 2' );
 
 new Test( function () {
