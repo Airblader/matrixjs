@@ -372,32 +372,8 @@ function Matrix () {
         return true;
     };
 
-    /**
-     * Return a string representation of the matrix.
-     * @param {String} [rowSeparator='\r\n'] Delimiter between rows
-     * @param {String} [columnSeparator='\t'] Delimiter between columns
-     * @returns {string}
-     */
     this.toString = function (rowSeparator, columnSeparator) {
-        rowSeparator = rowSeparator || '\r\n';
-        columnSeparator = columnSeparator || '\t';
-
-        var str = '';
-        for( var i = 1; i <= __rows; i++ ) {
-            for( var j = 1; j <= __columns; j++ ) {
-                str += this.get( i, j );
-
-                if( j !== __columns ) {
-                    str += columnSeparator;
-                }
-            }
-
-            if( i !== __rows ) {
-                str += rowSeparator;
-            }
-        }
-
-        return str;
+        return Matrix.toString( this, rowSeparator, columnSeparator );
     };
 
     /**
@@ -947,6 +923,35 @@ Matrix.contains = function (M, needle, precision) {
 
         return false;
     }
+};
+
+/**
+ * Create a string representation of a matrix.
+ * @param {Matrix} M
+ * @param {String} [rowSeparator='\r\n'] Delimiter between columns
+ * @param {String} [columnSeparator='\t'] Delimiter between the last column of the previous and first column of the next row
+ * @returns {string}
+ */
+Matrix.toString = function (M, rowSeparator, columnSeparator) {
+    rowSeparator = rowSeparator || '\r\n';
+    columnSeparator = columnSeparator || '\t';
+
+    var str = '';
+    for( var i = 1; i <= M.dim( 1 ); i++ ) {
+        for( var j = 1; j <= M.dim( 2 ); j++ ) {
+            str += M.get( i, j );
+
+            if( j !== M.dim( 2 ) ) {
+                str += columnSeparator;
+            }
+        }
+
+        if( i !== M.dim( 1 ) ) {
+            str += rowSeparator;
+        }
+    }
+
+    return str;
 };
 
 /**
