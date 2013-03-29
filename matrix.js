@@ -50,7 +50,7 @@ function Matrix () {
     };
 
     this.multiply = function (M) {
-        return (this.__isNumber( M )) ? this.scale( M ) : Matrix.multiply( this, M );
+        return (Matrix.__isNumber( M )) ? this.scale( M ) : Matrix.multiply( this, M );
     };
 
     this.dot = function (M) {
@@ -349,27 +349,8 @@ function Matrix () {
         return new Matrix( this.__getElements(), __rows, __columns );
     };
 
-    /**
-     * Search the matrix for a certain value.
-     * @param {Number} needle Value to look for
-     * @returns {boolean}
-     */
-    this.contains = function (needle) {
-        if( !this.__isNumber( needle ) ) {
-            throw new TypeError( 'Parameter is not a number.' );
-        }
-
-        if( needle !== 0 ) {
-            return __elements.indexOf( needle ) !== -1;
-        } else {
-            for( var i = 1; i <= this.length(); i++ ) {
-                if( this.get( i ) === 0 ) {
-                    return true;
-                }
-            }
-
-            return false;
-        }
+    this.contains = function (needle, precision) {
+        return Matrix.contains( this, needle, precision );
     };
 
     /**
@@ -448,20 +429,6 @@ function Matrix () {
         return this;
     };
 
-    /**
-     * @deprecated
-     */
-    this.__isNumber = function (k) {
-        return typeof k === 'number';
-    };
-
-    /**
-     * @deprecated
-     */
-    this.__isInteger = function (k) {
-        return this.__isNumber( k ) && (k | 0) === k;
-    };
-
 
     // Constructor
 
@@ -480,7 +447,7 @@ function Matrix () {
             }
         }
     } else if( args.length >= 1 && args.length <= 3 && args[0] instanceof Array
-        && ( args[0].length === 0 || (args[0].length !== 0 && this.__isNumber( args[0][0] ) ) ) ) {
+        && ( args[0].length === 0 || (args[0].length !== 0 && Matrix.__isNumber( args[0][0] ) ) ) ) {
 
         __elements = args[0];
         var rows = args[1],
@@ -491,22 +458,22 @@ function Matrix () {
 
             rows = dim;
             columns = dim;
-        } else if( !rows && typeof this.__isInteger( columns ) ) {
+        } else if( !rows && typeof Matrix.__isInteger( columns ) ) {
             rows = __elements.length / columns;
         } else if( typeof rows === 'number' && !columns ) {
             columns = __elements.length / rows;
         }
 
-        if( !this.__isInteger( rows ) || !this.__isInteger( columns ) ) {
+        if( !Matrix.__isInteger( rows ) || !Matrix.__isInteger( columns ) ) {
             throw new TypeError( 'Array has to represent a square matrix or the size has to be specified.' );
         }
 
         __rows = rows;
         __columns = columns;
-    } else if( args.length === 1 && this.__isInteger( args[0] ) ) {
+    } else if( args.length === 1 && Matrix.__isInteger( args[0] ) ) {
         __rows = args[0];
         __columns = args[0];
-    } else if( args.length === 2 && this.__isInteger( args[0] ) && this.__isInteger( args[1] ) ) {
+    } else if( args.length === 2 && Matrix.__isInteger( args[0] ) && Matrix.__isInteger( args[1] ) ) {
         __rows = args[0];
         __columns = args[1];
     } else {
@@ -516,6 +483,13 @@ function Matrix () {
     return this;
 }
 
+Matrix.__isNumber = function (k) {
+    return typeof k === 'number';
+};
+
+Matrix.__isInteger = function (k) {
+    return Matrix.__isNumber( k ) && (k | 0) === k;
+};
 
 /**
  * Calculate the sum of two matrices.
@@ -946,6 +920,33 @@ Matrix.addRow = function (M, elements) {
  */
 Matrix.addColumn = function (M, elements) {
     return M.copy().augment( new Matrix( elements, null, 1 ) );
+};
+
+/**
+ * Check if a matrix contains a certain value.
+ * @param {Matrix} M Matrix
+ * @param {Number} needle Value to look for
+ * @param {Number} [precision=0] Match if any value is in [needle-precision, needle+precision]
+ * @returns {Boolean} True if the needle could be found, false otherwise.
+ */
+Matrix.contains = function (M, needle, precision) {
+    precision = precision || 0;
+
+    if( !Matrix.__isNumber( needle ) || !Matrix.__isNumber( precision ) ) {
+        throw new TypeError( 'Parameter is not a number.' );
+    }
+
+    if( needle !== 0 && precision === 0 ) {
+        return M.__getElements().indexOf( needle ) !== -1;
+    } else {
+        for( var i = 1; i <= M.length(); i++ ) {
+            if( Math.abs( M.get( i ) - needle ) <= precision ) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 };
 
 /**

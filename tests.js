@@ -435,33 +435,33 @@ new Test( function () {
 
 new Test( function () {
     assertEquals( Matrix.eye( 3 ).contains( 1 ), true );
+    assertEquals( Matrix.eye( 3 ).contains( 0 ), true );
 }, 'Contains 1' );
 
 new Test( function () {
-    assertEquals( Matrix.eye( 3 ).contains( 0 ), true );
+    assertEquals( Matrix.zeros( 3 ).contains( 0 ), true );
 }, 'Contains 2' );
 
 new Test( function () {
     assertEquals( Matrix.eye( 3 ).contains( 2 ), false );
-}, 'Contains 3' );
-
-new Test( function () {
-    assertEquals( Matrix.zeros( 3 ).contains( 0 ), true );
-}, 'Contains 4' );
-
-new Test( function () {
     assertEquals( Matrix.ones( 3 ).contains( 0 ), false );
-}, 'Contains 5' );
+}, 'Contains 3' );
 
 new Test( function () {
     assertEquals( new Matrix( [
         [0, 0, 1]
     ] ).contains( 1 ), true );
-}, 'Contains 6' );
+}, 'Contains 4' );
 
 new Test( function () {
     assertEquals( Matrix.zeros( 3 ).set( 3, 3, 1 ).contains( 1 ), true );
-}, 'Contains 7' );
+}, 'Contains 5' );
+
+new Test( function () {
+    assertEquals( Matrix.zeros( 3 ).contains( 0.5, 1 ), true );
+    assertEquals( Matrix.eye( 3 ).contains( 0.5, 1 ), true );
+    assertEquals( Matrix.eye( 3 ).contains( 2, 0.5 ), false );
+}, 'Contains 6' );
 
 new Test( function () {
     var A = Matrix.eye( 3 ),
