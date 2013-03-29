@@ -361,26 +361,14 @@ function Matrix () {
         return Matrix.toString( this, rowSeparator, columnSeparator );
     };
 
-    /**
-     * Converts a position in the matrix into its internal linear representation.
-     * @private
-     */
     this.__convertToIndex = function (row, column) {
-        return __columns * (row - 1) + column - 1;
+        return Matrix.__convertToIndex( this, row, column );
     };
 
-    /**
-     * Return the internal array containing the elements.
-     * @private
-     */
     this.__getElements = function () {
         return [].slice.call( __elements );
     };
 
-    /**
-     * Set the internal array.
-     * @private
-     */
     this.__setElements = function (elements) {
         if( __elements.length !== 0 && __elements.length !== elements.length ) {
             throw new TypeError( 'Invalid number of elements. The size of a matrix cannot be changed afterwards.' );
@@ -450,6 +438,10 @@ Matrix.__isNumber = function (k) {
 
 Matrix.__isInteger = function (k) {
     return Matrix.__isNumber( k ) && (k | 0) === k;
+};
+
+Matrix.__convertToIndex = function (M, row, column) {
+    return M.dim( 2 ) * (row - 1) + column - 1;
 };
 
 /**
