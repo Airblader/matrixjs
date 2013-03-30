@@ -85,16 +85,32 @@ function Matrix () {
         return Matrix.submatrix( this, rowStart, rowEnd, columnStart, columnEnd );
     };
 
+    this.abs = function () {
+        return Matrix.abs( this );
+    };
+
+    this.apply = function (fun, filter) {
+        return Matrix.apply( this, fun, filter );
+    };
+
+    this.nzapply = function (fun) {
+        return Matrix.nzapply( this, fun );
+    };
+
+    this.exp = function () {
+        return Matrix.exp( this );
+    };
+
+    this.pow = function (n) {
+        return Matrix.pow( this, n );
+    };
+
     this.round = function () {
         return this.roundTo( 0 );
     };
 
     this.roundTo = function (precision) {
         return Matrix.roundTo( this, precision );
-    };
-
-    this.abs = function () {
-        return Matrix.abs( this );
     };
 
     this.addRow = function (elements) {
@@ -420,6 +436,38 @@ function Matrix () {
 
     return this;
 }
+
+/**
+ * Predefined filters that can be used with methods like {@link Matrix.apply}.
+ * These functions can take up to three arguments (value, row index, column index).
+ */
+Matrix.filters = {
+    all: function (value) {
+        return true;
+    },
+
+    nonZero: function (value) {
+        return value !== 0;
+    },
+
+    diag: function (value, i, j) {
+        return i === j;
+    }
+};
+
+/**
+ * Predefined functions that can be used for methods like {@link Matrix.apply}.
+ * These functions can take up to three arguments (value, row index, column index).
+ */
+Matrix.applicators = {
+    exp: function (value) {
+        return Math.exp( value );
+    },
+
+    square: function (value) {
+        return value * value;
+    }
+};
 
 /**
  * @private
@@ -974,6 +1022,73 @@ Matrix.equals = function (A, B) {
     }
 
     return true;
+};
+
+/**
+ * Apply a custom function to each entry.
+ * @param {Matrix} M Matrix
+ * @param {function} fun Function to apply. It will be provided with three arguments (value, row index, column index)
+ * and has to return the new value to write in the matrix.
+ * @param {function} [filter] A function that will be called with the same arguments as fun. If provided, fun will
+ * only be applied if filter returns true.
+ * @returns {Matrix}
+ */
+Matrix.apply = function (M, fun, filter) {
+    if( typeof fun !== 'function' ) {
+        throw new TypeError( 'Applicator has to be a function.' );
+    }
+
+    if( filter && typeof filter !== 'function' ) {
+        throw new TypeError( 'Filter has to be a function.' );
+    }
+
+    filter = filter || Matrix.filters.all;
+    var Result = M.copy(),
+        current;
+
+    for( var i = 1; i <= Result.dim( 1 ); i++ ) {
+        for( var j = 1; j <= Result.dim( 2 ); j++ ) {
+            current = Result.get( i, j );
+
+            if( filter( current, i, j ) === true ) {
+                Result.set( i, j, fun( current, i, j ) );
+            }
+        }
+    }
+
+    return Result;
+};
+
+/**
+ * Apply a custom function to each non-zero entry.
+ * @param {Matrix} M Matrix
+ * @param {function} fun Function to apply. It will be provided with three arguments (value, row index, column index)
+ * and has to return the new value to write in the matrix.
+ * @returns {Matrix}
+ */
+Matrix.nzapply = function (M, fun) {
+    return Matrix.apply( M, fun, Matrix.filters.nonZero );
+};
+
+/**
+ * Apply the exponential function to each entry.
+ * @param {Matrix} M Matrix
+ * @returns {Matrix}
+ */
+Matrix.exp = function (M) {
+    return Matrix.apply( M, Matrix.applicators.exp );
+};
+
+/**
+ * Raise a matrix to the n-th power.
+ * @param {Matrix} M Matrix
+ * @param {Number} n Power
+ * @returns {Matrix} The matrix M^n.
+ */
+Matrix.pow = function (M, n) {
+    return Matrix.apply( M, function (value) {
+        return Math.pow( value, n );
+    } );
 };
 
 /**
