@@ -64,8 +64,7 @@ function Matrix () {
      * @see Matrix.multiply
      */
     this.multiply = function (M) {
-        // TODO move logic to static method
-        return (Matrix.__isNumber( M )) ? this.scale( M ) : Matrix.multiply( this, M );
+        return Matrix.multiply( this, M );
     };
 
     /**
@@ -577,6 +576,14 @@ Matrix.__isInteger = function (k) {
  * @static
  * @private
  */
+Matrix.__isMatrix = function (obj) {
+    return obj instanceof Matrix;
+};
+
+/**
+ * @static
+ * @private
+ */
 Matrix.__convertToIndex = function (M, row, column) {
     return M.dim( 2 ) * (row - 1) + column - 1;
 };
@@ -586,7 +593,7 @@ Matrix.__convertToIndex = function (M, row, column) {
  * @private
  */
 Matrix.__getArrayOrElements = function (obj) {
-    if( obj instanceof Matrix ) {
+    if( Matrix.__isMatrix( obj ) ) {
         return obj.__getElements();
     }
 
