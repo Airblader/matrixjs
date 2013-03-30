@@ -418,7 +418,11 @@ new Test( function () {
         [0, 2, 0],
         [0, 0, 3]
     ] ) );
-}, 'Diag 5' );
+}, 'Diag 7' );
+
+new Test( function () {
+    assertMatrix( Matrix.diag( Matrix.ones( 1, 3 ) ), Matrix.eye( 3 ) );
+}, '' );
 
 new Test( function () {
     assertMatrix( Matrix.zeros( 3 ).roundTo( 0 ), Matrix.zeros( 3 ) );
@@ -584,12 +588,20 @@ new Test( function () {
 }, 'Add Column 2' );
 
 new Test( function () {
+    assertMatrix( Matrix.eye( 2 ).addColumn( Matrix.ones( 2, 1 ) ), new Matrix( [1, 0, 1, 0, 1, 1], 2, 3 ) );
+}, 'Add Column 3' );
+
+new Test( function () {
     assertMatrix( new Matrix( [1, 2, 3, 4] ).addRow( [5, 6] ), new Matrix( [1, 2, 3, 4, 5, 6], 3, 2 ) );
 }, 'Add Row 1' );
 
 new Test( function () {
     assertMatrix( Matrix.zeros( 3 ).addRow( Matrix.zeros( 3 ).get( 1 ) ), Matrix.zeros( 4, 3 ) );
 }, 'Add Row 2' );
+
+new Test( function () {
+    assertMatrix( Matrix.eye( 2 ).addRow( Matrix.ones( 1, 2 ) ), new Matrix( [1, 0, 0, 1, 1, 1], 3, 2 ) );
+}, 'Add Row 3' );
 
 new Test( function () {
     assertMatrix( Matrix.zeros( 3 ).apply( function (value) {

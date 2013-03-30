@@ -1043,11 +1043,13 @@ Matrix.cross = function (A, B) {
 /**
  * Add a row to an existing matrix.
  * @param {Matrix} M Matrix
- * @param {Number[]} elements Array of entries to add
+ * @param {Number[]|Matrix} elements Array or matrix of entries to add
  * @returns {Matrix}
  * @static
  */
 Matrix.addRow = function (M, elements) {
+    elements = Matrix.__getArrayOrElements( elements );
+
     var Result = new Matrix( M.dim( 1 ) + 1, M.dim( 2 ) ),
         __elements = M.__getElements(),
         oldLength = __elements.length;
@@ -1063,11 +1065,13 @@ Matrix.addRow = function (M, elements) {
 /**
  * Add a column to an existing matrix.
  * @param {Matrix} M Matrix
- * @param {Number[]} elements Array of entries to add
+ * @param {Number[]|Matrix} elements Array or matrix of entries to add
  * @returns {Matrix}
  * @static
  */
 Matrix.addColumn = function (M, elements) {
+    elements = Matrix.__getArrayOrElements( elements );
+
     return M.copy().augment( new Matrix( elements, null, 1 ) );
 };
 
@@ -1274,12 +1278,13 @@ Matrix.eye = function (n) {
 /**
  * Returns a diagonal matrix.
  * If called with a second parameter k, the k-th diagonal will be filled instead of the main diagonal.
- * @param {Number[]} elements Array of diagonal elements
+ * @param {Number[]|Matrix} elements Array or matrix of diagonal elements
  * @param {Number} [k=0] Offset specifying the diagonal, i.e. k = 1 is the first upper diagonal
  * @returns {Matrix} Matrix with the specified elements on its diagonal.
  * @static
  */
 Matrix.diag = function (elements, k) {
+    elements = Matrix.__getArrayOrElements( elements );
     k = k || 0;
 
     var Result = new Matrix( elements.length + Math.abs( k ) ),
