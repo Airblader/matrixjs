@@ -573,6 +573,43 @@ new Test( function () {
     assertMatrix( Matrix.zeros( 3 ).addRow( Matrix.zeros( 3 ).get( 1 ) ), Matrix.zeros( 4, 3 ) );
 }, 'Add Row 2' );
 
+new Test( function () {
+    assertMatrix( Matrix.zeros( 3 ).apply( function (value) {
+        return value + 1;
+    } ), Matrix.ones( 3 ) );
+}, 'Apply 1' );
+
+new Test( function () {
+    assertMatrix( Matrix.zeros( 3 ).apply( function (value) {
+        return value + 1;
+    }, Matrix.filters.diag ), Matrix.eye( 3 ) );
+}, 'Apply 2' );
+
+new Test( function () {
+    assertMatrix( Matrix.eye( 3 ).apply( function (value, row, column) {
+        return value + row * column;
+    } ), new Matrix( [2, 2, 3, 2, 5, 6, 3, 6, 10] ) );
+}, 'Apply 2' );
+
+new Test( function () {
+    assertMatrix( Matrix.eye( 3 ).scale( 2 ).apply( Matrix.applicators.square ),
+        Matrix.eye( 3 ).scale( 4 ) );
+}, 'Apply 3' );
+
+new Test( function () {
+    assertMatrix( Matrix.eye( 3 ).nzapply( function (value) {
+        return value + 1;
+    } ), Matrix.eye( 3 ).scale( 2 ) );
+}, 'Non-Zero Apply 1' );
+
+new Test( function () {
+    var e = Math.E;
+    assertMatrix( Matrix.eye( 3 ).exp(), new Matrix( [e, 1, 1, 1, e, 1, 1, 1, e] ) );
+}, 'Exp 1' );
+
+new Test( function () {
+    assertMatrix( Matrix.eye( 3 ).scale( 2 ).pow( 3 ), Matrix.eye( 3 ).scale( 8 ) );
+}, 'Pow 1' );
 
 new Test( function () {
 }, '' );
