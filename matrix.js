@@ -1119,6 +1119,7 @@ Matrix.contains = function (M, needle, precision) {
  * @static
  */
 Matrix.toString = function (M, rowSeparator, columnSeparator) {
+    // TODO move from concatenation to join
     rowSeparator = rowSeparator || '\r\n';
     columnSeparator = columnSeparator || '\t';
 
