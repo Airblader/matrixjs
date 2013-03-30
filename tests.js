@@ -185,7 +185,7 @@ new Test( function () {
 new Test( function () {
     assertArray( Matrix.zeros( 3 ).getRow( 3 ), [0, 0, 0] );
     assertArray( Matrix.zeros( 3 ).getColumn( 3 ), [0, 0, 0] );
-}, 'Set/Get Rows/Columns 1' );
+}, 'Get Row/Column 1' );
 
 new Test( function () {
     var M = new Matrix( [1, 2, 3, 4, 5, 6, 7, 8, 9] );
@@ -197,7 +197,7 @@ new Test( function () {
     assertArray( M.getColumn( 1 ), [1, 4, 7] );
     assertArray( M.getColumn( 2 ), [2, 5, 8] );
     assertArray( M.getColumn( 3 ), [3, 6, 9] );
-}, 'Set/Get Rows/Columns 2' );
+}, 'Get Row/Column 2' );
 
 new Test( function () {
     var A = new Matrix( 3 ),
@@ -214,7 +214,25 @@ new Test( function () {
 
     assertMatrix( A, M );
     assertMatrix( B, M );
-}, 'Set/Get Rows/Columns 3' );
+}, 'Set Row/Column 1' );
+
+new Test( function () {
+    var A = new Matrix( 3 );
+
+    A.setRow( 1, new Matrix( [1, 0, 0], 1, 3 ) );
+    A.setRow( 2, new Matrix( [0, 1, 0], 1, 3 ) );
+    A.setRow( 3, new Matrix( [0, 0, 1], 1, 3 ) );
+
+    assertMatrix( A, Matrix.eye( 3 ) );
+
+    var B = new Matrix( 3 );
+
+    B.setColumn( 1, new Matrix( [1, 0, 0], 3, 1 ) );
+    B.setColumn( 2, new Matrix( [0, 1, 0], 3, 1 ) );
+    B.setColumn( 3, new Matrix( [0, 0, 1], 3, 1 ) );
+
+    assertMatrix( B, Matrix.eye( 3 ) );
+}, 'Set Row/Column 2' );
 
 new Test( function () {
     assertMatrix( Matrix.zeros( 3 ).add( Matrix.zeros( 3 ) ), Matrix.zeros( 3 ) );

@@ -64,6 +64,7 @@ function Matrix () {
      * @see Matrix.multiply
      */
     this.multiply = function (M) {
+        // TODO move logic to static method
         return (Matrix.__isNumber( M )) ? this.scale( M ) : Matrix.multiply( this, M );
     };
 
@@ -337,10 +338,12 @@ function Matrix () {
     /**
      * Replace a row in the matrix with a new one.
      * @param {Number} row The row index of the row to replace
-     * @param {Number[]} elements An array containing the new entries for the row
+     * @param {Number[]|Matrix} elements An array or Matrix containing the new entries for the row
      * @returns {*}
      */
     this.setRow = function (row, elements) {
+        elements = Matrix.__getArrayOrElements( elements );
+
         if( row < 1 || row > __rows ) {
             throw new TypeError( 'Invalid row index.' );
         }
@@ -377,10 +380,12 @@ function Matrix () {
     /**
      * Replace a column in the matrix with a new one.
      * @param {Number} column The column index of the column to replace
-     * @param {Number[]} elements An array containing the new entries for the column
+     * @param {Number[]|Matrix} elements An array or matrix containing the new entries for the column
      * @returns {*}
      */
     this.setColumn = function (column, elements) {
+        elements = Matrix.__getArrayOrElements( elements );
+
         if( column < 1 || column > __columns ) {
             throw new TypeError( 'Invalid column index.' );
         }
@@ -574,6 +579,18 @@ Matrix.__isInteger = function (k) {
  */
 Matrix.__convertToIndex = function (M, row, column) {
     return M.dim( 2 ) * (row - 1) + column - 1;
+};
+
+/**
+ * @static
+ * @private
+ */
+Matrix.__getArrayOrElements = function (obj) {
+    if( obj instanceof Matrix ) {
+        return obj.__getElements();
+    }
+
+    return obj;
 };
 
 /**
