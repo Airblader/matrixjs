@@ -470,6 +470,7 @@ Matrix.applicators = {
 };
 
 /**
+ * @static
  * @private
  */
 Matrix.__isNumber = function (k) {
@@ -477,6 +478,7 @@ Matrix.__isNumber = function (k) {
 };
 
 /**
+ * @static
  * @private
  */
 Matrix.__isInteger = function (k) {
@@ -484,6 +486,7 @@ Matrix.__isInteger = function (k) {
 };
 
 /**
+ * @static
  * @private
  */
 Matrix.__convertToIndex = function (M, row, column) {
@@ -494,6 +497,7 @@ Matrix.__convertToIndex = function (M, row, column) {
  * Check if a matrix is a vector.
  * @param {Matrix} M Matrix
  * @returns {boolean} True if at least one dimension is 1.
+ * @static
  */
 Matrix.isVector = function (M) {
     return M.dim( 'min' ) === 1;
@@ -503,6 +507,7 @@ Matrix.isVector = function (M) {
  * Check if a matrix is a square matrix.
  * @param {Matrix} M Matrix
  * @returns {boolean} True if the number of rows and columns equal, false otherwise.
+ * @static
  */
 Matrix.isSquare = function (M) {
     return M.dim( 1 ) === M.dim( 2 );
@@ -512,6 +517,7 @@ Matrix.isSquare = function (M) {
  * Return a copy of a matrix. This prevents accidental usage of references.
  * @param M
  * @returns {Matrix}
+ * @static
  */
 Matrix.copy = function (M) {
     return new Matrix( M.__getElements(), M.dim( 1 ), M.dim( 2 ) );
@@ -523,6 +529,7 @@ Matrix.copy = function (M) {
  * @param {Matrix} A Matrix
  * @param {Matrix} B Matrix
  * @returns {Matrix} Component-wise sum of A and B, i.e. A+B.
+ * @static
  */
 Matrix.add = function (A, B) {
     if( arguments.length > 2 ) {
@@ -556,6 +563,7 @@ Matrix.add = function (A, B) {
  * @param {Matrix} A Matrix
  * @param {Matrix} B Matrix
  * @returns {Matrix} Component-wise difference of A and B, i.e. A-B.
+ * @static
  */
 Matrix.subtract = function (A, B) {
     if( arguments.length > 2 ) {
@@ -573,6 +581,7 @@ Matrix.subtract = function (A, B) {
  * @param {Matrix} A Matrix
  * @param {Number} k Factor
  * @returns {Matrix} Matrix A with all entries multiplied by k.
+ * @static
  */
 Matrix.scale = function (A, k) {
     if( typeof k !== 'number' || isNaN( k ) ) {
@@ -594,6 +603,7 @@ Matrix.scale = function (A, k) {
  * @param {Matrix} A Matrix
  * @param {Matrix} B Matrix
  * @returns {Matrix} Matrix A * B.
+ * @static
  */
 Matrix.multiply = function (A, B) {
     // TODO Idea: Strassen Algorithm for big matrices
@@ -620,7 +630,8 @@ Matrix.multiply = function (A, B) {
 /**
  * Transpose a matrix, i.e. take the rows as the columns of the resulting matrix.
  * @param {Matrix} M Matrix
- * @returns {Matrix} Transposed matrix M^T
+ * @returns {Matrix} Transposed matrix M^T.
+ * @static
  */
 Matrix.transpose = function (M) {
     var Result = new Matrix( M.dim( 2 ), M.dim( 1 ) );
@@ -635,6 +646,7 @@ Matrix.transpose = function (M) {
  * Calculate the trace of a matrix, i.e. the sum of all diagonal entries.
  * @param {Matrix} M Matrix
  * @returns {Number} Sum of diagonal entries.
+ * @static
  */
 Matrix.trace = function (M) {
     if( !M.isSquare() ) {
@@ -656,6 +668,7 @@ Matrix.trace = function (M) {
  * @param {Matrix} M Matrix
  * @returns {Matrix} Matrix with the LU entries. There is also a hidden property swappedRows with the number
  * of rows that were swapped in the process.
+ * @static
  */
 Matrix.LUDecomposition = function (M) {
     var m = M.dim( 1 ),
@@ -710,6 +723,7 @@ Matrix.LUDecomposition = function (M) {
  * Calculate the determinant of a Matrix.
  * @param {Matrix} M Matrix
  * @returns {Number} Determinant of M.
+ * @static
  */
 Matrix.det = function (M) {
     /* TODO Ideas:
@@ -737,6 +751,7 @@ Matrix.det = function (M) {
  * Calculate the inverse of a Matrix.
  * @param {Matrix} M Matrix
  * @returns {Matrix} Inverse of M, a.k.a. M^(-1).
+ * @static
  */
 Matrix.inverse = function (M) {
     if( !M.isSquare() ) {
@@ -784,6 +799,7 @@ Matrix.inverse = function (M) {
  * @param {Number} columnStart Column index where to start the cut
  * @param {Number} columnEnd Column index where to end the cut
  * @returns {Matrix} Submatrix of M in the specified area.
+ * @static
  */
 Matrix.submatrix = function (M, rowStart, rowEnd, columnStart, columnEnd) {
     var m = M.dim( 1 ),
@@ -812,6 +828,7 @@ Matrix.submatrix = function (M, rowStart, rowEnd, columnStart, columnEnd) {
  * @param {Matrix} A Matrix
  * @param {Matrix} B Matrix
  * @returns {Matrix} Augmented matrix A|B.
+ * @static
  */
 Matrix.augment = function (A, B) {
     if( A.dim( 1 ) !== B.dim( 1 ) ) {
@@ -835,6 +852,7 @@ Matrix.augment = function (A, B) {
  * @param {Matrix} A Matrix
  * @param {Matrix} B Matrix
  * @returns {Number} Euclidean dot product of A and B.
+ * @static
  */
 Matrix.dot = function (A, B) {
     if( !A.isVector() || !B.isVector() ) {
@@ -861,6 +879,7 @@ Matrix.dot = function (A, B) {
  * @param {Matrix} M Matrix
  * @param {Number} [precision=0] Precision in digits after the comma
  * @returns {Matrix} Matrix with rounded entries.
+ * @static
  */
 Matrix.roundTo = function (M, precision) {
     precision = precision || 0;
@@ -884,6 +903,7 @@ Matrix.roundTo = function (M, precision) {
  * Returns a matrix with the absolute values of each entry of a given matrix.
  * @param {Matrix} M Matrix
  * @returns {Matrix} Matrix N with N(i,j) = abs( M(i,j) ) for all i,j.
+ * @static
  */
 Matrix.abs = function (M) {
     var Result = M.copy(),
@@ -906,6 +926,7 @@ Matrix.abs = function (M) {
  * @param {Matrix} A Three-dimensional vector
  * @param {Matrix} B Three-dimensional vector
  * @returns {Matrix} The three-dimensional vector V = A x B.
+ * @static
  */
 Matrix.cross = function (A, B) {
     if( !A.isVector() || !B.isVector() || A.dim( 'max' ) !== 3 || B.dim( 'max' ) !== 3 ) {
@@ -924,6 +945,7 @@ Matrix.cross = function (A, B) {
  * @param {Matrix} M Matrix
  * @param {Number[]} elements Array of entries to add
  * @returns {Matrix}
+ * @static
  */
 Matrix.addRow = function (M, elements) {
     var Result = new Matrix( M.dim( 1 ) + 1, M.dim( 2 ) ),
@@ -943,6 +965,7 @@ Matrix.addRow = function (M, elements) {
  * @param {Matrix} M Matrix
  * @param {Number[]} elements Array of entries to add
  * @returns {Matrix}
+ * @static
  */
 Matrix.addColumn = function (M, elements) {
     return M.copy().augment( new Matrix( elements, null, 1 ) );
@@ -954,6 +977,7 @@ Matrix.addColumn = function (M, elements) {
  * @param {Number} needle Value to look for
  * @param {Number} [precision=0] Match if any value is in [needle-precision, needle+precision]
  * @returns {Boolean} True if the needle could be found, false otherwise.
+ * @static
  */
 Matrix.contains = function (M, needle, precision) {
     precision = precision || 0;
@@ -981,6 +1005,7 @@ Matrix.contains = function (M, needle, precision) {
  * @param {String} [rowSeparator='\r\n'] Delimiter between columns
  * @param {String} [columnSeparator='\t'] Delimiter between the last column of the previous and first column of the next row
  * @returns {string}
+ * @static
  */
 Matrix.toString = function (M, rowSeparator, columnSeparator) {
     rowSeparator = rowSeparator || '\r\n';
@@ -1009,6 +1034,7 @@ Matrix.toString = function (M, rowSeparator, columnSeparator) {
  * @param {Matrix} A Matrix
  * @param {Matrix} B Matrix
  * @returns {boolean} True if A = B, false otherwise.
+ * @static
  */
 Matrix.equals = function (A, B) {
     if( A.dim( 1 ) !== B.dim( 1 ) || A.dim( 2 ) !== B.dim( 2 ) ) {
@@ -1032,6 +1058,7 @@ Matrix.equals = function (A, B) {
  * @param {function} [filter] A function that will be called with the same arguments as fun. If provided, fun will
  * only be applied if filter returns true.
  * @returns {Matrix}
+ * @static
  */
 Matrix.apply = function (M, fun, filter) {
     if( typeof fun !== 'function' ) {
@@ -1065,6 +1092,7 @@ Matrix.apply = function (M, fun, filter) {
  * @param {function} fun Function to apply. It will be provided with three arguments (value, row index, column index)
  * and has to return the new value to write in the matrix.
  * @returns {Matrix}
+ * @static
  */
 Matrix.nzapply = function (M, fun) {
     return Matrix.apply( M, fun, Matrix.filters.nonZero );
@@ -1074,6 +1102,7 @@ Matrix.nzapply = function (M, fun) {
  * Apply the exponential function to each entry.
  * @param {Matrix} M Matrix
  * @returns {Matrix}
+ * @static
  */
 Matrix.exp = function (M) {
     return Matrix.apply( M, Matrix.applicators.exp );
@@ -1097,6 +1126,7 @@ Matrix.pow = function (M, n) {
  * @param {Number} rows Number of rows
  * @param {Number} [columns=rows] Number of columns (defaults to the value of rows)
  * @returns {Matrix} A new matrix of the specified size containing zeros everywhere.
+ * @static
  */
 Matrix.zeros = function (rows, columns) {
     if( !columns ) {
@@ -1111,6 +1141,7 @@ Matrix.zeros = function (rows, columns) {
  * @param {Number} rows Number of rows
  * @param {Number} [columns=rows] Number of columns
  * @returns {Matrix} A new matrix of the specified size containing ones everywhere.
+ * @static
  */
 Matrix.ones = function (rows, columns) {
     if( !columns ) {
@@ -1129,6 +1160,7 @@ Matrix.ones = function (rows, columns) {
  * Returns an identity matrix.
  * @param {Number} n Size of the matrix
  * @returns {Matrix} A new n-by-n identity matrix.
+ * @static
  */
 Matrix.eye = function (n) {
     var Result = new Matrix( n, n );
@@ -1145,6 +1177,7 @@ Matrix.eye = function (n) {
  * @param {Number[]} elements Array of diagonal elements
  * @param {Number} [k=0] Offset specifying the diagonal, i.e. k = 1 is the first upper diagonal
  * @returns {Matrix} Matrix with the specified elements on its diagonal.
+ * @static
  */
 Matrix.diag = function (elements, k) {
     k = k || 0;
