@@ -612,7 +612,14 @@ new Test( function () {
 }, 'Pow 1' );
 
 new Test( function () {
-}, '' );
+    assertMatrix( [0, 0, 0, 0].toMatrix(), Matrix.zeros( 2 ) );
+    assertMatrix( [1, 2, 3, 4, 5, 6].toMatrix( 2, 3 ), new Matrix( [1, 2, 3, 4, 5, 6], 2, 3 ) );
+}, 'Array to Matrix' );
+
+new Test( function () {
+    assertMatrix( [1, 2, 3, 4, 5, 6].toVector(), new Matrix( [1, 2, 3, 4, 5, 6], 6, 1 ) );
+    assertMatrix( [1, 2, 3, 4, 5, 6].toVector( true ), new Matrix( [1, 2, 3, 4, 5, 6], 1, 6 ) );
+}, 'Array to Vector' );
 
 // ##########
 

@@ -1275,3 +1275,27 @@ Matrix.diag = function (elements, k) {
 
     return Result;
 };
+
+
+/**
+ * Convert array to matrix.
+ * This method simply calls the {@link Matrix} constructor.
+ * @param {Number} [rows] Number of rows
+ * @param {Number} [columns] Number of columns
+ * @returns {Matrix}
+ */
+Array.prototype.toMatrix = function (rows, columns) {
+    return new Matrix( this, rows, columns );
+};
+
+/**
+ * Convert array to vector.
+ * @param {boolean} [isRowVector=false] If set to true, the vector will be a row vector, otherwise it will be a
+ * column vector
+ * @returns {Matrix}
+ */
+Array.prototype.toVector = function (isRowVector) {
+    isRowVector = isRowVector || false;
+
+    return new Matrix( this, (isRowVector) ? 1 : this.length, (isRowVector) ? this.length : 1 );
+};
