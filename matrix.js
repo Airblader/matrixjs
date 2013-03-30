@@ -1157,23 +1157,26 @@ Matrix.equals = function (A, B) {
 /**
  * Apply a custom function to each entry.
  * @param {Matrix} M Matrix
- * @param {function} fun Function to apply. It will be provided with three arguments (value, row index, column index)
- * and has to return the new value to write in the matrix.
- * @param {function} [filter] A function that will be called with the same arguments as fun. If provided, fun will
- * only be applied if filter returns true.
+ * @param {function} applicator Function to apply. It will be provided with three arguments (value, row index,
+ * column index) and has to return the new value to write in the matrix. Predefined applicators can be found at
+ * {@link Matrix.applicators}.
+ * @param {function} [filter=Matrix.filters.all] A function that will be called with the same arguments as applicator.
+ * If provided, applicator will only be applied if filter returns true. Predefined filters can be found at
+ * {@link Matrix.filters}.
  * @returns {Matrix}
  * @static
  */
-Matrix.apply = function (M, fun, filter) {
-    if( typeof fun !== 'function' ) {
+Matrix.apply = function (M, applicator, filter) {
+    filter = filter || Matrix.filters.all;
+
+    if( typeof applicator !== 'function' ) {
         throw new TypeError( 'Applicator has to be a function.' );
     }
 
-    if( filter && typeof filter !== 'function' ) {
+    if( typeof filter !== 'function' ) {
         throw new TypeError( 'Filter has to be a function.' );
     }
 
-    filter = filter || Matrix.filters.all;
     var Result = M.copy(),
         current;
 
@@ -1182,7 +1185,7 @@ Matrix.apply = function (M, fun, filter) {
             current = Result.get( i, j );
 
             if( filter( current, i, j ) === true ) {
-                Result.set( i, j, fun( current, i, j ) );
+                Result.set( i, j, applicator( current, i, j ) );
             }
         }
     }
@@ -1193,13 +1196,14 @@ Matrix.apply = function (M, fun, filter) {
 /**
  * Apply a custom function to each non-zero entry.
  * @param {Matrix} M Matrix
- * @param {function} fun Function to apply. It will be provided with three arguments (value, row index, column index)
- * and has to return the new value to write in the matrix.
+ * @param {function} applicator Function to apply. It will be provided with three arguments (value, row index,
+ * column index) and has to return the new value to write in the matrix. Predefined applicators can be found at
+ * {@link Matrix.applicators}.
  * @returns {Matrix}
  * @static
  */
-Matrix.nzapply = function (M, fun) {
-    return Matrix.apply( M, fun, Matrix.filters.nonZero );
+Matrix.nzapply = function (M, applicator) {
+    return Matrix.apply( M, applicator, Matrix.filters.nonZero );
 };
 
 /**
