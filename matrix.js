@@ -5,27 +5,29 @@
  *
  * matrix.js is a Javascript library that offers a matrix structure and calculations on matrices,
  * such as adding, multiplying, inverting, ...
+ *
+ * @author Ingo Bürk
  */
 
 /**
- * Creates a new Matrix.
- * There is a number of different signatures for the parameter(s) to define the matrix:
- *  - Use one number n to create a n-by-n matrix filled with zeros.
- *    Example:
+ * Creates a new Matrix.<br />
+ * There is a number of different signatures for the parameter(s) to define the matrix.<br />
+ *  - Use one number n to create a n-by-n matrix filled with zeros.<br />
+ *  - Use two numbers m, n to create a m-by-n matrix filled with zeros.<br />
+ *  - Use an array of arrays, wherein the inner arrays represent entire rows.<br />
+ *  - Use an array of numbers defining the elements from left to right, top to bottom. If no other argument
+ *    is given, the matrix will be assumed to be square. Alternatively, pass two arguments to specify the row and
+ *    column dimension of the matrix. If either one is null/undefined, it will be computed from the other one.
+ *    @example
  *      new Matrix( 3 );
- *  - Use two numbers m, n to create a m-by-n matrix filled with zeros.
- *    Example:
+ *
  *      new Matrix( 2, 3 );
- *  - Use an array of arrays, wherein the inner arrays represent entire rows.
- *    Example:
+ *
  *      new Matrix( [
  *          [1,2,3],
  *          [4,5,6]
  *      ] );
- *  - Use an array of numbers defining the elements from left to right, top to bottom. If no other argument
- *    is given, the matrix will be assumed to be square. Alternatively, pass two arguments to specify the row and
- *    column dimension of the matrix. If either one is null/undefined, it will be computed from the other one.
- *    Examples:
+ *
  *      new Matrix( [1, 2, 3, 4, 5, 6, 7, 8, 9] );
  *      new Matrix( [1, 2, 3, 4, 5, 6], 2, 3 );
  *      new Matrix( [1, 2, 3, 4, 5, 6], 2 );
@@ -37,112 +39,193 @@ function Matrix () {
         __rows, __columns,
         __elements = [];
 
+    /**
+     * @see Matrix.add
+     */
     this.add = function (M) {
         return Matrix.add( this, M );
     };
 
+    /**
+     * @see Matrix.subtract
+     */
     this.subtract = function (M) {
         return Matrix.subtract( this, M );
     };
 
+    /**
+     * @see Matrix.scale
+     */
     this.scale = function (k) {
         return Matrix.scale( this, k );
     };
 
+    /**
+     * @see Matrix.multiply
+     */
     this.multiply = function (M) {
         return (Matrix.__isNumber( M )) ? this.scale( M ) : Matrix.multiply( this, M );
     };
 
+    /**
+     * @see Matrix.dot
+     */
     this.dot = function (M) {
         return Matrix.dot( this, M );
     };
 
+    /**
+     * @see Matrix.cross
+     */
     this.cross = function (M) {
         return Matrix.cross( this, M );
     };
 
+    /**
+     * @see Matrix.trace
+     */
     this.trace = function () {
         return Matrix.trace( this );
     };
 
+    /**
+     * @see Matrix.transpose
+     */
     this.transpose = function () {
         return Matrix.transpose( this );
     };
 
+    /**
+     * @see Matrix.det
+     */
     this.det = function () {
         return Matrix.det( this );
     };
 
+    /**
+     * @see Matrix.inverse
+     */
     this.inverse = function () {
         return Matrix.inverse( this );
     };
 
+    /**
+     * @see Matrix.augment
+     */
     this.augment = function (M) {
         return Matrix.augment( this, M );
     };
 
+    /**
+     * @see Matrix.submatrix
+     */
     this.submatrix = function (rowStart, rowEnd, columnStart, columnEnd) {
         return Matrix.submatrix( this, rowStart, rowEnd, columnStart, columnEnd );
     };
 
+    /**
+     * @see Matrix.abs
+     */
     this.abs = function () {
         return Matrix.abs( this );
     };
 
+    /**
+     * @see Matrix.apply
+     */
     this.apply = function (fun, filter) {
         return Matrix.apply( this, fun, filter );
     };
 
+    /**
+     * @see Matrix.nzapply
+     */
     this.nzapply = function (fun) {
         return Matrix.nzapply( this, fun );
     };
 
+    /**
+     * @see Matrix.exp
+     */
     this.exp = function () {
         return Matrix.exp( this );
     };
 
+    /**
+     * @see Matrix.pow
+     */
     this.pow = function (n) {
         return Matrix.pow( this, n );
     };
 
+    /**
+     * @see Matrix.prototype.roundTo
+     */
     this.round = function () {
         return this.roundTo( 0 );
     };
 
+    /**
+     * @see Matrix.roundTo
+     */
     this.roundTo = function (precision) {
         return Matrix.roundTo( this, precision );
     };
 
+    /**
+     * @see Matrix.addRow
+     */
     this.addRow = function (elements) {
         // TODO : allow specifying an index
         return Matrix.addRow( this, elements );
     };
 
+    /**
+     * @see Matrix.addColumn
+     */
     this.addColumn = function (elements) {
         // TODO : allow specifying an index
         return Matrix.addColumn( this, elements );
     };
 
+    /**
+     * @see Matrix.isSquare
+     */
     this.isSquare = function () {
         return Matrix.isSquare( this );
     };
 
+    /**
+     * @see Matrix.isVector
+     */
     this.isVector = function () {
         return Matrix.isVector( this );
     };
 
+    /**
+     * @see Matrix.copy
+     */
     this.copy = function () {
         return Matrix.copy( this );
     };
 
+    /**
+     * @see Matrix.contains
+     */
     this.contains = function (needle, precision) {
         return Matrix.contains( this, needle, precision );
     };
 
+    /**
+     * @see Matrix.equals
+     */
     this.equals = function (M) {
         return Matrix.equals( this, M );
     };
 
+    /**
+     * @see Matrix.toString
+     */
     this.toString = function (rowSeparator, columnSeparator) {
         return Matrix.toString( this, rowSeparator, columnSeparator );
     };
@@ -336,10 +419,10 @@ function Matrix () {
 
     /**
      * Get the dimensions of the matrix.
-     * Without any arguments, this is a short-hand notation for Matrix.prototype.getDimensions(). Other arguments are:
-     *  - 1 or 'rows' : Number of rows
-     *  - 2 or 'columns' : Number of columns
-     *  - 'max' : Dominant dimension
+     * Without any arguments, this is a short-hand notation for Matrix.prototype.getDimensions(). Other arguments are:<br />
+     *  - 1 or 'rows' : Number of rows<br />
+     *  - 2 or 'columns' : Number of columns<br />
+     *  - 'max' : Dominant dimension<br />
      *  - 'min' : Smaller dimension
      * @returns {{rows: Number, columns: Number}|Number} Object with the dimensions of requested dimension or just
      * the requested dimension.
@@ -824,7 +907,7 @@ Matrix.submatrix = function (M, rowStart, rowEnd, columnStart, columnEnd) {
 };
 
 /**
- * Augment to matrices.
+ * Augment two matrices.
  * @param {Matrix} A Matrix
  * @param {Matrix} B Matrix
  * @returns {Matrix} Augmented matrix A|B.
