@@ -40,20 +40,6 @@ function Matrix () {
         __elements = [];
 
     /**
-     * @see Matrix.det
-     */
-    this.det = function () {
-        return Matrix.det( this );
-    };
-
-    /**
-     * @see Matrix.inverse
-     */
-    this.inverse = function () {
-        return Matrix.inverse( this );
-    };
-
-    /**
      * @see Matrix.augment
      */
     this.augment = function (M) {
@@ -726,16 +712,14 @@ Matrix.prototype.trace = function () {
 /**
  * Performs a LU decomposition. Both matrices will be written in the same matrix, i.e. the trivial
  * diagonal entries will not be stored.
- * @param {Matrix} M Matrix
  * @returns {Matrix} Matrix with the LU entries. There is also a hidden property swappedRows with the number
  * of rows that were swapped in the process.
- * @static
  */
-Matrix.LUDecomposition = function (M) {
-    var m = M.dim( 1 ),
-        n = M.dim( 2 ),
+Matrix.prototype.LUDecomposition = function () {
+    var m = this.dim( 1 ),
+        n = this.dim( 2 ),
         swappedRows = 0,
-        LU = M.copy();
+        LU = this.copy();
 
     var i, j, k;
 
@@ -781,24 +765,22 @@ Matrix.LUDecomposition = function (M) {
 };
 
 /**
- * Calculate the determinant of a Matrix.
- * @param {Matrix} M Matrix
- * @returns {Number} Determinant of M.
- * @static
+ * Calculate the determinant.
+ * @returns {Number}
  */
-Matrix.det = function (M) {
+Matrix.prototype.det = function () {
     /* TODO Ideas:
      *   1. Sparse matrix: Use Laplace?
      *   2. If triangular -> product of diagonal
      *   3. Direct calculation for up to 3x3 or similar
      */
 
-    if( !M.isSquare() ) {
+    if( !this.isSquare() ) {
         throw new TypeError( 'Matrix is not square.' );
     }
 
-    var n = M.dim( 1 ),
-        LU = Matrix.LUDecomposition( M );
+    var n = this.dim( 1 ),
+        LU = this.LUDecomposition();
 
     var det = Math.pow( -1, LU.swappedRows );
     for( var i = 1; i <= n; i++ ) {
@@ -809,21 +791,19 @@ Matrix.det = function (M) {
 };
 
 /**
- * Calculate the inverse of a Matrix.
- * @param {Matrix} M Matrix
- * @returns {Matrix} Inverse of M, a.k.a. M^(-1).
- * @static
+ * Calculate the inverse matrix.
+ * @returns {Matrix}
  */
-Matrix.inverse = function (M) {
-    if( !M.isSquare() ) {
+Matrix.prototype.inverse = function () {
+    if( !this.isSquare() ) {
         throw new TypeError( 'Matrix is not square.' );
     }
 
-    var augmentedM = Matrix.augment( M, Matrix.eye( M.dim( 1 ) ) ),
+    var augmentedM = this.augment( Matrix.eye( this.dim( 1 ) ) ),
         row, i, j, k;
 
     try {
-        augmentedM = Matrix.LUDecomposition( augmentedM );
+        augmentedM = augmentedM.LUDecomposition();
 
         // TODO The following two loops can probably be rewritten into something smarter
         for( i = augmentedM.dim( 1 ); i > 1; i-- ) {
@@ -849,7 +829,7 @@ Matrix.inverse = function (M) {
     }
 
     return Matrix.submatrix( augmentedM,
-        1, augmentedM.dim( 1 ), M.dim( 2 ) + 1, augmentedM.dim( 2 ) );
+        1, augmentedM.dim( 1 ), this.dim( 2 ) + 1, augmentedM.dim( 2 ) );
 };
 
 /**
