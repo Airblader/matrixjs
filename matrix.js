@@ -107,14 +107,14 @@ function Matrix () {
             var rows = args[1],
                 columns = args[2];
 
-            if( !rows && !columns ) {
+            if( !Matrix.__isNumber( rows ) && !Matrix.__isNumber( columns ) ) {
                 var dim = Math.sqrt( __elements.length );
 
                 rows = dim;
                 columns = dim;
             } else if( !rows && typeof Matrix.__isInteger( columns ) ) {
                 rows = __elements.length / columns;
-            } else if( typeof rows === 'number' && !columns ) {
+            } else if( Matrix.__isInteger( rows ) && !columns ) {
                 columns = __elements.length / rows;
             }
 
@@ -202,9 +202,12 @@ Matrix.prototype.set = function (row, column, value) {
 /**
  * Get a row from the matrix as an array.
  * @param {Number} row The row index of the row that shall be returned
- * @returns {Number[]} Array of the elements in the specified row.
+ * @param {Boolean} [asMatrix=false] If true, the row will be returned as a matrix, otherwise as an array.
+ * @returns {Number[]|Matrix} Array of the elements in the specified row.
  */
-Matrix.prototype.getRow = function (row) {
+Matrix.prototype.getRow = function (row, asMatrix) {
+    asMatrix = asMatrix || false;
+
     if( row < 1 || row > this.dim( 1 ) ) {
         throw new TypeError( 'Invalid row index.' );
     }
@@ -215,7 +218,7 @@ Matrix.prototype.getRow = function (row) {
         elements[i] = elements[i] || 0;
     }
 
-    return elements;
+    return (asMatrix) ? new Matrix( elements, 1 ) : elements;
 };
 
 /**
@@ -244,9 +247,12 @@ Matrix.prototype.setRow = function (row, elements) {
 /**
  * Get a column from the matrix as an array.
  * @param {Number} column The column index of the column that shall be returned
- * @returns {Number[]} Array of the elements in the specified column.
+ * @param {Boolean} asMatrix If true, the column will be returned as a matrix, otherwise as an array.
+ * @returns {Number[]|Matrix} Array of the elements in the specified column.
  */
-Matrix.prototype.getColumn = function (column) {
+Matrix.prototype.getColumn = function (column, asMatrix) {
+    asMatrix = asMatrix || false;
+
     if( column < 1 || column > this.dim( 2 ) ) {
         throw new TypeError( 'Invalid column index.' );
     }
@@ -257,7 +263,7 @@ Matrix.prototype.getColumn = function (column) {
         elements[i] = this.__get( start + i * this.dim( 2 ) ) || 0;
     }
 
-    return elements;
+    return (asMatrix) ? new Matrix( elements, null, 1 ) : elements;
 };
 
 /**
@@ -992,7 +998,6 @@ Array.prototype.toVector = function (isRowVector) {
 Matrix.prototype.__convertToIndex = function (row, column) {
     return this.dim( 2 ) * (row - 1) + column - 1;
 };
-
 
 
 /**
