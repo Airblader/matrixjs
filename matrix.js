@@ -40,13 +40,6 @@ function Matrix () {
         __elements = [];
 
     /**
-     * @see Matrix.toString
-     */
-    this.toString = function (rowSeparator, columnSeparator) {
-        return Matrix.toString( this, rowSeparator, columnSeparator );
-    };
-
-    /**
      * Get the diagonal of the matrix.
      * @param {Number} [k=0] Specified which diagonal to return, i.e. 1 for the first upper secondary diagonal.
      * @returns {Number[]} Diagonal of the matrix.
@@ -910,24 +903,24 @@ Matrix.prototype.contains = function (needle, precision) {
 };
 
 /**
- * Create a string representation of a matrix.
- * @param {Matrix} M
+ * Create a string representation of the matrix.
  * @param {String} [rowSeparator='\r\n'] Delimiter between columns
- * @param {String} [columnSeparator='\t'] Delimiter between the last column of the previous and first column of the next row
- * @returns {string}
- * @static
+ * @param {String} [columnSeparator='\t'] Delimiter between the last column of the previous and first column of the
+ * next row
+ * @returns {String}
+ * @override
  */
-Matrix.toString = function (M, rowSeparator, columnSeparator) {
+Matrix.prototype.toString = function (rowSeparator, columnSeparator) {
     // TODO move from concatenation to join
     rowSeparator = rowSeparator || '\r\n';
     columnSeparator = columnSeparator || '\t';
 
     var str = '';
-    for( var i = 1; i <= M.dim( 1 ); i++ ) {
-        for( var j = 1; j <= M.dim( 2 ); j++ ) {
-            str += M.get( i, j );
+    for( var i = 1; i <= this.dim( 1 ); i++ ) {
+        for( var j = 1; j <= this.dim( 2 ); j++ ) {
+            str += this.get( i, j );
 
-            if( j !== M.dim( 2 ) ) {
+            if( j !== this.dim( 2 ) ) {
                 str += columnSeparator;
             }
         }
