@@ -32,6 +32,7 @@
  *      new Matrix( [1, 2, 3, 4, 5, 6], 2, 3 );
  *      new Matrix( [1, 2, 3, 4, 5, 6], 2 );
  *      new Matrix( [1, 2, 3, 4, 5, 6], null, 3 );
+ * @class Represents a matrix.
  * @constructor
  */
 function Matrix () {
@@ -39,54 +40,20 @@ function Matrix () {
         __rows, __columns,
         __elements = [];
 
+    /**
+     * @private
+     * @ignore
+     */
     this.__get = function (index) {
         return __elements[index];
     };
 
+    /**
+     * @private
+     * @ignore
+     */
     this.__set = function (index, value) {
         __elements[index] = value;
-        return this;
-    };
-
-    /**
-     * Get a row from the matrix as an array.
-     * @param {Number} row The row index of the row that shall be returned
-     * @returns {Number[]} Array of the elements in the specified row.
-     */
-    this.getRow = function (row) {
-        if( row < 1 || row > __rows ) {
-            throw new TypeError( 'Invalid row index.' );
-        }
-
-        var start = this.__convertToIndex( row, 1 ),
-            elements = __elements.slice( start, start + __columns );
-        for( var i = 0; i < __columns; i++ ) {
-            elements[i] = elements[i] || 0;
-        }
-
-        return elements;
-    };
-
-    /**
-     * Replace a row in the matrix with a new one.
-     * @param {Number} row The row index of the row to replace
-     * @param {Number[]|Matrix} elements An array or Matrix containing the new entries for the row
-     * @returns {*}
-     */
-    this.setRow = function (row, elements) {
-        elements = Matrix.__getArrayOrElements( elements );
-
-        if( row < 1 || row > __rows ) {
-            throw new TypeError( 'Invalid row index.' );
-        }
-
-        if( elements.length !== __columns ) {
-            throw new TypeError( 'Wrong number of columns in row (found '
-                + elements.length + ' but expected ' + __columns + ').' );
-        }
-
-        __elements.splice.apply( __elements, [this.__convertToIndex( row, 1 ), __columns].concat( elements ) );
-
         return this;
     };
 
@@ -159,10 +126,6 @@ function Matrix () {
     };
 
     this.__setElements = function (elements) {
-        if( __elements.length !== 0 && __elements.length !== elements.length ) {
-            throw new TypeError( 'Invalid number of elements. The size of a matrix cannot be changed afterwards.' );
-        }
-
         __elements = elements;
         return this;
     };
@@ -356,6 +319,48 @@ Matrix.prototype.set = function (row, column, value) {
     }
 
     return this;
+};
+
+/**
+ * Get a row from the matrix as an array.
+ * @param {Number} row The row index of the row that shall be returned
+ * @returns {Number[]} Array of the elements in the specified row.
+ */
+Matrix.prototype.getRow = function (row) {
+    if( row < 1 || row > this.dim( 1 ) ) {
+        throw new TypeError( 'Invalid row index.' );
+    }
+
+    var start = this.__convertToIndex( row, 1 ),
+        elements = this.__getElements().slice( start, start + this.dim( 2 ) );
+    for( var i = 0; i < this.dim( 2 ); i++ ) {
+        elements[i] = elements[i] || 0;
+    }
+
+    return elements;
+};
+
+/**
+ * Replace a row in the matrix with a new one.
+ * @param {Number} row The row index of the row to replace
+ * @param {Number[]|Matrix} elements An array or Matrix containing the new entries for the row
+ * @returns {*}
+ */
+Matrix.prototype.setRow = function (row, elements) {
+    elements = Matrix.__getArrayOrElements( elements );
+
+    if( row < 1 || row > this.dim( 1 ) ) {
+        throw new TypeError( 'Invalid row index.' );
+    }
+
+    if( elements.length !== this.dim( 2 ) ) {
+        throw new TypeError( 'Wrong number of columns in row.' );
+    }
+
+    var __elements = this.__getElements();
+    __elements.splice.apply( __elements, [this.__convertToIndex( row, 1 ), this.dim( 2 )].concat( elements ) );
+
+    return this.__setElements( __elements );
 };
 
 /**
