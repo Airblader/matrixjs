@@ -206,43 +206,6 @@ function Matrix () {
         };
     };
 
-    /**
-     * Get the dimensions of the matrix.
-     * @param {Number|String} [which] Define which dimension should be returned. If this parameter is not given,
-     * this method is a synonym for {@link getDimensions()}. Possible values are:<br />
-     *  - 1 or 'rows' : Number of rows<br />
-     *  - 2 or 'columns' : Number of columns<br />
-     *  - 'max' : Dominant dimension<br />
-     *  - 'min' : Smaller dimension
-     * @returns {{rows: Number, columns: Number}|Number} Object with the dimensions of requested dimension or just
-     * the requested dimension.
-     */
-    this.dim = function (which) {
-        var dim = this.getDimensions();
-
-        switch( which ) {
-            case undefined:
-                return dim;
-                break;
-            case 1:
-            case 'rows':
-                return dim.rows;
-                break;
-            case 2:
-            case 'columns':
-                return dim.columns;
-                break;
-            case 'max':
-                return Math.max( dim.rows, dim.columns );
-                break;
-            case 'min':
-                return Math.min( dim.rows, dim.columns );
-                break;
-            default:
-                throw new TypeError( 'Invalid parameter(s).' );
-        }
-    };
-
     this.__convertToIndex = function (row, column) {
         return Matrix.__convertToIndex( this, row, column );
     };
@@ -413,6 +376,43 @@ Matrix.prototype.isSquare = function () {
  */
 Matrix.prototype.copy = function () {
     return new Matrix( this.__getElements(), this.dim( 1 ), this.dim( 2 ) );
+};
+
+/**
+ * Get the dimensions of the matrix.
+ * @param {Number|String} [which] Define which dimension should be returned. If this parameter is not given,
+ * this method is a synonym for {@link getDimensions()}. Possible values are:<br />
+ *  - 1 or 'rows' : Number of rows<br />
+ *  - 2 or 'columns' : Number of columns<br />
+ *  - 'max' : Dominant dimension<br />
+ *  - 'min' : Smaller dimension
+ * @returns {{rows: Number, columns: Number}|Number} Object with the dimensions of requested dimension or just
+ * the requested dimension.
+ */
+Matrix.prototype.dim = function (which) {
+    var dim = this.getDimensions();
+
+    switch( which ) {
+        case undefined:
+            return dim;
+            break;
+        case 1:
+        case 'rows':
+            return dim.rows;
+            break;
+        case 2:
+        case 'columns':
+            return dim.columns;
+            break;
+        case 'max':
+            return Math.max( dim.rows, dim.columns );
+            break;
+        case 'min':
+            return Math.min( dim.rows, dim.columns );
+            break;
+        default:
+            throw new TypeError( 'Invalid parameter(s).' );
+    }
 };
 
 /**
