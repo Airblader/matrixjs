@@ -40,20 +40,6 @@ function Matrix () {
         __elements = [];
 
     /**
-     * @see Matrix.prototype.roundTo
-     */
-    this.round = function () {
-        return this.roundTo( 0 );
-    };
-
-    /**
-     * @see Matrix.roundTo
-     */
-    this.roundTo = function (precision) {
-        return Matrix.roundTo( this, precision );
-    };
-
-    /**
      * @see Matrix.addRow
      */
     this.addRow = function (elements) {
@@ -860,18 +846,24 @@ Matrix.prototype.dot = function (M) {
 };
 
 /**
- * Rounds each element in a matrix with a specified precision.
- * @param {Matrix} M Matrix
- * @param {Number} [precision=0] Precision in digits after the comma
- * @returns {Matrix} Matrix with rounded entries.
- * @static
+ * Rounds each element to the nearest integer.
+ * @see Matrix.prototype.roundTo
  */
-Matrix.roundTo = function (M, precision) {
-    precision = precision || 0;
+Matrix.prototype.round = function () {
+    return this.roundTo( 0 );
+};
 
-    var Result = M.copy(),
+/**
+ * Rounds each element to a given number of digits.
+ * @param {Number} [digits=0] Precision in digits after the comma
+ * @returns {Matrix}
+ */
+Matrix.prototype.roundTo = function (digits) {
+    digits = digits || 0;
+
+    var Result = this.copy(),
         elements = Result.__getElements(),
-        power = Math.pow( 10, precision );
+        power = Math.pow( 10, digits );
 
     for( var i = 0; i < elements.length; i++ ) {
         if( elements[i] ) {
@@ -880,7 +872,6 @@ Matrix.roundTo = function (M, precision) {
     }
 
     Result.__setElements( elements );
-
     return Result;
 };
 
