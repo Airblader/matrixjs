@@ -40,13 +40,6 @@ function Matrix () {
         __elements = [];
 
     /**
-     * @see Matrix.cross
-     */
-    this.cross = function (M) {
-        return Matrix.cross( this, M );
-    };
-
-    /**
      * @see Matrix.trace
      */
     this.trace = function () {
@@ -1006,22 +999,20 @@ Matrix.abs = function (M) {
 };
 
 /**
- * Returns the cross product of two vectors. It doesn't matter whether the vectors are row or column vectors.
+ * Returns the cross product. It doesn't matter whether the vectors are row or column vectors.
  * The resulting vector will always be a column vector.
- * @param {Matrix} A Three-dimensional vector
- * @param {Matrix} B Three-dimensional vector
- * @returns {Matrix} The three-dimensional vector V = A x B.
- * @static
+ * @param {Matrix} M Three-dimensional vector
+ * @returns {Matrix} The three-dimensional vector V = A x M.
  */
-Matrix.cross = function (A, B) {
-    if( !A.isVector() || !B.isVector() || A.dim( 'max' ) !== 3 || B.dim( 'max' ) !== 3 ) {
+Matrix.prototype.cross = function (M) {
+    if( !this.isVector() || !M.isVector() || this.dim( 'max' ) !== 3 || M.dim( 'max' ) !== 3 ) {
         throw new TypeError( 'Parameters are not three-dimensional vectors.' );
     }
 
     return new Matrix( [
-        [A.get( 2 ) * B.get( 3 ) - A.get( 3 ) * B.get( 2 )],
-        [A.get( 3 ) * B.get( 1 ) - A.get( 1 ) * B.get( 3 )],
-        [A.get( 1 ) * B.get( 2 ) - A.get( 2 ) * B.get( 1 )]
+        [this.get( 2 ) * M.get( 3 ) - this.get( 3 ) * M.get( 2 )],
+        [this.get( 3 ) * M.get( 1 ) - this.get( 1 ) * M.get( 3 )],
+        [this.get( 1 ) * M.get( 2 ) - this.get( 2 ) * M.get( 1 )]
     ] );
 };
 
