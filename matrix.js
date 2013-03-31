@@ -921,7 +921,7 @@ Matrix.prototype.stringify = function (rowSeparator, columnSeparator) {
             }
         }
 
-        if( i !== M.dim( 1 ) ) {
+        if( i !== this.dim( 1 ) ) {
             str += rowSeparator;
         }
     }
