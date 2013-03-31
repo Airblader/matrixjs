@@ -40,13 +40,6 @@ function Matrix () {
         __elements = [];
 
     /**
-     * @see Matrix.abs
-     */
-    this.abs = function () {
-        return Matrix.abs( this );
-    };
-
-    /**
      * @see Matrix.apply
      */
     this.apply = function (fun, filter) {
@@ -920,24 +913,19 @@ Matrix.roundTo = function (M, precision) {
 };
 
 /**
- * Returns a matrix with the absolute values of each entry of a given matrix.
- * @param {Matrix} M Matrix
- * @returns {Matrix} Matrix N with N(i,j) = abs( M(i,j) ) for all i,j.
- * @static
+ * Pointwise absolute value of the matrix.
+ * @returns {Matrix} Matrix M with M(i,j) = abs( this(i,j) ) for all i,j.
  */
-Matrix.abs = function (M) {
-    var Result = M.copy(),
-        elements = Result.__getElements();
+Matrix.prototype.abs = function () {
+    var elements = this.__getElements();
 
-    for( var i = 0; i < M.length(); i++ ) {
+    for( var i = 0; i < this.length(); i++ ) {
         if( elements[i] ) {
             elements[i] = Math.abs( elements[i] );
         }
     }
 
-    Result.__setElements( elements );
-
-    return Result;
+    return new Matrix( elements, this.dim( 1 ), this.dim( 2 ) );
 };
 
 /**
