@@ -667,6 +667,14 @@ new Test( function () {
     assertMatrix( [1, 2, 3, 4, 5, 6].toVector( true ), new Matrix( [1, 2, 3, 4, 5, 6], 1, 6 ) );
 }, 'Array to Vector' );
 
+new Test( function () {
+    assertEquals( Matrix.zeros( 3 ).norm( 'p', 2 ), 0 );
+    assertEquals( Matrix.eye( 4 ).norm( 'p', 2 ), 2 );
+    assertEquals( Matrix.ones( 3 ).norm( 'p', 2 ), 3 );
+
+    assertEquals( Matrix.diag( [1, 2, 1, 2, 1, 2] ).norm( 'p', 3 ), 3 );
+}, 'Norm 1' );
+
 // ##########
 
 Test.runAll();

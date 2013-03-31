@@ -945,6 +945,61 @@ Matrix.prototype.pow = function (n) {
 };
 
 /**
+ * Calculate the norm.
+ * @param {String} [which='max'] Which norm to compute. Possible values are:<br />
+ *  - 'p' or 'pnorm': Entry-wise p-norm. The args parameter is required and has to specify p.
+ *  - 'frobenius': Frobenius norm, a.k.a. the 2-norm.
+ *  - 'rows' or 'rowsum': Row-sum norm.
+ *  - 'columns' or 'columnsum': Column-sum norm.
+ *  - 'max': Maximum norm.
+ * @param {Object|Number} [args] Additional parameters a norm may need, e.g. the parameter p for p-norms
+ * @returns {Number}
+ */
+Matrix.prototype.norm = function (which, args) {
+    which = which || 'max';
+    args = args || {};
+
+    switch( which.toLowerCase() ) {
+        case 'p':
+        case 'pnorm':
+            return this.pnorm( args );
+        case 'frobenius':
+            return this.norm( 'p', {p: 2} );
+        case 'rows':
+        case 'rowsum':
+            // TODO
+            break;
+        case 'columns':
+        case 'columnsum':
+            // TODO
+            break;
+        case 'max':
+            // TODO
+            break;
+        default:
+            throw new Matrix.MatrixError( Matrix.ErrorCodes.INVALID_PARAMETERS, 'Norm not supported' );
+    }
+};
+
+/**
+ * Calculate the p-norm.
+ * @param {Number} p
+ * @returns {Number}
+ */
+Matrix.prototype.pnorm = function (p) {
+    if( !Matrix.__isInteger( p ) ) {
+        throw new Matrix.MatrixError( Matrix.ErrorCodes.INVALID_PARAMETERS, 'Parameter must be an integer' );
+    }
+
+    var norm = 0;
+    for( var i = 0; i < this.size(); i++ ) {
+        norm += Math.pow( Math.abs( this.__get( i ) || 0 ), p );
+    }
+
+    return Math.pow( norm, 1 / p );
+};
+
+/**
  * Get the diagonal of the matrix.
  * @param {Number} [k=0] Specified which diagonal to return, i.e. 1 for the first upper secondary diagonal.
  * @returns {Number[]}
@@ -1067,10 +1122,10 @@ Matrix.MatrixError = function (code, msg) {
 };
 
 Matrix.ErrorCodes = {
-    INVALID_PARAMETERS : 'Invalid parameters',
-    OUT_OF_BOUNDS : 'Out of bounds',
-    DIMENSION_MISMATCH : 'Dimension mismatch',
-    MATRIX_IS_SINGULAR : 'Matrix is singular'
+    INVALID_PARAMETERS: 'Invalid parameters',
+    OUT_OF_BOUNDS: 'Out of bounds',
+    DIMENSION_MISMATCH: 'Dimension mismatch',
+    MATRIX_IS_SINGULAR: 'Matrix is singular'
 };
 
 /**
