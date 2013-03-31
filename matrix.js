@@ -58,50 +58,6 @@ function Matrix () {
     };
 
     /**
-     * Get a column from the matrix as an array.
-     * @param {Number} column The column index of the column that shall be returned
-     * @returns {Number[]} Array of the elements in the specified column.
-     */
-    this.getColumn = function (column) {
-        if( column < 1 || column > __columns ) {
-            throw new TypeError( 'Invalid column index.' );
-        }
-
-        var start = this.__convertToIndex( 1, column ),
-            elements = [];
-        for( var i = 0; i < __rows; i++ ) {
-            elements[i] = __elements[start + i * __columns] || 0;
-        }
-
-        return elements;
-    };
-
-    /**
-     * Replace a column in the matrix with a new one.
-     * @param {Number} column The column index of the column to replace
-     * @param {Number[]|Matrix} elements An array or matrix containing the new entries for the column
-     * @returns {*}
-     */
-    this.setColumn = function (column, elements) {
-        elements = Matrix.__getArrayOrElements( elements );
-
-        if( column < 1 || column > __columns ) {
-            throw new TypeError( 'Invalid column index.' );
-        }
-
-        if( elements.length !== __rows ) {
-            throw new TypeError( 'Wrong number of rows in column (found '
-                + elements.length + ' but expected ' + __rows + ').' );
-        }
-
-        for( var i = 0; i < elements.length; i++ ) {
-            __elements[this.__convertToIndex( i + 1, column )] = elements[i];
-        }
-
-        return this;
-    };
-
-    /**
      * Returns the number of elements in the matrix.
      * @returns {number}
      * @override
@@ -361,6 +317,49 @@ Matrix.prototype.setRow = function (row, elements) {
     __elements.splice.apply( __elements, [this.__convertToIndex( row, 1 ), this.dim( 2 )].concat( elements ) );
 
     return this.__setElements( __elements );
+};
+
+/**
+ * Get a column from the matrix as an array.
+ * @param {Number} column The column index of the column that shall be returned
+ * @returns {Number[]} Array of the elements in the specified column.
+ */
+Matrix.prototype.getColumn = function (column) {
+    if( column < 1 || column > this.dim( 2 ) ) {
+        throw new TypeError( 'Invalid column index.' );
+    }
+
+    var start = this.__convertToIndex( 1, column ),
+        elements = [];
+    for( var i = 0; i < this.dim( 1 ); i++ ) {
+        elements[i] = this.__get( start + i * this.dim( 2 ) ) || 0;
+    }
+
+    return elements;
+};
+
+/**
+ * Replace a column in the matrix with a new one.
+ * @param {Number} column The column index of the column to replace
+ * @param {Number[]|Matrix} elements An array or matrix containing the new entries for the column
+ * @returns {*}
+ */
+Matrix.prototype.setColumn = function (column, elements) {
+    elements = Matrix.__getArrayOrElements( elements );
+
+    if( column < 1 || column > this.dim( 2 ) ) {
+        throw new TypeError( 'Invalid column index.' );
+    }
+
+    if( elements.length !== this.dim( 1 ) ) {
+        throw new TypeError( 'Wrong number of rows in column' );
+    }
+
+    for( var i = 0; i < elements.length; i++ ) {
+        this.__set( this.__convertToIndex( i + 1, column ), elements[i] );
+    }
+
+    return this;
 };
 
 /**
