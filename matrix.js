@@ -967,11 +967,11 @@ Matrix.prototype.norm = function (which, args) {
             return this.pnorm( 2 );
         case 'rows':
         case 'rowsum':
-            // TODO
+            return this.rownorm();
             break;
         case 'columns':
         case 'columnsum':
-            // TODO
+            return this.columnnorm();
             break;
         case 'max':
             return this.maxnorm();
@@ -1007,6 +1007,34 @@ Matrix.prototype.maxnorm = function () {
     var norm = 0;
     for( var i = 0; i < this.size(); i++ ) {
         norm = Math.max( norm, Math.abs( this.__get( i ) || 0 ) );
+    }
+
+    return norm;
+};
+
+/**
+ * Calculate the row-sum norm.
+ * @returns {number}
+ */
+Matrix.prototype.rownorm = function () {
+    var norm = 0;
+
+    for( var i = 1; i <= this.dim( 1 ); i++ ) {
+        norm = Math.max( norm, this.getRow( i, true ).pnorm( 1 ) );
+    }
+
+    return norm;
+};
+
+/**
+ * Calculate the column-sum norm.
+ * @returns {number}
+ */
+Matrix.prototype.columnnorm = function () {
+    var norm = 0;
+
+    for( var i = 1; i <= this.dim( 2 ); i++ ) {
+        norm = Math.max( norm, this.getColumn( i, true ).pnorm( 1 ) );
     }
 
     return norm;

@@ -682,6 +682,20 @@ new Test( function () {
     assertEquals( Matrix.zeros( 5 ).set( 3, 4, -10 ).norm( 'max' ), 10 );
 }, 'Norm 2' );
 
+new Test( function () {
+    assertEquals( Matrix.zeros( 3 ).norm( 'rows' ), 0 );
+    assertEquals( Matrix.eye( 3 ).norm( 'rows' ), 1 );
+    assertEquals( Matrix.diag( [1, 3, 2] ).norm( 'rows' ), 3 );
+    assertEquals( Matrix.diag( [1, 3, 2] ).set( 3, 1, 5 ).norm( 'rows' ), 7 );
+    assertEquals( Matrix.diag( [1, 3, 2] ).set( 3, 1, 5 ).scale( -1 ).norm( 'rows' ), 7 );
+
+    assertEquals( Matrix.zeros( 3 ).norm( 'columns' ), 0 );
+    assertEquals( Matrix.eye( 3 ).norm( 'columns' ), 1 );
+    assertEquals( Matrix.diag( [1, 3, 2] ).norm( 'columns' ), 3 );
+    assertEquals( Matrix.diag( [1, 3, 2] ).set( 3, 1, 5 ).norm( 'columns' ), 6 );
+    assertEquals( Matrix.diag( [1, 3, 2] ).set( 3, 1, 5 ).scale( -1 ).norm( 'columns' ), 6 );
+}, 'Norm 3' );
+
 // ##########
 
 Test.runAll();
