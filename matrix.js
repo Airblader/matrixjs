@@ -139,79 +139,10 @@ function Matrix () {
 }
 
 /**
- * Predefined filters that can be used with methods like {@link Matrix.apply}.
- * These functions can take up to three arguments (value, row index, column index).
- */
-Matrix.filters = {
-    all: function () {
-        return true;
-    },
-
-    nonZero: function (value) {
-        return value !== 0;
-    },
-
-    diag: function (value, i, j) {
-        return i === j;
-    }
-};
-
-/**
- * Predefined functions that can be used for methods like {@link Matrix.apply}.
- * These functions can take up to three arguments (value, row index, column index).
- */
-Matrix.applicators = {
-    exp: function (value) {
-        return Math.exp( value );
-    },
-
-    square: function (value) {
-        return value * value;
-    }
-};
-
-/**
- * @static
- * @private
- */
-Matrix.__isNumber = function (k) {
-    return typeof k === 'number';
-};
-
-/**
- * @static
- * @private
- */
-Matrix.__isInteger = function (k) {
-    return Matrix.__isNumber( k ) && (k | 0) === k;
-};
-
-/**
- * @static
- * @private
- */
-Matrix.__isMatrix = function (obj) {
-    return obj instanceof Matrix;
-};
-
-/**
  * @private
  */
 Matrix.prototype.__convertToIndex = function (row, column) {
     return this.dim( 2 ) * (row - 1) + column - 1;
-};
-
-/**
- * @param {Matrix|Number[]} obj
- * @static
- * @private
- */
-Matrix.__getArrayOrElements = function (obj) {
-    if( Matrix.__isMatrix( obj ) ) {
-        return obj.__getElements();
-    }
-
-    return obj;
 };
 
 /**
@@ -395,7 +326,7 @@ Matrix.prototype.size = function () {
 /**
  * Get the dimensions of the matrix.
  * @param {Number|String} [which] Define which dimension should be returned. If this parameter is not given,
- * this method is a synonym for {@link __dim()}. Possible values are:<br />
+ * an object with a 'rows' and 'columns' property is returned. Other possible values are:<br />
  *  - 1 or 'rows' : Number of rows<br />
  *  - 2 or 'columns' : Number of columns<br />
  *  - 'max' : Dominant dimension<br />
@@ -1015,6 +946,126 @@ Matrix.prototype.pow = function (n) {
 };
 
 /**
+ * Get the diagonal of the matrix.
+ * @param {Number} [k=0] Specified which diagonal to return, i.e. 1 for the first upper secondary diagonal.
+ * @returns {Number[]}
+ */
+Matrix.prototype.diag = function (k) {
+    k = k || 0;
+
+    var diag = [],
+        rowOffset = -Math.min( k, 0 ),
+        columnOffset = Math.max( k, 0 ),
+        endOfLoop = (rowOffset === 0 ) ? (this.dim( 2 ) - columnOffset) : (this.dim( 1 ) - rowOffset);
+
+    if( endOfLoop <= 0 ) {
+        throw new TypeError( 'Matrix does not have that many diagonals.' );
+    }
+
+    for( var i = 1; i <= endOfLoop; i++ ) {
+        diag.push( this.get( i + rowOffset, i + columnOffset ) );
+    }
+
+    return diag;
+};
+
+/**
+ * Convert array to matrix.
+ * This method simply calls the {@link Matrix} constructor.
+ * @param {Number} [rows] Number of rows
+ * @param {Number} [columns] Number of columns
+ * @returns {Matrix}
+ */
+Array.prototype.toMatrix = function (rows, columns) {
+    return new Matrix( this, rows, columns );
+};
+
+/**
+ * Convert array to vector.
+ * @param {boolean} [isRowVector=false] If set to true, the vector will be a row vector, otherwise it will be a
+ * column vector
+ * @returns {Matrix}
+ */
+Array.prototype.toVector = function (isRowVector) {
+    isRowVector = isRowVector || false;
+
+    return new Matrix( this, (isRowVector) ? 1 : this.length, (isRowVector) ? this.length : 1 );
+};
+
+
+
+/**
+ * @static
+ * @private
+ */
+Matrix.__isNumber = function (k) {
+    return typeof k === 'number';
+};
+
+/**
+ * @static
+ * @private
+ */
+Matrix.__isInteger = function (k) {
+    return Matrix.__isNumber( k ) && (k | 0) === k;
+};
+
+/**
+ * @static
+ * @private
+ */
+Matrix.__isMatrix = function (obj) {
+    return obj instanceof Matrix;
+};
+
+/**
+ * @param {Matrix|Number[]} obj
+ * @static
+ * @private
+ */
+Matrix.__getArrayOrElements = function (obj) {
+    if( Matrix.__isMatrix( obj ) ) {
+        return obj.__getElements();
+    }
+
+    return obj;
+};
+
+/**
+ * Predefined filters that can be used with methods like {@link Matrix.apply}.
+ * These functions can take up to three arguments (value, row index, column index).
+ * @static
+ */
+Matrix.filters = {
+    all: function () {
+        return true;
+    },
+
+    nonZero: function (value) {
+        return value !== 0;
+    },
+
+    diag: function (value, i, j) {
+        return i === j;
+    }
+};
+
+/**
+ * Predefined functions that can be used for methods like {@link Matrix.apply}.
+ * These functions can take up to three arguments (value, row index, column index).
+ * @static
+ */
+Matrix.applicators = {
+    exp: function (value) {
+        return Math.exp( value );
+    },
+
+    square: function (value) {
+        return value * value;
+    }
+};
+
+/**
  * Returns a matrix of zeros.
  * If called with only one argument n, it will return a n-by-n matrix with zeros.
  * @param {Number} rows Number of rows
@@ -1066,30 +1117,6 @@ Matrix.eye = function (n) {
 };
 
 /**
- * Get the diagonal of the matrix.
- * @param {Number} [k=0] Specified which diagonal to return, i.e. 1 for the first upper secondary diagonal.
- * @returns {Number[]}
- */
-Matrix.prototype.diag = function (k) {
-    k = k || 0;
-
-    var diag = [],
-        rowOffset = -Math.min( k, 0 ),
-        columnOffset = Math.max( k, 0 ),
-        endOfLoop = (rowOffset === 0 ) ? (this.dim( 2 ) - columnOffset) : (this.dim( 1 ) - rowOffset);
-
-    if( endOfLoop <= 0 ) {
-        throw new TypeError( 'Matrix does not have that many diagonals.' );
-    }
-
-    for( var i = 1; i <= endOfLoop; i++ ) {
-        diag.push( this.get( i + rowOffset, i + columnOffset ) );
-    }
-
-    return diag;
-};
-
-/**
  * Returns a diagonal matrix.
  * If called with a second parameter k, the k-th diagonal will be filled instead of the main diagonal.
  * @param {Number[]|Matrix} elements Array or matrix of diagonal elements
@@ -1110,28 +1137,4 @@ Matrix.diag = function (elements, k) {
     }
 
     return Result;
-};
-
-
-/**
- * Convert array to matrix.
- * This method simply calls the {@link Matrix} constructor.
- * @param {Number} [rows] Number of rows
- * @param {Number} [columns] Number of columns
- * @returns {Matrix}
- */
-Array.prototype.toMatrix = function (rows, columns) {
-    return new Matrix( this, rows, columns );
-};
-
-/**
- * Convert array to vector.
- * @param {boolean} [isRowVector=false] If set to true, the vector will be a row vector, otherwise it will be a
- * column vector
- * @returns {Matrix}
- */
-Array.prototype.toVector = function (isRowVector) {
-    isRowVector = isRowVector || false;
-
-    return new Matrix( this, (isRowVector) ? 1 : this.length, (isRowVector) ? this.length : 1 );
 };
