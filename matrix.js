@@ -40,20 +40,6 @@ function Matrix () {
         __elements = [];
 
     /**
-     * @see Matrix.isSquare
-     */
-    this.isSquare = function () {
-        return Matrix.isSquare( this );
-    };
-
-    /**
-     * @see Matrix.isVector
-     */
-    this.isVector = function () {
-        return Matrix.isVector( this );
-    };
-
-    /**
      * @see Matrix.copy
      */
     this.copy = function () {
@@ -452,23 +438,19 @@ Matrix.__getArrayOrElements = function (obj) {
 };
 
 /**
- * Check if a matrix is a vector.
- * @param {Matrix} M Matrix
+ * Check if the matrix is a vector.
  * @returns {boolean} True if at least one dimension is 1.
- * @static
  */
-Matrix.isVector = function (M) {
-    return M.dim( 'min' ) === 1;
+Matrix.prototype.isVector = function () {
+    return this.dim( 'min' ) === 1;
 };
 
 /**
- * Check if a matrix is a square matrix.
- * @param {Matrix} M Matrix
+ * Check if the matrix is a square matrix.
  * @returns {boolean} True if the number of rows and columns equal, false otherwise.
- * @static
  */
-Matrix.isSquare = function (M) {
-    return M.dim( 1 ) === M.dim( 2 );
+Matrix.prototype.isSquare = function () {
+    return this.dim( 1 ) === this.dim( 2 );
 };
 
 /**
