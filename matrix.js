@@ -40,13 +40,6 @@ function Matrix () {
         __elements = [];
 
     /**
-     * @see Matrix.equals
-     */
-    this.equals = function (M) {
-        return Matrix.equals( this, M );
-    };
-
-    /**
      * @see Matrix.toString
      */
     this.toString = function (rowSeparator, columnSeparator) {
@@ -948,19 +941,17 @@ Matrix.toString = function (M, rowSeparator, columnSeparator) {
 };
 
 /**
- * Compare two matrices for equality.
- * @param {Matrix} A Matrix
- * @param {Matrix} B Matrix
- * @returns {boolean} True if A = B, false otherwise.
- * @static
+ * Compare with another matrix.
+ * @param {Matrix} M Matrix
+ * @returns {boolean} True if A = M, false otherwise.
  */
-Matrix.equals = function (A, B) {
-    if( A.dim( 1 ) !== B.dim( 1 ) || A.dim( 2 ) !== B.dim( 2 ) ) {
+Matrix.prototype.equals = function (M) {
+    if( this.dim( 1 ) !== M.dim( 1 ) || this.dim( 2 ) !== M.dim( 2 ) ) {
         return false;
     }
 
-    for( var i = 1; i <= A.length(); i++ ) {
-        if( A.get( i ) !== B.get( i ) ) {
+    for( var i = 1; i <= this.length(); i++ ) {
+        if( this.get( i ) !== M.get( i ) ) {
             return false;
         }
     }
