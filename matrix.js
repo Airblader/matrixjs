@@ -40,13 +40,6 @@ function Matrix () {
         __elements = [];
 
     /**
-     * @see Matrix.transpose
-     */
-    this.transpose = function () {
-        return Matrix.transpose( this );
-    };
-
-    /**
      * @see Matrix.det
      */
     this.det = function () {
@@ -701,15 +694,13 @@ Matrix.prototype.multiply = function (M) {
 };
 
 /**
- * Transpose a matrix, i.e. take the rows as the columns of the resulting matrix.
- * @param {Matrix} M Matrix
- * @returns {Matrix} Transposed matrix M^T.
- * @static
+ * Transpose the matrix, i.e. take the rows as the columns of the resulting matrix.
+ * @returns {Matrix}
  */
-Matrix.transpose = function (M) {
-    var Result = new Matrix( M.dim( 2 ), M.dim( 1 ) );
-    for( var i = 1; i <= M.dim( 1 ); i++ ) {
-        Result.setColumn( i, M.getRow( i ) );
+Matrix.prototype.transpose = function () {
+    var Result = new Matrix( this.dim( 2 ), this.dim( 1 ) );
+    for( var i = 1; i <= this.dim( 1 ); i++ ) {
+        Result.setColumn( i, this.getRow( i ) );
     }
 
     return Result;
