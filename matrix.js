@@ -40,13 +40,6 @@ function Matrix () {
         __elements = [];
 
     /**
-     * @see Matrix.scale
-     */
-    this.scale = function (k) {
-        return Matrix.scale( this, k );
-    };
-
-    /**
      * @see Matrix.multiply
      */
     this.multiply = function (M) {
@@ -660,29 +653,27 @@ Matrix.prototype.subtract = function (M) {
         return this.subtract.apply( this.subtract( args.shift() ), args );
     }
 
-    return this.add( Matrix.scale( M, -1 ) );
+    return this.add( M.scale( -1 ) );
 };
 
 /**
- * Scale a matrix with a factor (i.e. calculate k * A)
- * @param {Matrix} A Matrix
+ * Scale with a constant factor (i.e. calculate k * this)
  * @param {Number} k Factor
- * @returns {Matrix} Matrix A with all entries multiplied by k.
- * @static
+ * @returns {Matrix} Matrix with all entries multiplied by k.
  */
-Matrix.scale = function (A, k) {
-    if( typeof k !== 'number' || isNaN( k ) ) {
+Matrix.prototype.scale = function (k) {
+    if( !Matrix.__isNumber( k ) ) {
         throw new TypeError( 'Factor is not a number.' );
     }
 
-    var elementsA = Array.prototype.slice.call( A.__getElements() );
-    for( var i = 0; i < A.length(); i++ ) {
-        if( elementsA[i] ) {
-            elementsA[i] = k * elementsA[i];
+    var __elements = this.__getElements();
+    for( var i = 0; i < this.length(); i++ ) {
+        if( __elements[i] ) {
+            __elements[i] = k * __elements[i];
         }
     }
 
-    return new Matrix( A.dim( 1 ), A.dim( 2 ) ).__setElements( elementsA );
+    return new Matrix( __elements, this.dim( 1 ), this.dim( 2 ) );
 };
 
 /**
