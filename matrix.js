@@ -40,13 +40,6 @@ function Matrix () {
         __elements = [];
 
     /**
-     * @see Matrix.submatrix
-     */
-    this.submatrix = function (rowStart, rowEnd, columnStart, columnEnd) {
-        return Matrix.submatrix( this, rowStart, rowEnd, columnStart, columnEnd );
-    };
-
-    /**
      * @see Matrix.abs
      */
     this.abs = function () {
@@ -821,23 +814,20 @@ Matrix.prototype.inverse = function () {
         throw new TypeError( 'Matrix is not invertible.' );
     }
 
-    return Matrix.submatrix( augmentedM,
-        1, augmentedM.dim( 1 ), this.dim( 2 ) + 1, augmentedM.dim( 2 ) );
+    return augmentedM.submatrix( 1, augmentedM.dim( 1 ), this.dim( 2 ) + 1, augmentedM.dim( 2 ) );
 };
 
 /**
  * Extract a submatrix.
- * @param {Matrix} M Matrix
  * @param {Number} rowStart Row index where to start the cut
  * @param {Number} rowEnd Row index where to end the cut
  * @param {Number} columnStart Column index where to start the cut
  * @param {Number} columnEnd Column index where to end the cut
- * @returns {Matrix} Submatrix of M in the specified area.
- * @static
+ * @returns {Matrix}
  */
-Matrix.submatrix = function (M, rowStart, rowEnd, columnStart, columnEnd) {
-    var m = M.dim( 1 ),
-        n = M.dim( 2 );
+Matrix.prototype.submatrix = function (rowStart, rowEnd, columnStart, columnEnd) {
+    var m = this.dim( 1 ),
+        n = this.dim( 2 );
 
     if( rowStart < 1 || rowStart > m || columnStart < 1 || columnStart > n
         || rowEnd < 1 || rowEnd > m || columnEnd < 1 || columnEnd > n
@@ -850,7 +840,7 @@ Matrix.submatrix = function (M, rowStart, rowEnd, columnStart, columnEnd) {
 
     var Result = new Matrix( mResult, nResult );
     for( var i = rowStart; i <= rowEnd; i++ ) {
-        var row = M.getRow( i ).slice( columnStart - 1, columnEnd );
+        var row = this.getRow( i ).slice( columnStart - 1, columnEnd );
         Result.setRow( i - rowStart + 1, row );
     }
 

@@ -365,8 +365,8 @@ new Test( function () {
 new Test( function () {
     var M = new Matrix( [1, 2, 3, 3, 2, 1, 2, 1, 3], 3, 3 );
 
-    assertMatrix( Matrix.submatrix( M, 1, 3, 1, 3 ), M );
-    assertMatrix( Matrix.submatrix( M, 2, 3, 2, 3 ), new Matrix( [2, 1, 1, 3], 2, 2 ) );
+    assertMatrix( M.submatrix( 1, 3, 1, 3 ), M );
+    assertMatrix( M.submatrix( 2, 3, 2, 3 ), new Matrix( [2, 1, 1, 3], 2, 2 ) );
 }, 'Submatrix 2' );
 
 new Test( function () {
