@@ -206,10 +206,6 @@ function Matrix () {
         };
     };
 
-    this.__convertToIndex = function (row, column) {
-        return Matrix.__convertToIndex( this, row, column );
-    };
-
     this.__getElements = function () {
         return [].slice.call( __elements );
     };
@@ -335,11 +331,10 @@ Matrix.__isMatrix = function (obj) {
 };
 
 /**
- * @static
  * @private
  */
-Matrix.__convertToIndex = function (M, row, column) {
-    return M.dim( 2 ) * (row - 1) + column - 1;
+Matrix.prototype.__convertToIndex = function (row, column) {
+    return this.dim( 2 ) * (row - 1) + column - 1;
 };
 
 /**
