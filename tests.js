@@ -675,6 +675,13 @@ new Test( function () {
     assertEquals( Matrix.diag( [1, 2, 1, 2, 1, 2] ).norm( 'p', 3 ), 3 );
 }, 'Norm 1' );
 
+new Test( function () {
+    assertEquals( Matrix.zeros( 3 ).norm( 'max' ), 0 );
+    assertEquals( Matrix.eye( 3 ).norm( 'max' ), 1 );
+    assertEquals( Matrix.zeros( 5 ).set( 3, 4, 10 ).norm( 'max' ), 10 );
+    assertEquals( Matrix.zeros( 5 ).set( 3, 4, -10 ).norm( 'max' ), 10 );
+}, 'Norm 2' );
+
 // ##########
 
 Test.runAll();

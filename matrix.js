@@ -964,7 +964,7 @@ Matrix.prototype.norm = function (which, args) {
         case 'pnorm':
             return this.pnorm( args );
         case 'frobenius':
-            return this.norm( 'p', {p: 2} );
+            return this.pnorm( 2 );
         case 'rows':
         case 'rowsum':
             // TODO
@@ -974,7 +974,7 @@ Matrix.prototype.norm = function (which, args) {
             // TODO
             break;
         case 'max':
-            // TODO
+            return this.maxnorm();
             break;
         default:
             throw new Matrix.MatrixError( Matrix.ErrorCodes.INVALID_PARAMETERS, 'Norm not supported' );
@@ -997,6 +997,19 @@ Matrix.prototype.pnorm = function (p) {
     }
 
     return Math.pow( norm, 1 / p );
+};
+
+/**
+ * Calculate the maximum norm.
+ * @returns {Number}
+ */
+Matrix.prototype.maxnorm = function () {
+    var norm = 0;
+    for( var i = 0; i < this.size(); i++ ) {
+        norm = Math.max( norm, Math.abs( this.__get( i ) || 0 ) );
+    }
+
+    return norm;
 };
 
 /**
