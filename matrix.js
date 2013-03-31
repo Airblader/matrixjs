@@ -613,11 +613,16 @@ Matrix.prototype.add = function (M) {
     }
 
     var Result = new Matrix( this.dim( 1 ), this.dim( 2 ) ),
-        elementsResult = [];
+        elementsResult = [],
+        current;
 
     for( var i = 1; i <= this.length(); i++ ) {
         if( this.get( i ) !== 0 && M.get( i ) !== 0 ) {
-            elementsResult[i - 1] = this.get( i ) + M.get( i );
+            current = this.get( i ) + M.get( i );
+
+            if( current !== 0 ) {
+                elementsResult[i - 1] = current;
+            }
         }
     }
 
@@ -639,7 +644,27 @@ Matrix.prototype.subtract = function (M) {
         return this.subtract.apply( this.subtract( args.shift() ), args );
     }
 
-    return this.add( M.scale( -1 ) );
+    if( this.dim( 1 ) !== M.dim( 1 ) || this.dim( 2 ) !== M.dim( 2 ) ) {
+        throw new TypeError( 'Dimensions do not match.' );
+    }
+
+    var Result = new Matrix( this.dim( 1 ), this.dim( 2 ) ),
+        elementsResult = [],
+        current;
+
+    for( var i = 1; i <= this.length(); i++ ) {
+        if( this.get( i ) !== 0 && M.get( i ) !== 0 ) {
+            current = this.get( i ) - M.get( i );
+
+            if( current !== 0 ) {
+                elementsResult[i - 1] = current;
+            }
+        }
+    }
+
+    Result.__setElements( elementsResult );
+
+    return Result;
 };
 
 /**
