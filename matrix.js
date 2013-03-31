@@ -112,9 +112,9 @@ function Matrix () {
 
                 rows = dim;
                 columns = dim;
-            } else if( !rows && typeof Matrix.__isInteger( columns ) ) {
+            } else if( !Matrix.__isNumber( rows ) && Matrix.__isInteger( columns ) ) {
                 rows = __elements.length / columns;
-            } else if( Matrix.__isInteger( rows ) && !columns ) {
+            } else if( Matrix.__isInteger( rows ) && !Matrix.__isNumber( columns ) ) {
                 columns = __elements.length / rows;
             }
 
@@ -147,7 +147,7 @@ function Matrix () {
  * @returns {Number}
  */
 Matrix.prototype.get = function (row, column) {
-    if( typeof column === 'undefined' ) {
+    if( !Matrix.__isNumber( column ) ) {
         var index = arguments[0];
 
         if( index < 1 || index > this.size() ) {
@@ -177,7 +177,7 @@ Matrix.prototype.get = function (row, column) {
 Matrix.prototype.set = function (row, column, value) {
     var index;
 
-    if( typeof value === 'undefined' ) {
+    if( !Matrix.__isNumber( value ) ) {
         index = row - 1;
         value = column;
 
@@ -639,9 +639,6 @@ Matrix.prototype.inverse = function () {
  * @returns {Matrix}
  */
 Matrix.prototype.submatrix = function (rowStart, rowEnd, columnStart, columnEnd) {
-    var m = this.dim( 1 ),
-        n = this.dim( 2 );
-
     if( !this.__inRange( rowStart, columnStart ) || !this.__inRange( rowEnd, columnEnd )
         || rowStart > rowEnd || columnStart > columnEnd ) {
         throw new TypeError( 'Invalid parameters.' );
@@ -1092,7 +1089,7 @@ Matrix.applicators = {
  * @static
  */
 Matrix.zeros = function (rows, columns) {
-    if( !columns ) {
+    if( !Matrix.__isNumber( columns ) ) {
         columns = rows;
     }
 
@@ -1107,7 +1104,7 @@ Matrix.zeros = function (rows, columns) {
  * @static
  */
 Matrix.ones = function (rows, columns) {
-    if( !columns ) {
+    if( !Matrix.__isNumber( columns ) ) {
         columns = rows;
     }
 
