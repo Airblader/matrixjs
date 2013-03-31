@@ -40,22 +40,6 @@ function Matrix () {
         __elements = [];
 
     /**
-     * @see Matrix.addRow
-     */
-    this.addRow = function (elements) {
-        // TODO : allow specifying an index
-        return Matrix.addRow( this, elements );
-    };
-
-    /**
-     * @see Matrix.addColumn
-     */
-    this.addColumn = function (elements) {
-        // TODO : allow specifying an index
-        return Matrix.addColumn( this, elements );
-    };
-
-    /**
      * @see Matrix.isSquare
      */
     this.isSquare = function () {
@@ -910,17 +894,15 @@ Matrix.prototype.cross = function (M) {
 };
 
 /**
- * Add a row to an existing matrix.
- * @param {Matrix} M Matrix
+ * Add a row to the matrix.
  * @param {Number[]|Matrix} elements Array or matrix of entries to add
  * @returns {Matrix}
- * @static
  */
-Matrix.addRow = function (M, elements) {
+Matrix.prototype.addRow = function (elements) {
     elements = Matrix.__getArrayOrElements( elements );
 
-    var Result = new Matrix( M.dim( 1 ) + 1, M.dim( 2 ) ),
-        __elements = M.__getElements(),
+    var Result = new Matrix( this.dim( 1 ) + 1, this.dim( 2 ) ),
+        __elements = this.__getElements(),
         oldLength = __elements.length;
 
     for( var i = 0; i < Result.dim( 2 ); i++ ) {
@@ -932,16 +914,14 @@ Matrix.addRow = function (M, elements) {
 };
 
 /**
- * Add a column to an existing matrix.
- * @param {Matrix} M Matrix
+ * Add a column to the matrix.
  * @param {Number[]|Matrix} elements Array or matrix of entries to add
  * @returns {Matrix}
- * @static
  */
-Matrix.addColumn = function (M, elements) {
+Matrix.prototype.addColumn = function (elements) {
     elements = Matrix.__getArrayOrElements( elements );
 
-    return M.copy().augment( new Matrix( elements, null, 1 ) );
+    return this.copy().augment( new Matrix( elements, null, 1 ) );
 };
 
 /**

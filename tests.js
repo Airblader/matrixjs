@@ -546,13 +546,13 @@ new Test( function () {
         [1, 2, 5]
     ] );
 
-    assertEquals( Math.round( V.multiply( A.cross( B ) ) ), Math.round( new Matrix( 3 )
+    assertEquals( Math.round( V.multiply( A.cross( B ) ).get( 1 ) ), Math.round( new Matrix( 3 )
         .setColumn( 1, V.getRow( 1 ) )
         .setColumn( 2, A.getRow( 1 ) )
         .setColumn( 3, B.getRow( 1 ) )
         .det()
     ) );
-}, 'Cross Product' );
+}, 'Cross Product 1' );
 
 new Test( function () {
     var M = Matrix.eye( 3 );
@@ -596,7 +596,7 @@ new Test( function () {
 }, 'Add Row 1' );
 
 new Test( function () {
-    assertMatrix( Matrix.zeros( 3 ).addRow( Matrix.zeros( 3 ).get( 1 ) ), Matrix.zeros( 4, 3 ) );
+    assertMatrix( Matrix.zeros( 3 ).addRow( Matrix.zeros( 3 ).getRow( 1 ) ), Matrix.zeros( 4, 3 ) );
 }, 'Add Row 2' );
 
 new Test( function () {
