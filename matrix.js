@@ -40,30 +40,6 @@ function Matrix () {
         __elements = [];
 
     /**
-     * Get the diagonal of the matrix.
-     * @param {Number} [k=0] Specified which diagonal to return, i.e. 1 for the first upper secondary diagonal.
-     * @returns {Number[]} Diagonal of the matrix.
-     */
-    this.diag = function (k) {
-        k = k || 0;
-
-        var diag = [],
-            rowOffset = -Math.min( k, 0 ),
-            columnOffset = Math.max( k, 0 ),
-            endOfLoop = (rowOffset === 0 ) ? (__columns - columnOffset) : (__rows - rowOffset);
-
-        if( endOfLoop <= 0 ) {
-            throw new TypeError( 'Matrix does not have that many diagonals.' );
-        }
-
-        for( var i = 1; i <= endOfLoop; i++ ) {
-            diag.push( this.get( i + rowOffset, i + columnOffset ) );
-        }
-
-        return diag;
-    };
-
-    /**
      * Get an element from the matrix.
      * If called with both arguments, the entry (row, column) will be returned. If called with only one argument,
      * that argument will be mapped linearly (left to right, top to bottom).
@@ -1068,6 +1044,30 @@ Matrix.eye = function (n) {
     }
 
     return Result;
+};
+
+/**
+ * Get the diagonal of the matrix.
+ * @param {Number} [k=0] Specified which diagonal to return, i.e. 1 for the first upper secondary diagonal.
+ * @returns {Number[]}
+ */
+Matrix.prototype.diag = function (k) {
+    k = k || 0;
+
+    var diag = [],
+        rowOffset = -Math.min( k, 0 ),
+        columnOffset = Math.max( k, 0 ),
+        endOfLoop = (rowOffset === 0 ) ? (this.dim( 2 ) - columnOffset) : (this.dim( 1 ) - rowOffset);
+
+    if( endOfLoop <= 0 ) {
+        throw new TypeError( 'Matrix does not have that many diagonals.' );
+    }
+
+    for( var i = 1; i <= endOfLoop; i++ ) {
+        diag.push( this.get( i + rowOffset, i + columnOffset ) );
+    }
+
+    return diag;
 };
 
 /**
