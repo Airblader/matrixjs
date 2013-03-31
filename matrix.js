@@ -40,13 +40,6 @@ function Matrix () {
         __elements = [];
 
     /**
-     * @see Matrix.multiply
-     */
-    this.multiply = function (M) {
-        return Matrix.multiply( this, M );
-    };
-
-    /**
      * @see Matrix.dot
      */
     this.dot = function (M) {
@@ -677,25 +670,23 @@ Matrix.prototype.scale = function (k) {
 };
 
 /**
- * Multiply two matrices.
- * @param {Matrix} A Matrix
- * @param {Matrix} B Matrix
- * @returns {Matrix} Matrix A * B.
- * @static
+ * Multiply with another matrix.
+ * @param {Matrix} M Matrix
+ * @returns {Matrix} Matrix this * M.
  */
-Matrix.multiply = function (A, B) {
+Matrix.prototype.multiply = function (M) {
     // TODO Idea: Strassen Algorithm for big matrices
 
-    if( A.dim( 2 ) !== B.dim( 1 ) ) {
+    if( this.dim( 2 ) !== M.dim( 1 ) ) {
         throw new TypeError( 'Inner dimensions do not match.' );
     }
 
-    var Result = new Matrix( A.dim( 1 ), B.dim( 2 ) );
+    var Result = new Matrix( this.dim( 1 ), M.dim( 2 ) );
     for( var i = 1; i <= Result.dim( 1 ); i++ ) {
         for( var j = 1; j <= Result.dim( 2 ); j++ ) {
             var temp = 0;
-            for( var k = 1; k <= A.dim( 2 ); k++ ) {
-                temp += A.get( i, k ) * B.get( k, j );
+            for( var k = 1; k <= this.dim( 2 ); k++ ) {
+                temp += this.get( i, k ) * M.get( k, j );
             }
 
             Result.set( i, j, temp );
