@@ -40,13 +40,6 @@ function Matrix () {
         __elements = [];
 
     /**
-     * @see Matrix.copy
-     */
-    this.copy = function () {
-        return Matrix.copy( this );
-    };
-
-    /**
      * @see Matrix.contains
      */
     this.contains = function (needle, precision) {
@@ -454,13 +447,11 @@ Matrix.prototype.isSquare = function () {
 };
 
 /**
- * Return a copy of a matrix. This prevents accidental usage of references.
- * @param M
+ * Return a copy of the matrix. This prevents accidental usage of references.
  * @returns {Matrix}
- * @static
  */
-Matrix.copy = function (M) {
-    return new Matrix( M.__getElements(), M.dim( 1 ), M.dim( 2 ) );
+Matrix.prototype.copy = function () {
+    return new Matrix( this.__getElements(), this.dim( 1 ), this.dim( 2 ) );
 };
 
 /**
