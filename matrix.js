@@ -40,13 +40,6 @@ function Matrix () {
         __elements = [];
 
     /**
-     * @see Matrix.dot
-     */
-    this.dot = function (M) {
-        return Matrix.dot( this, M );
-    };
-
-    /**
      * @see Matrix.cross
      */
     this.cross = function (M) {
@@ -917,19 +910,17 @@ Matrix.augment = function (A, B) {
 };
 
 /**
- * Calculate the dot product of two vectors. It doesn't matter whether the vectors are row or column vectors.
- * @param {Matrix} A Matrix
- * @param {Matrix} B Matrix
- * @returns {Number} Euclidean dot product of A and B.
- * @static
+ * Calculate the dot product. It doesn't matter whether the vectors are row or column vectors.
+ * @param {Matrix} M Matrix
+ * @returns {Number} Euclidean dot product of this and M.
  */
-Matrix.dot = function (A, B) {
-    if( !A.isVector() || !B.isVector() ) {
+Matrix.prototype.dot = function (M) {
+    if( !this.isVector() || !M.isVector() ) {
         throw new TypeError( 'Parameter is not a vector.' );
     }
 
-    var dimA = A.dim( 'max' ),
-        dimB = B.dim( 'max' );
+    var dimA = this.dim( 'max' ),
+        dimB = M.dim( 'max' );
 
     if( dimA !== dimB ) {
         throw new TypeError( 'Dimensions do not match.' );
@@ -937,7 +928,7 @@ Matrix.dot = function (A, B) {
 
     var result = 0;
     for( var i = 1; i <= dimA; i++ ) {
-        result += A.get( i ) * B.get( i );
+        result += this.get( i ) * M.get( i );
     }
 
     return result;
