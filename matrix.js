@@ -32,7 +32,6 @@
  *      new Matrix( [1, 2, 3, 4, 5, 6], 2, 3 );
  *      new Matrix( [1, 2, 3, 4, 5, 6], 2 );
  *      new Matrix( [1, 2, 3, 4, 5, 6], null, 3 );
- * @class Represents a matrix.
  * @constructor
  */
 function Matrix () {
