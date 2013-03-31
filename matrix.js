@@ -74,8 +74,8 @@ function Matrix () {
     };
 
     /**
-     * Get the dimensions of the matrix.
-     * @returns {{rows: Number, columns: Number}} Object containing the number of rows/columns in the matrix.
+     * @private
+     * @ignore
      */
     this.__dim = function () {
         return {
