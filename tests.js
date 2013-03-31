@@ -21,9 +21,9 @@ function assertMatrix (found, expected) {
     } catch( e ) {
         console.error( 'assertMatrix Error:' );
         console.log( '-------FOUND-------' );
-        console.log( found.toString() );
+        console.log( found.stringify() );
         console.log( '-----EXPECTED------' );
-        console.log( expected.toString() );
+        console.log( expected.stringify() );
 
         throw e;
     }
@@ -166,7 +166,7 @@ new Test( function () {
 new Test( function () {
     var M = new Matrix( 3 );
 
-    assertEquals( M.length(), 9 );
+    assertEquals( M.size(), 9 );
     assertEquals( M.isSquare(), true );
     assertEquals( M.isVector(), false );
 
@@ -177,7 +177,7 @@ new Test( function () {
 new Test( function () {
     var M = new Matrix( 2, 3 );
 
-    assertEquals( M.length(), 6 );
+    assertEquals( M.size(), 6 );
     assertEquals( M.isSquare(), false );
     assertEquals( M.isVector(), false );
 }, 'Helper Methods 2' );

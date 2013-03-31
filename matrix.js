@@ -75,15 +75,6 @@ function Matrix () {
     };
 
     /**
-     * Returns the number of elements in the matrix.
-     * @returns {number}
-     * @override
-     */
-    this.length = function () {
-        return __rows * __columns;
-    };
-
-    /**
      * Get the dimensions of the matrix.
      * @returns {{rows: Number, columns: Number}} Object containing the number of rows/columns in the matrix.
      */
@@ -212,6 +203,7 @@ Matrix.prototype.__convertToIndex = function (row, column) {
 };
 
 /**
+ * @param {Matrix|Number[]} obj
  * @static
  * @private
  */
@@ -235,7 +227,7 @@ Matrix.prototype.get = function (row, column) {
     if( typeof column === 'undefined' ) {
         var index = arguments[0];
 
-        if( index < 1 || index > this.length() ) {
+        if( index < 1 || index > this.size() ) {
             throw new TypeError( 'Cannot access element at index ' + index );
         }
 
@@ -266,7 +258,7 @@ Matrix.prototype.set = function (row, column, value) {
         index = row - 1;
         value = column;
 
-        if( index < 0 || index >= this.length() ) {
+        if( index < 0 || index >= this.size() ) {
             throw new TypeError( 'Cannot access element at index ' + index );
         }
     } else {
@@ -394,6 +386,14 @@ Matrix.prototype.copy = function () {
 };
 
 /**
+ * Returns the number of elements in the matrix.
+ * @returns {number}
+ */
+Matrix.prototype.size = function () {
+    return this.dim( 1 ) * this.dim( 2 );
+};
+
+/**
  * Get the dimensions of the matrix.
  * @param {Number|String} [which] Define which dimension should be returned. If this parameter is not given,
  * this method is a synonym for {@link __dim()}. Possible values are:<br />
@@ -451,7 +451,7 @@ Matrix.prototype.add = function (M) {
         elementsResult = [],
         current;
 
-    for( var i = 1; i <= this.length(); i++ ) {
+    for( var i = 1; i <= this.size(); i++ ) {
         if( this.get( i ) !== 0 && M.get( i ) !== 0 ) {
             current = this.get( i ) + M.get( i );
 
@@ -487,7 +487,7 @@ Matrix.prototype.subtract = function (M) {
         elementsResult = [],
         current;
 
-    for( var i = 1; i <= this.length(); i++ ) {
+    for( var i = 1; i <= this.size(); i++ ) {
         if( this.get( i ) !== 0 && M.get( i ) !== 0 ) {
             current = this.get( i ) - M.get( i );
 
@@ -513,7 +513,7 @@ Matrix.prototype.scale = function (k) {
     }
 
     var __elements = this.__getElements();
-    for( var i = 0; i < this.length(); i++ ) {
+    for( var i = 0; i < this.size(); i++ ) {
         if( __elements[i] ) {
             __elements[i] = k * __elements[i];
         }
@@ -815,7 +815,7 @@ Matrix.prototype.roundTo = function (digits) {
 Matrix.prototype.abs = function () {
     var elements = this.__getElements();
 
-    for( var i = 0; i < this.length(); i++ ) {
+    for( var i = 0; i < this.size(); i++ ) {
         if( elements[i] ) {
             elements[i] = Math.abs( elements[i] );
         }
@@ -889,7 +889,7 @@ Matrix.prototype.contains = function (needle, precision) {
     if( needle !== 0 && precision === 0 ) {
         return this.__getElements().indexOf( needle ) !== -1;
     } else {
-        for( var i = 1; i <= this.length(); i++ ) {
+        for( var i = 1; i <= this.size(); i++ ) {
             if( Math.abs( this.get( i ) - needle ) <= precision ) {
                 return true;
             }
@@ -905,9 +905,8 @@ Matrix.prototype.contains = function (needle, precision) {
  * @param {String} [columnSeparator='\t'] Delimiter between the last column of the previous and first column of the
  * next row
  * @returns {String}
- * @override
  */
-Matrix.prototype.toString = function (rowSeparator, columnSeparator) {
+Matrix.prototype.stringify = function (rowSeparator, columnSeparator) {
     // TODO move from concatenation to join
     rowSeparator = rowSeparator || '\r\n';
     columnSeparator = columnSeparator || '\t';
@@ -940,7 +939,7 @@ Matrix.prototype.equals = function (M) {
         return false;
     }
 
-    for( var i = 1; i <= this.length(); i++ ) {
+    for( var i = 1; i <= this.size(); i++ ) {
         if( this.get( i ) !== M.get( i ) ) {
             return false;
         }
