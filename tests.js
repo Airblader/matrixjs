@@ -180,6 +180,14 @@ new Test( function () {
     assertEquals( M.size(), 6 );
     assertEquals( M.isSquare(), false );
     assertEquals( M.isVector(), false );
+
+    assertEquals( M.__inRange( 1, 1 ), true );
+    assertEquals( M.__inRange( 2, 3 ), true );
+    assertEquals( M.__inRange( null, 2 ), true );
+    assertEquals( M.__inRange( 1, null ), true );
+    assertEquals( M.__inRange( 3, 2 ), false );
+    assertEquals( M.__inRange( 1, 4 ), false );
+    assertEquals( M.__inRange( 0, 1 ), false );
 }, 'Helper Methods 2' );
 
 new Test( function () {
