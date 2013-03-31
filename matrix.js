@@ -40,13 +40,6 @@ function Matrix () {
         __elements = [];
 
     /**
-     * @see Matrix.trace
-     */
-    this.trace = function () {
-        return Matrix.trace( this );
-    };
-
-    /**
      * @see Matrix.transpose
      */
     this.transpose = function () {
@@ -723,20 +716,17 @@ Matrix.transpose = function (M) {
 };
 
 /**
- * Calculate the trace of a matrix, i.e. the sum of all diagonal entries.
- * @param {Matrix} M Matrix
+ * Calculate the trace, i.e. the sum of all diagonal entries.
  * @returns {Number} Sum of diagonal entries.
- * @static
  */
-Matrix.trace = function (M) {
-    if( !M.isSquare() ) {
+Matrix.prototype.trace = function () {
+    if( !this.isSquare() ) {
         throw new TypeError( 'Matrix is not square.' );
     }
 
     var trace = 0;
-
-    for( var i = 1; i <= M.dim( 1 ); i++ ) {
-        trace += M.get( i, i );
+    for( var i = 1; i <= this.dim( 1 ); i++ ) {
+        trace += this.get( i, i );
     }
 
     return trace;
