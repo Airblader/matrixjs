@@ -92,7 +92,8 @@ function Matrix () {
 
             for( var i = 0; i < args[0].length; i++ ) {
                 if( args[0][i].length !== __columns && __columns !== -1 ) {
-                    throw new TypeError( 'Invalid parameters.' );
+                    throw new Matrix.MatrixError( Matrix.ErrorCodes.INVALID_PARAMETERS,
+                        'Number of columns must be the same for all rows' );
                 }
                 __columns = Math.max( __columns, args[0][i].length );
 
@@ -119,7 +120,8 @@ function Matrix () {
             }
 
             if( !Matrix.__isInteger( rows ) || !Matrix.__isInteger( columns ) ) {
-                throw new TypeError( 'Array has to represent a square matrix or the size has to be specified.' );
+                throw new Matrix.MatrixError( Matrix.ErrorCodes.OUT_OF_BOUNDS,
+                    'Array must represent square matrix if no size is given' );
             }
 
             __rows = rows;
@@ -131,7 +133,8 @@ function Matrix () {
             __rows = args[0];
             __columns = args[1];
         } else {
-            throw new TypeError( 'Invalid parameters.' );
+            throw new Matrix.MatrixError( Matrix.ErrorCodes.INVALID_PARAMETERS,
+                'Parameters must match a supported signature' );
         }
     })();
 
@@ -151,13 +154,13 @@ Matrix.prototype.get = function (row, column) {
         var index = arguments[0];
 
         if( index < 1 || index > this.size() ) {
-            throw new TypeError( 'Cannot access element at index ' + index );
+            throw new Matrix.MatrixError( Matrix.ErrorCodes.OUT_OF_BOUNDS );
         }
 
         return this.__get( index - 1 ) || 0;
     } else {
         if( !this.__inRange( row, column ) ) {
-            throw new TypeError( 'Cannot access element (' + row + ',' + column + ')' );
+            throw new Matrix.MatrixError( Matrix.ErrorCodes.OUT_OF_BOUNDS );
         }
 
         return this.__get( this.__convertToIndex( row, column ) ) || 0;
@@ -182,11 +185,11 @@ Matrix.prototype.set = function (row, column, value) {
         value = column;
 
         if( index < 0 || index >= this.size() ) {
-            throw new TypeError( 'Cannot access element at index ' + index );
+            throw new Matrix.MatrixError( Matrix.ErrorCodes.OUT_OF_BOUNDS );
         }
     } else {
         if( !this.__inRange( row, column ) ) {
-            throw new TypeError( 'Cannot access element (' + row + ',' + column + ')' );
+            throw new Matrix.MatrixError( Matrix.ErrorCodes.OUT_OF_BOUNDS );
         }
 
         index = this.__convertToIndex( row, column );
@@ -209,7 +212,7 @@ Matrix.prototype.getRow = function (row, asMatrix) {
     asMatrix = asMatrix || false;
 
     if( !this.__inRange( row, null ) ) {
-        throw new TypeError( 'Invalid row index.' );
+        throw new Matrix.MatrixError( Matrix.ErrorCodes.OUT_OF_BOUNDS );
     }
 
     var start = this.__convertToIndex( row, 1 ),
@@ -231,11 +234,11 @@ Matrix.prototype.setRow = function (row, elements) {
     elements = Matrix.__getArrayOrElements( elements );
 
     if( !this.__inRange( row, null ) ) {
-        throw new TypeError( 'Invalid row index.' );
+        throw new Matrix.MatrixError( Matrix.ErrorCodes.OUT_OF_BOUNDS );
     }
 
     if( elements.length !== this.dim( 2 ) ) {
-        throw new TypeError( 'Wrong number of columns in row.' );
+        throw new Matrix.MatrixError( 'Wrong number of columns in row.' );
     }
 
     var __elements = this.__getElements();
@@ -254,7 +257,7 @@ Matrix.prototype.getColumn = function (column, asMatrix) {
     asMatrix = asMatrix || false;
 
     if( !this.__inRange( null, column ) ) {
-        throw new TypeError( 'Invalid column index.' );
+        throw new Matrix.MatrixError( Matrix.ErrorCodes.OUT_OF_BOUNDS );
     }
 
     var start = this.__convertToIndex( 1, column ),
@@ -276,11 +279,11 @@ Matrix.prototype.setColumn = function (column, elements) {
     elements = Matrix.__getArrayOrElements( elements );
 
     if( !this.__inRange( null, column ) ) {
-        throw new TypeError( 'Invalid column index.' );
+        throw new Matrix.MatrixError( Matrix.ErrorCodes.OUT_OF_BOUNDS );
     }
 
     if( elements.length !== this.dim( 1 ) ) {
-        throw new TypeError( 'Wrong number of rows in column' );
+        throw new Matrix.MatrixError( 'Wrong number of rows in column' );
     }
 
     for( var i = 0; i < elements.length; i++ ) {
@@ -355,7 +358,7 @@ Matrix.prototype.dim = function (which) {
             return Math.min( dim.rows, dim.columns );
             break;
         default:
-            throw new TypeError( 'Invalid parameter(s).' );
+            throw new Matrix.MatrixError( Matrix.ErrorCodes.INVALID_PARAMETERS, 'Parameter must match a known value' );
     }
 };
 
@@ -373,7 +376,7 @@ Matrix.prototype.add = function (M) {
     }
 
     if( this.dim( 1 ) !== M.dim( 1 ) || this.dim( 2 ) !== M.dim( 2 ) ) {
-        throw new TypeError( 'Dimensions do not match.' );
+        throw new Matrix.MatrixError( Matrix.ErrorCodes.DIMENSION_MISMATCH, 'Matrices must be of the same size' );
     }
 
     var Result = new Matrix( this.dim( 1 ), this.dim( 2 ) ),
@@ -409,7 +412,7 @@ Matrix.prototype.subtract = function (M) {
     }
 
     if( this.dim( 1 ) !== M.dim( 1 ) || this.dim( 2 ) !== M.dim( 2 ) ) {
-        throw new TypeError( 'Dimensions do not match.' );
+        throw new Matrix.MatrixError( Matrix.ErrorCodes.DIMENSION_MISMATCH, 'Matrices must be of the same size' );
     }
 
     var Result = new Matrix( this.dim( 1 ), this.dim( 2 ) ),
@@ -438,7 +441,7 @@ Matrix.prototype.subtract = function (M) {
  */
 Matrix.prototype.scale = function (k) {
     if( !Matrix.__isNumber( k ) ) {
-        throw new TypeError( 'Factor is not a number.' );
+        throw new Matrix.MatrixError( Matrix.ErrorCodes.INVALID_PARAMETERS, 'Parameter must be a number' );
     }
 
     var __elements = this.__getElements();
@@ -460,7 +463,7 @@ Matrix.prototype.multiply = function (M) {
     // TODO Idea: Strassen Algorithm for big matrices
 
     if( this.dim( 2 ) !== M.dim( 1 ) ) {
-        throw new TypeError( 'Inner dimensions do not match.' );
+        throw new Matrix.MatrixError( Matrix.ErrorCodes.DIMENSION_MISMATCH, 'Inner dimensions must match' );
     }
 
     var Result = new Matrix( this.dim( 1 ), M.dim( 2 ) );
@@ -497,7 +500,7 @@ Matrix.prototype.transpose = function () {
  */
 Matrix.prototype.trace = function () {
     if( !this.isSquare() ) {
-        throw new TypeError( 'Matrix is not square.' );
+        throw new Matrix.MatrixError( Matrix.ErrorCodes.DIMENSION_MISMATCH, 'Matrix must be square' );
     }
 
     var trace = 0;
@@ -536,7 +539,7 @@ Matrix.prototype.LUDecomposition = function () {
         }
 
         if( LU.get( pivot, k ) === 0 ) {
-            throw new TypeError( 'Matrix is singular.' );
+            throw new Matrix.MatrixError( Matrix.ErrorCodes.MATRIX_IS_SINGULAR );
         }
 
         if( pivot !== k ) {
@@ -575,7 +578,7 @@ Matrix.prototype.det = function () {
      */
 
     if( !this.isSquare() ) {
-        throw new TypeError( 'Matrix is not square.' );
+        throw new Matrix.MatrixError( Matrix.ErrorCodes.DIMENSION_MISMATCH, 'Matrix must be square' );
     }
 
     var n = this.dim( 1 ),
@@ -595,7 +598,7 @@ Matrix.prototype.det = function () {
  */
 Matrix.prototype.inverse = function () {
     if( !this.isSquare() ) {
-        throw new TypeError( 'Matrix is not square.' );
+        throw new Matrix.MatrixError( Matrix.ErrorCodes.DIMENSION_MISMATCH, 'Matrix must be square' );
     }
 
     var augmentedM = this.augment( Matrix.eye( this.dim( 1 ) ) ),
@@ -624,7 +627,7 @@ Matrix.prototype.inverse = function () {
             augmentedM.setRow( j, row );
         }
     } catch( e ) {
-        throw new TypeError( 'Matrix is not invertible.' );
+        throw new Matrix.MatrixError( Matrix.ErrorCodes.MATRIX_IS_SINGULAR );
     }
 
     return augmentedM.submatrix( 1, augmentedM.dim( 1 ), this.dim( 2 ) + 1, augmentedM.dim( 2 ) );
@@ -641,7 +644,7 @@ Matrix.prototype.inverse = function () {
 Matrix.prototype.submatrix = function (rowStart, rowEnd, columnStart, columnEnd) {
     if( !this.__inRange( rowStart, columnStart ) || !this.__inRange( rowEnd, columnEnd )
         || rowStart > rowEnd || columnStart > columnEnd ) {
-        throw new TypeError( 'Invalid parameters.' );
+        throw new Matrix.MatrixError( Matrix.ErrorCodes.OUT_OF_BOUNDS );
     }
 
     var mResult = rowEnd - rowStart + 1,
@@ -663,7 +666,7 @@ Matrix.prototype.submatrix = function (rowStart, rowEnd, columnStart, columnEnd)
  */
 Matrix.prototype.augment = function (B) {
     if( this.dim( 1 ) !== B.dim( 1 ) ) {
-        throw new TypeError( 'Matrices do not have the same number of rows.' );
+        throw new Matrix.MatrixError( Matrix.ErrorCodes.INVALID_PARAMETERS, 'Number of rows must match' );
     }
 
     var Result = new Matrix( this.dim( 1 ), this.dim( 2 ) + B.dim( 2 ) );
@@ -685,14 +688,14 @@ Matrix.prototype.augment = function (B) {
  */
 Matrix.prototype.dot = function (M) {
     if( !this.isVector() || !M.isVector() ) {
-        throw new TypeError( 'Parameter is not a vector.' );
+        throw new Matrix.MatrixError( Matrix.ErrorCodes.INVALID_PARAMETERS, 'Parameter must be a vector' );
     }
 
     var dimA = this.dim( 'max' ),
         dimB = M.dim( 'max' );
 
     if( dimA !== dimB ) {
-        throw new TypeError( 'Dimensions do not match.' );
+        throw new Matrix.MatrixError( Matrix.ErrorCodes.DIMENSION_MISMATCH );
     }
 
     var result = 0;
@@ -757,7 +760,8 @@ Matrix.prototype.abs = function () {
  */
 Matrix.prototype.cross = function (M) {
     if( !this.isVector() || !M.isVector() || this.dim( 'max' ) !== 3 || M.dim( 'max' ) !== 3 ) {
-        throw new TypeError( 'Parameters are not three-dimensional vectors.' );
+        throw new Matrix.MatrixError( Matrix.ErrorCodes.INVALID_PARAMETERS,
+            'Parameters must be three-dimensional vectors' );
     }
 
     return new Matrix( [
@@ -808,7 +812,7 @@ Matrix.prototype.contains = function (needle, precision) {
     precision = precision || 0;
 
     if( !Matrix.__isNumber( needle ) || !Matrix.__isNumber( precision ) ) {
-        throw new TypeError( 'Parameter is not a number.' );
+        throw new Matrix.MatrixError( Matrix.ErrorCodes.INVALID_PARAMETERS, 'Parameter must be a number' );
     }
 
     if( needle !== 0 && precision === 0 ) {
@@ -887,11 +891,11 @@ Matrix.prototype.apply = function (applicator, filter) {
     filter = filter || Matrix.filters.all;
 
     if( typeof applicator !== 'function' ) {
-        throw new TypeError( 'Applicator has to be a function.' );
+        throw new Matrix.MatrixError( Matrix.ErrorCodes.INVALID_PARAMETERS, 'Applicator must be a function' );
     }
 
     if( typeof filter !== 'function' ) {
-        throw new TypeError( 'Filter has to be a function.' );
+        throw new Matrix.MatrixError( Matrix.ErrorCodes.INVALID_PARAMETERS, 'Filter must be a function' );
     }
 
     var Result = this.copy(),
@@ -954,7 +958,7 @@ Matrix.prototype.diag = function (k) {
         endOfLoop = (rowOffset === 0 ) ? (this.dim( 2 ) - columnOffset) : (this.dim( 1 ) - rowOffset);
 
     if( endOfLoop <= 0 ) {
-        throw new TypeError( 'Matrix does not have that many diagonals.' );
+        throw new Matrix.MatrixError( Matrix.ErrorCodes.OUT_OF_BOUNDS );
     }
 
     for( var i = 1; i <= endOfLoop; i++ ) {
@@ -1044,6 +1048,29 @@ Matrix.__getArrayOrElements = function (obj) {
     }
 
     return obj;
+};
+
+/**
+ * Error thrown by matrixjs.
+ * @param {String} code Error code, one of {@link Matrix.ErrorCodes}
+ * @param {String} [msg] Additional message string
+ * @constructor
+ */
+Matrix.MatrixError = function (code, msg) {
+    this.name = 'MatrixError';
+    this.code = code;
+    this.message = msg;
+
+    this.toString = function () {
+        return this.name + ' [' + this.code + ']: ' + (this.message || 'No message');
+    }
+};
+
+Matrix.ErrorCodes = {
+    INVALID_PARAMETERS : 'Invalid parameters',
+    OUT_OF_BOUNDS : 'Out of bounds',
+    DIMENSION_MISMATCH : 'Dimension mismatch',
+    MATRIX_IS_SINGULAR : 'Matrix is singular'
 };
 
 /**
