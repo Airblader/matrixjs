@@ -208,7 +208,8 @@ function Matrix () {
 
     /**
      * Get the dimensions of the matrix.
-     * Without any arguments, this is a short-hand notation for Matrix.prototype.getDimensions(). Other arguments are:<br />
+     * @param {Number|String} [which] Define which dimension should be returned. If this parameter is not given,
+     * this method is a synonym for {@link getDimensions()}. Possible values are:<br />
      *  - 1 or 'rows' : Number of rows<br />
      *  - 2 or 'columns' : Number of columns<br />
      *  - 'max' : Dominant dimension<br />
@@ -216,25 +217,30 @@ function Matrix () {
      * @returns {{rows: Number, columns: Number}|Number} Object with the dimensions of requested dimension or just
      * the requested dimension.
      */
-    this.dim = function () {
+    this.dim = function (which) {
         var dim = this.getDimensions();
 
-        if( arguments.length === 0 ) {
-            return dim;
-        } else if( arguments.length === 1 ) {
-            var requestedDim = arguments[0];
-            if( requestedDim === 1 || requestedDim === 'rows' ) {
+        switch( which ) {
+            case undefined:
+                return dim;
+                break;
+            case 1:
+            case 'rows':
                 return dim.rows;
-            } else if( requestedDim === 2 || requestedDim === 'columns' ) {
+                break;
+            case 2:
+            case 'columns':
                 return dim.columns;
-            } else if( requestedDim === 'max' ) {
-                return Math.max( __rows, __columns );
-            } else if( requestedDim === 'min' ) {
-                return Math.min( __rows, __columns );
-            }
+                break;
+            case 'max':
+                return Math.max( dim.rows, dim.columns );
+                break;
+            case 'min':
+                return Math.min( dim.rows, dim.columns );
+                break;
+            default:
+                throw new TypeError( 'Invalid parameter(s).' );
         }
-
-        throw new TypeError( 'Invalid parameter(s).' );
     };
 
     this.__convertToIndex = function (row, column) {
