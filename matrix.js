@@ -39,64 +39,12 @@ function Matrix () {
         __rows, __columns,
         __elements = [];
 
-    /**
-     * Get an element from the matrix.
-     * If called with both arguments, the entry (row, column) will be returned. If called with only one argument,
-     * that argument will be mapped linearly (left to right, top to bottom).
-     * @param {Number} row Row index if column is set or linear index
-     * @param {Number} [column] Column index
-     * @returns {Number}
-     */
-    this.get = function (row, column) {
-        if( typeof column === 'undefined' ) {
-            var index = arguments[0];
-
-            if( index < 1 || index > this.length() ) {
-                throw new TypeError( 'Cannot access element at index ' + index );
-            }
-
-            return __elements[index - 1] || 0;
-        } else {
-            if( row < 1 || column < 1 || row > __rows || column > __columns ) {
-                throw new TypeError( 'Cannot access element (' + row + ',' + column + ')' );
-            }
-
-            return __elements[this.__convertToIndex( row, column )] || 0;
-        }
+    this.__get = function (index) {
+        return __elements[index];
     };
 
-    /**
-     * Set an element in the matrix.
-     * If called with all three arguments, the entry (row, column) will be set to value. If called with only two
-     * arguments, the first argument will be mapped linearly (left to right, top to bottom) and then be set
-     * to value.
-     * @param {Number} row Row index of column is set or linear index
-     * @param {Number} [column] Column index
-     * @param {Number} value Value to assign
-     * @returns {*}
-     */
-    this.set = function (row, column, value) {
-        var index;
-
-        if( typeof value === 'undefined' ) {
-            index = row - 1;
-            value = column;
-
-            if( index < 0 || index >= this.length() ) {
-                throw new TypeError( 'Cannot access element at index ' + index );
-            }
-        } else {
-            if( row < 1 || column < 1 || row > __rows || column > __columns ) {
-                throw new TypeError( 'Cannot access element (' + row + ',' + column + ')' );
-            }
-
-            index = this.__convertToIndex( row, column );
-        }
-
-        if( __elements[index] || value !== 0 ) {
-            __elements[index] = value;
-        }
-
+    this.__set = function (index, value) {
+        __elements[index] = value;
         return this;
     };
 
@@ -347,6 +295,67 @@ Matrix.__getArrayOrElements = function (obj) {
     }
 
     return obj;
+};
+
+/**
+ * Get an element from the matrix.
+ * If called with both arguments, the entry (row, column) will be returned. If called with only one argument,
+ * that argument will be mapped linearly (left to right, top to bottom).
+ * @param {Number} row Row index if column is set or linear index
+ * @param {Number} [column] Column index
+ * @returns {Number}
+ */
+Matrix.prototype.get = function (row, column) {
+    if( typeof column === 'undefined' ) {
+        var index = arguments[0];
+
+        if( index < 1 || index > this.length() ) {
+            throw new TypeError( 'Cannot access element at index ' + index );
+        }
+
+        return this.__get( index - 1 ) || 0;
+    } else {
+        if( row < 1 || column < 1 || row > this.dim( 1 ) || column > this.dim( 2 ) ) {
+            throw new TypeError( 'Cannot access element (' + row + ',' + column + ')' );
+        }
+
+        return this.__get( this.__convertToIndex( row, column ) ) || 0;
+    }
+};
+
+/**
+ * Set an element in the matrix.
+ * If called with all three arguments, the entry (row, column) will be set to value. If called with only two
+ * arguments, the first argument will be mapped linearly (left to right, top to bottom) and then be set
+ * to value.
+ * @param {Number} row Row index of column is set or linear index
+ * @param {Number} [column] Column index
+ * @param {Number} value Value to assign
+ * @returns {*}
+ */
+Matrix.prototype.set = function (row, column, value) {
+    var index;
+
+    if( typeof value === 'undefined' ) {
+        index = row - 1;
+        value = column;
+
+        if( index < 0 || index >= this.length() ) {
+            throw new TypeError( 'Cannot access element at index ' + index );
+        }
+    } else {
+        if( row < 1 || column < 1 || row > this.dim( 1 ) || column > this.dim( 2 ) ) {
+            throw new TypeError( 'Cannot access element (' + row + ',' + column + ')' );
+        }
+
+        index = this.__convertToIndex( row, column );
+    }
+
+    if( this.__get( index ) || value !== 0 ) {
+        this.__set( index, value );
+    }
+
+    return this;
 };
 
 /**
