@@ -40,13 +40,6 @@ function Matrix () {
         __elements = [];
 
     /**
-     * @see Matrix.contains
-     */
-    this.contains = function (needle, precision) {
-        return Matrix.contains( this, needle, precision );
-    };
-
-    /**
      * @see Matrix.equals
      */
     this.equals = function (M) {
@@ -898,14 +891,12 @@ Matrix.prototype.addColumn = function (elements) {
 };
 
 /**
- * Check if a matrix contains a certain value.
- * @param {Matrix} M Matrix
+ * Check if the matrix contains a certain value.
  * @param {Number} needle Value to look for
  * @param {Number} [precision=0] Match if any value is in [needle-precision, needle+precision]
- * @returns {Boolean} True if the needle could be found, false otherwise.
- * @static
+ * @returns {Boolean}
  */
-Matrix.contains = function (M, needle, precision) {
+Matrix.prototype.contains = function (needle, precision) {
     precision = precision || 0;
 
     if( !Matrix.__isNumber( needle ) || !Matrix.__isNumber( precision ) ) {
@@ -913,10 +904,10 @@ Matrix.contains = function (M, needle, precision) {
     }
 
     if( needle !== 0 && precision === 0 ) {
-        return M.__getElements().indexOf( needle ) !== -1;
+        return this.__getElements().indexOf( needle ) !== -1;
     } else {
-        for( var i = 1; i <= M.length(); i++ ) {
-            if( Math.abs( M.get( i ) - needle ) <= precision ) {
+        for( var i = 1; i <= this.length(); i++ ) {
+            if( Math.abs( this.get( i ) - needle ) <= precision ) {
                 return true;
             }
         }
