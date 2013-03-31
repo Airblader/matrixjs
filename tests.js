@@ -253,8 +253,8 @@ new Test( function () {
     assertMatrix( A.subtract( A ), Matrix.zeros( 3 ) );
     assertMatrix( A.subtract( B ), Matrix.ones( 3 ) );
 
-    assertMatrix( Matrix.add( B, B, B ), Matrix.ones( 3 ).scale( 3 ) );
-    assertMatrix( Matrix.subtract( Matrix.ones( 3 ).scale( 2 ), Matrix.ones( 3 ), Matrix.ones( 3 ) ),
+    assertMatrix( B.add( B, B ), Matrix.ones( 3 ).scale( 3 ) );
+    assertMatrix( Matrix.ones( 3 ).scale( 2 ).subtract( Matrix.ones( 3 ), Matrix.ones( 3 ) ),
         Matrix.zeros( 3 ) );
 }, 'Add/Subtract Matrices 3' );
 

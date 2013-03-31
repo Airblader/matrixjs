@@ -40,20 +40,6 @@ function Matrix () {
         __elements = [];
 
     /**
-     * @see Matrix.add
-     */
-    this.add = function (M) {
-        return Matrix.add( this, M );
-    };
-
-    /**
-     * @see Matrix.subtract
-     */
-    this.subtract = function (M) {
-        return Matrix.subtract( this, M );
-    };
-
-    /**
      * @see Matrix.scale
      */
     this.scale = function (k) {
@@ -631,31 +617,28 @@ Matrix.copy = function (M) {
 };
 
 /**
- * Calculate the sum of two matrices.
- * If more than two matrices are passed, they will be added in order, i.e. A + B + C + ...
- * @param {Matrix} A Matrix
- * @param {Matrix} B Matrix
- * @returns {Matrix} Component-wise sum of A and B, i.e. A+B.
- * @static
+ * Add a matrix.
+ * If more than one matrix is passed, they will be added in order, i.e. this + M + N + ...
+ * @param {Matrix} M Matrix
+ * @returns {Matrix} Component-wise sum of this and M.
  */
-Matrix.add = function (A, B) {
-    if( arguments.length > 2 ) {
+Matrix.prototype.add = function (M) {
+    if( arguments.length > 1 ) {
         var args = [].slice.call( arguments );
-        args.unshift( Matrix.add( args.shift(), args.shift() ) );
 
-        return Matrix.add.apply( this, args );
+        return this.add.apply( this.add( args.shift() ), args );
     }
 
-    if( A.dim( 1 ) !== B.dim( 1 ) || A.dim( 2 ) !== B.dim( 2 ) ) {
+    if( this.dim( 1 ) !== M.dim( 1 ) || this.dim( 2 ) !== M.dim( 2 ) ) {
         throw new TypeError( 'Dimensions do not match.' );
     }
 
-    var Result = new Matrix( A.dim( 1 ), A.dim( 2 ) ),
+    var Result = new Matrix( this.dim( 1 ), this.dim( 2 ) ),
         elementsResult = [];
 
-    for( var i = 1; i <= A.length(); i++ ) {
-        if( A.get( i ) !== 0 && B.get( i ) !== 0 ) {
-            elementsResult[i - 1] = A.get( i ) + B.get( i );
+    for( var i = 1; i <= this.length(); i++ ) {
+        if( this.get( i ) !== 0 && M.get( i ) !== 0 ) {
+            elementsResult[i - 1] = this.get( i ) + M.get( i );
         }
     }
 
@@ -665,22 +648,19 @@ Matrix.add = function (A, B) {
 };
 
 /**
- * Calculate the difference of two matrices.
- * If more than two matrices are passed, they wll be subtracted in order, i.e. A - B - C - ...
- * @param {Matrix} A Matrix
- * @param {Matrix} B Matrix
- * @returns {Matrix} Component-wise difference of A and B, i.e. A-B.
- * @static
+ * Subtract a matrix.
+ * If more than one matrix is passed, they wll be subtracted in order, i.e. this - M - N - ...
+ * @param {Matrix} M Matrix
+ * @returns {Matrix} Component-wise difference of this and M.
  */
-Matrix.subtract = function (A, B) {
-    if( arguments.length > 2 ) {
+Matrix.prototype.subtract = function (M) {
+    if( arguments.length > 1 ) {
         var args = [].slice.call( arguments );
-        args.unshift( Matrix.subtract( args.shift(), args.shift() ) );
 
-        return Matrix.subtract.apply( this, args );
+        return this.subtract.apply( this.subtract( args.shift() ), args );
     }
 
-    return Matrix.add( A, Matrix.scale( B, -1 ) );
+    return this.add( Matrix.scale( M, -1 ) );
 };
 
 /**
