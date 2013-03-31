@@ -139,13 +139,6 @@ function Matrix () {
 }
 
 /**
- * @private
- */
-Matrix.prototype.__convertToIndex = function (row, column) {
-    return this.dim( 2 ) * (row - 1) + column - 1;
-};
-
-/**
  * Get an element from the matrix.
  * If called with both arguments, the entry (row, column) will be returned. If called with only one argument,
  * that argument will be mapped linearly (left to right, top to bottom).
@@ -992,11 +985,20 @@ Array.prototype.toVector = function (isRowVector) {
     return new Matrix( this, (isRowVector) ? 1 : this.length, (isRowVector) ? this.length : 1 );
 };
 
+/**
+ * @private
+ * @ignore
+ */
+Matrix.prototype.__convertToIndex = function (row, column) {
+    return this.dim( 2 ) * (row - 1) + column - 1;
+};
+
 
 
 /**
  * @static
  * @private
+ * @ignore
  */
 Matrix.__isNumber = function (k) {
     return typeof k === 'number';
@@ -1005,6 +1007,7 @@ Matrix.__isNumber = function (k) {
 /**
  * @static
  * @private
+ * @ignore
  */
 Matrix.__isInteger = function (k) {
     return Matrix.__isNumber( k ) && (k | 0) === k;
@@ -1013,6 +1016,7 @@ Matrix.__isInteger = function (k) {
 /**
  * @static
  * @private
+ * @ignore
  */
 Matrix.__isMatrix = function (obj) {
     return obj instanceof Matrix;
@@ -1022,6 +1026,7 @@ Matrix.__isMatrix = function (obj) {
  * @param {Matrix|Number[]} obj
  * @static
  * @private
+ * @ignore
  */
 Matrix.__getArrayOrElements = function (obj) {
     if( Matrix.__isMatrix( obj ) ) {
