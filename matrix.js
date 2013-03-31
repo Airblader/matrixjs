@@ -40,13 +40,6 @@ function Matrix () {
         __elements = [];
 
     /**
-     * @see Matrix.augment
-     */
-    this.augment = function (M) {
-        return Matrix.augment( this, M );
-    };
-
-    /**
      * @see Matrix.submatrix
      */
     this.submatrix = function (rowStart, rowEnd, columnStart, columnEnd) {
@@ -865,24 +858,22 @@ Matrix.submatrix = function (M, rowStart, rowEnd, columnStart, columnEnd) {
 };
 
 /**
- * Augment two matrices.
- * @param {Matrix} A Matrix
+ * Augment with another matrix.
  * @param {Matrix} B Matrix
- * @returns {Matrix} Augmented matrix A|B.
- * @static
+ * @returns {Matrix} Augmented matrix this|B.
  */
-Matrix.augment = function (A, B) {
-    if( A.dim( 1 ) !== B.dim( 1 ) ) {
+Matrix.prototype.augment = function (B) {
+    if( this.dim( 1 ) !== B.dim( 1 ) ) {
         throw new TypeError( 'Matrices do not have the same number of rows.' );
     }
 
-    var Result = new Matrix( A.dim( 1 ), A.dim( 2 ) + B.dim( 2 ) );
+    var Result = new Matrix( this.dim( 1 ), this.dim( 2 ) + B.dim( 2 ) );
 
-    for( var i = 1; i <= A.dim( 2 ); i++ ) {
-        Result.setColumn( i, A.getColumn( i ) );
+    for( var i = 1; i <= this.dim( 2 ); i++ ) {
+        Result.setColumn( i, this.getColumn( i ) );
     }
     for( var j = 1; j <= B.dim( 2 ); j++ ) {
-        Result.setColumn( j + A.dim( 2 ), B.getColumn( j ) );
+        Result.setColumn( j + this.dim( 2 ), B.getColumn( j ) );
     }
 
     return Result;
