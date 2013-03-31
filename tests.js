@@ -557,8 +557,6 @@ new Test( function () {
 new Test( function () {
     var M = Matrix.eye( 3 );
 
-    assertEquals( M.getDimensions().rows, 3 );
-    assertEquals( M.getDimensions().columns, 3 );
     assertEquals( M.dim().rows, 3 );
     assertEquals( M.dim().columns, 3 );
 }, 'Get Dimensions 1' );

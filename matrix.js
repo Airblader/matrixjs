@@ -58,6 +58,23 @@ function Matrix () {
     };
 
     /**
+     * @private
+     * @ignore
+     */
+    this.__getElements = function () {
+        return [].slice.call( __elements );
+    };
+
+    /**
+     * @private
+     * @ignore
+     */
+    this.__setElements = function (elements) {
+        __elements = elements;
+        return this;
+    };
+
+    /**
      * Returns the number of elements in the matrix.
      * @returns {number}
      * @override
@@ -70,22 +87,12 @@ function Matrix () {
      * Get the dimensions of the matrix.
      * @returns {{rows: Number, columns: Number}} Object containing the number of rows/columns in the matrix.
      */
-    this.getDimensions = function () {
+    this.__dim = function () {
         return {
             rows: __rows,
             columns: __columns
         };
     };
-
-    this.__getElements = function () {
-        return [].slice.call( __elements );
-    };
-
-    this.__setElements = function (elements) {
-        __elements = elements;
-        return this;
-    };
-
 
     // Constructor
     (function () {
@@ -389,7 +396,7 @@ Matrix.prototype.copy = function () {
 /**
  * Get the dimensions of the matrix.
  * @param {Number|String} [which] Define which dimension should be returned. If this parameter is not given,
- * this method is a synonym for {@link getDimensions()}. Possible values are:<br />
+ * this method is a synonym for {@link __dim()}. Possible values are:<br />
  *  - 1 or 'rows' : Number of rows<br />
  *  - 2 or 'columns' : Number of columns<br />
  *  - 'max' : Dominant dimension<br />
@@ -398,7 +405,7 @@ Matrix.prototype.copy = function () {
  * the requested dimension.
  */
 Matrix.prototype.dim = function (which) {
-    var dim = this.getDimensions();
+    var dim = this.__dim();
 
     switch( which ) {
         case undefined:
