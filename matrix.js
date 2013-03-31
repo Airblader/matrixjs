@@ -40,34 +40,6 @@ function Matrix () {
         __elements = [];
 
     /**
-     * @see Matrix.apply
-     */
-    this.apply = function (fun, filter) {
-        return Matrix.apply( this, fun, filter );
-    };
-
-    /**
-     * @see Matrix.nzapply
-     */
-    this.nzapply = function (fun) {
-        return Matrix.nzapply( this, fun );
-    };
-
-    /**
-     * @see Matrix.exp
-     */
-    this.exp = function () {
-        return Matrix.exp( this );
-    };
-
-    /**
-     * @see Matrix.pow
-     */
-    this.pow = function (n) {
-        return Matrix.pow( this, n );
-    };
-
-    /**
      * @see Matrix.prototype.roundTo
      */
     this.round = function () {
@@ -438,7 +410,7 @@ function Matrix () {
  * These functions can take up to three arguments (value, row index, column index).
  */
 Matrix.filters = {
-    all: function (value) {
+    all: function () {
         return true;
     },
 
@@ -549,7 +521,7 @@ Matrix.prototype.add = function (M) {
     if( arguments.length > 1 ) {
         var args = [].slice.call( arguments );
 
-        return this.add.apply( this.add( args.shift() ), args );
+        return this.add.apply( Object( this.add( args.shift() ) ), Object( args ) );
     }
 
     if( this.dim( 1 ) !== M.dim( 1 ) || this.dim( 2 ) !== M.dim( 2 ) ) {
@@ -585,7 +557,7 @@ Matrix.prototype.subtract = function (M) {
     if( arguments.length > 1 ) {
         var args = [].slice.call( arguments );
 
-        return this.subtract.apply( this.subtract( args.shift() ), args );
+        return this.subtract.apply( Object( this.subtract( args.shift() ) ), Object( args ) );
     }
 
     if( this.dim( 1 ) !== M.dim( 1 ) || this.dim( 2 ) !== M.dim( 2 ) ) {
@@ -1063,7 +1035,6 @@ Matrix.equals = function (A, B) {
 
 /**
  * Apply a custom function to each entry.
- * @param {Matrix} M Matrix
  * @param {function} applicator Function to apply. It will be provided with three arguments (value, row index,
  * column index) and has to return the new value to write in the matrix. Predefined applicators can be found at
  * {@link Matrix.applicators}.
@@ -1071,9 +1042,8 @@ Matrix.equals = function (A, B) {
  * If provided, applicator will only be applied if filter returns true. Predefined filters can be found at
  * {@link Matrix.filters}.
  * @returns {Matrix}
- * @static
  */
-Matrix.apply = function (M, applicator, filter) {
+Matrix.prototype.apply = function (applicator, filter) {
     filter = filter || Matrix.filters.all;
 
     if( typeof applicator !== 'function' ) {
@@ -1084,7 +1054,7 @@ Matrix.apply = function (M, applicator, filter) {
         throw new TypeError( 'Filter has to be a function.' );
     }
 
-    var Result = M.copy(),
+    var Result = this.copy(),
         current;
 
     for( var i = 1; i <= Result.dim( 1 ); i++ ) {
@@ -1102,35 +1072,30 @@ Matrix.apply = function (M, applicator, filter) {
 
 /**
  * Apply a custom function to each non-zero entry.
- * @param {Matrix} M Matrix
  * @param {function} applicator Function to apply. It will be provided with three arguments (value, row index,
  * column index) and has to return the new value to write in the matrix. Predefined applicators can be found at
  * {@link Matrix.applicators}.
  * @returns {Matrix}
- * @static
  */
-Matrix.nzapply = function (M, applicator) {
-    return Matrix.apply( M, applicator, Matrix.filters.nonZero );
+Matrix.prototype.nzapply = function (applicator) {
+    return this.apply( applicator, Matrix.filters.nonZero );
 };
 
 /**
  * Apply the exponential function to each entry.
- * @param {Matrix} M Matrix
  * @returns {Matrix}
- * @static
  */
-Matrix.exp = function (M) {
-    return Matrix.apply( M, Matrix.applicators.exp );
+Matrix.prototype.exp = function () {
+    return this.apply( Matrix.applicators.exp );
 };
 
 /**
- * Raise a matrix to the n-th power.
- * @param {Matrix} M Matrix
+ * Raise to the n-th power.
  * @param {Number} n Power
  * @returns {Matrix} The matrix M^n.
  */
-Matrix.pow = function (M, n) {
-    return Matrix.apply( M, function (value) {
+Matrix.prototype.pow = function (n) {
+    return this.apply( function (value) {
         return Math.pow( value, n );
     } );
 };
