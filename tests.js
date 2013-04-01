@@ -326,6 +326,7 @@ new Test( function () {
 }, 'Transpose 4' );
 
 new Test( function () {
+    assertEquals( Matrix.zeros( 3 ).det(), 0 );
     assertEquals( Matrix.eye( 3 ).det(), 1 );
 }, 'Determinant 1' );
 
@@ -336,19 +337,6 @@ new Test( function () {
 new Test( function () {
     assertEquals( new Matrix( [1, 2, 3, 3, 2, 1, 2, 1, 3], 3, 3 ).det(), -12 );
 }, 'Determinant 3' );
-
-new Test( function () {
-    var isSingular = false;
-    try {
-        Matrix.zeros( 3 ).det();
-    } catch( e ) {
-        isSingular = true;
-    } finally {
-        if( !isSingular ) {
-            fail( 'Expected error for singular matrix.' );
-        }
-    }
-}, 'Determinant 4' );
 
 new Test( function () {
     assertMatrix( Matrix.eye( 3 ).inverse(), Matrix.eye( 3 ) );
