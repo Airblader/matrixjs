@@ -699,6 +699,14 @@ new Test( function () {
     assertEquals( Matrix.eye( 3 ).set( 3, 1, 2 ).isTriangular( 'upper' ), true );
 }, 'Is Triangular 2' );
 
+new Test( function () {
+    assertMatrix( Matrix.zeros( 3 ).stringify().toMatrix(), Matrix.zeros( 3 ) );
+    assertMatrix( Matrix.ones( 3 ).stringify().toMatrix(), Matrix.ones( 3 ) );
+
+    var M = Matrix.random( 2, 3, -5, 5, true );
+    assertMatrix( M.stringify( ',', ';' ).toMatrix( ',', ';' ), M );
+}, 'String to Matrix 1' );
+
 // ##########
 
 Test.runAll();

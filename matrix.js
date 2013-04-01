@@ -1158,6 +1158,37 @@ Array.prototype.toVector = function (isRowVector) {
 };
 
 /**
+ * Convert string to matrix.
+ * @param {String} [rowSeparator='\r\n'] Row separator
+ * @param {String} [columnSeparator='\t'] Column separator
+ * @returns {Matrix}
+ */
+String.prototype.toMatrix = function (rowSeparator, columnSeparator) {
+    rowSeparator = Matrix._getStringOrDefault( rowSeparator, '\r\n' );
+    columnSeparator = Matrix._getStringOrDefault( columnSeparator, '\t' );
+
+    var rows = this.split( rowSeparator ),
+        columns,
+        numColumns = 0,
+        __elements = [];
+
+    for( var i = 0; i < rows.length; i++ ) {
+        columns = rows[i].split( columnSeparator );
+        numColumns = (numColumns === 0) ? columns.length : numColumns;
+
+        if( columns.length !== numColumns ) {
+            throw new Matrix.MatrixError( Matrix.ErrorCodes.INVALID_PARAMETERS, 'Number of columns is inconsistent' );
+        }
+
+        for( var j = 0; j < numColumns; j++ ) {
+            __elements.push( Number( columns[j] ) );
+        }
+    }
+
+    return new Matrix( __elements, rows.length, numColumns );
+};
+
+/**
  * @private
  * @ignore
  */
