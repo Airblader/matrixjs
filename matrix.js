@@ -325,6 +325,54 @@ Matrix.prototype.isSquare = function () {
 };
 
 /**
+ * Check if matrix is triangular.
+ * @param {String} [mode='both'] What kind of triangular matrix to check for. Possible values are:<br />
+ *  - 'lower': True if lower triangular matrix, false otherwise
+ *  - 'upper': True if upper triangular matrix, false otherwise
+ *  - 'both': True if either lower or upper triangular, false otherwise
+ * @returns {Boolean}
+ */
+Matrix.prototype.isTriangular = function (mode) {
+    mode = Matrix._getStringOrDefault( mode, 'both' );
+
+    if( !this.isSquare() ) {
+        throw new Matrix.MatrixError( Matrix.ErrorCodes.DIMENSION_MISMATCH, 'Matrix must be square' );
+    }
+
+    switch( mode.toLowerCase() ) {
+        case 'lower':
+            return this.__isTriangular( false );
+        case 'upper':
+            return this.__isTriangular( true );
+        case 'both':
+            return ( this.__isTriangular( true ) || this.__isTriangular( false ) );
+        default:
+            throw new Matrix.MatrixError( Matrix.ErrorCodes.INVALID_PARAMETERS, 'Mode not supported' );
+    }
+};
+
+/**
+ * @private
+ * @ignore
+ */
+Matrix.prototype.__isTriangular = function (upper) {
+    var sign = (upper) ? 1 : -1,
+        diag;
+
+    for( var i = 1; i < this.dim( 1 ); i++ ) {
+        diag = this.diag( sign * i );
+
+        for( var j = 0; j < diag.length; j++ ) {
+            if( ( diag[j] || 0 ) !== 0 ) {
+                return false;
+            }
+        }
+    }
+
+    return true;
+};
+
+/**
  * Return a copy of the matrix. This prevents accidental usage of references.
  * @returns {Matrix}
  */
@@ -584,22 +632,35 @@ Matrix.prototype.LUDecomposition = function () {
  * @returns {Number}
  */
 Matrix.prototype.det = function () {
-    /* TODO Ideas:
-     *   1. Sparse matrix: Use Laplace?
-     *   2. If triangular -> product of diagonal
-     *   3. Direct calculation for up to 3x3 or similar
-     */
+    var i,
+        det;
 
     if( !this.isSquare() ) {
         throw new Matrix.MatrixError( Matrix.ErrorCodes.DIMENSION_MISMATCH, 'Matrix must be square' );
     }
 
-    var n = this.dim( 1 ),
-        LU = this.LUDecomposition();
+    if( this.isTriangular() ) {
+        det = 1;
 
-    var det = Math.pow( -1, LU.swappedRows );
-    for( var i = 1; i <= n; i++ ) {
-        det = det * LU.get( i, i );
+        for( i = 1; i <= this.dim( 1 ); i++ ) {
+            det = det * this.get( i, i );
+        }
+    } else {
+        try {
+            var LU = this.LUDecomposition();
+        } catch( e ) {
+            if( e.code && e.code === Matrix.ErrorCodes.MATRIX_IS_SINGULAR ) {
+                return 0;
+            }
+
+            throw e;
+        }
+
+        det = Math.pow( -1, LU.swappedRows );
+
+        for( i = 1; i <= this.dim( 1 ); i++ ) {
+            det = det * LU.get( i, i );
+        }
     }
 
     return det;

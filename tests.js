@@ -684,6 +684,21 @@ new Test( function () {
     assertEquals( Matrix.diag( [1, 3, 2] ).set( 3, 1, 5 ).scale( -1 ).norm( 'columns' ), 6 );
 }, 'Norm 3' );
 
+new Test( function () {
+    assertEquals( Matrix.zeros( 3 ).isTriangular(), true );
+    assertEquals( Matrix.eye( 3 ).isTriangular(), true );
+    assertEquals( Matrix.eye( 2 ).set( 2, 1, 1 ).isTriangular(), true );
+    assertEquals( Matrix.eye( 2 ).set( 1, 2, 1 ).isTriangular(), true );
+}, 'Is Triangular 1' );
+
+new Test( function () {
+    assertEquals( Matrix.eye( 3 ).set( 1, 3, 2 ).isTriangular( 'lower' ), true );
+    assertEquals( Matrix.eye( 3 ).set( 1, 3, 2 ).isTriangular( 'upper' ), false );
+
+    assertEquals( Matrix.eye( 3 ).set( 3, 1, 2 ).isTriangular( 'lower' ), false );
+    assertEquals( Matrix.eye( 3 ).set( 3, 1, 2 ).isTriangular( 'upper' ), true );
+}, 'Is Triangular 2' );
+
 // ##########
 
 Test.runAll();
