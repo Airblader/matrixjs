@@ -1306,3 +1306,35 @@ Matrix.diag = function (elements, k) {
 
     return Result;
 };
+
+/**
+ * Returns a random matrix.
+ * @param {Number} rows Number of rows
+ * @param {Number} [columns=rows] Number of columns
+ * @param {Number} [minVal=0] Smallest possible value for entries
+ * @param {Number} [maxVal=1] Biggest possible value for entries
+ * @param {Boolean} [onlyInteger=true] If true, all entries will be integers
+ * @returns {Matrix}
+ * @static
+ */
+Matrix.random = function (rows, columns, minVal, maxVal, onlyInteger) {
+    columns = columns || rows;
+    minVal = minVal || 0;
+    maxVal = (typeof maxVal === 'undefined') ? 1 : maxVal;
+    onlyInteger = (typeof onlyInteger === 'undefined') ? true : onlyInteger;
+
+    var Result = new Matrix( rows, columns ),
+        factor = ( maxVal - minVal ) + ( (onlyInteger) ? 1 : 0 ),
+        current;
+
+    for( var i = 1; i <= Result.size(); i++ ) {
+        current = minVal + ( Math.random() * factor );
+        if( onlyInteger ) {
+            current = current | 0;
+        }
+
+        Result.set( i, current );
+    }
+
+    return Result;
+};
