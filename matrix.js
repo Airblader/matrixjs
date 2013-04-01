@@ -224,7 +224,7 @@ Matrix.prototype.set = function (row, column, value) {
  * @returns {Number[]|Matrix} Array of the elements in the specified row.
  */
 Matrix.prototype.getRow = function (row, asMatrix) {
-    asMatrix = Matrix.__getBooleanOrDefault( asMatrix, false );
+    asMatrix = Matrix._getBooleanOrDefault( asMatrix, false );
 
     if( !this.__inRange( row, null ) ) {
         throw new Matrix.MatrixError( Matrix.ErrorCodes.OUT_OF_BOUNDS );
@@ -269,7 +269,7 @@ Matrix.prototype.setRow = function (row, elements) {
  * @returns {Number[]|Matrix} Array of the elements in the specified column.
  */
 Matrix.prototype.getColumn = function (column, asMatrix) {
-    asMatrix = Matrix.__getBooleanOrDefault( asMatrix, false );
+    asMatrix = Matrix._getBooleanOrDefault( asMatrix, false );
 
     if( !this.__inRange( null, column ) ) {
         throw new Matrix.MatrixError( Matrix.ErrorCodes.OUT_OF_BOUNDS );
@@ -733,7 +733,7 @@ Matrix.prototype.round = function () {
  * @returns {Matrix}
  */
 Matrix.prototype.roundTo = function (digits) {
-    digits = Matrix.__getNumberOrDefault( digits, 0 );
+    digits = Matrix._getNumberOrDefault( digits, 0 );
 
     var Result = this.copy(),
         elements = Result.__getElements(),
@@ -822,7 +822,7 @@ Matrix.prototype.addColumn = function (elements) {
  * @returns {Boolean}
  */
 Matrix.prototype.contains = function (needle, precision) {
-    precision = Matrix.__getNumberOrDefault( precision, 0 );
+    precision = Matrix._getNumberOrDefault( precision, 0 );
 
     if( !Matrix.__isNumber( needle ) || !Matrix.__isNumber( precision ) ) {
         throw new Matrix.MatrixError( Matrix.ErrorCodes.INVALID_PARAMETERS, 'Parameter must be a number' );
@@ -850,8 +850,8 @@ Matrix.prototype.contains = function (needle, precision) {
  */
 Matrix.prototype.stringify = function (rowSeparator, columnSeparator) {
     // TODO move from concatenation to join
-    rowSeparator = Matrix.__getStringOrDefault( rowSeparator, '\r\n' );
-    columnSeparator = Matrix.__getStringOrDefault( columnSeparator, '\t' );
+    rowSeparator = Matrix._getStringOrDefault( rowSeparator, '\r\n' );
+    columnSeparator = Matrix._getStringOrDefault( columnSeparator, '\t' );
 
     var str = '';
     for( var i = 1; i <= this.dim( 1 ); i++ ) {
@@ -969,7 +969,7 @@ Matrix.prototype.pow = function (n) {
  * @returns {Number}
  */
 Matrix.prototype.norm = function (which, args) {
-    which = Matrix.__getStringOrDefault( which, 'max' );
+    which = Matrix._getStringOrDefault( which, 'max' );
     args = args || {};
 
     switch( which.toLowerCase() ) {
@@ -1059,7 +1059,7 @@ Matrix.prototype.columnnorm = function () {
  * @returns {Number[]}
  */
 Matrix.prototype.diag = function (k) {
-    k = Matrix.__getNumberOrDefault( k, 0 );
+    k = Matrix._getNumberOrDefault( k, 0 );
 
     var diag = [],
         rowOffset = -Math.min( k, 0 ),
@@ -1095,7 +1095,7 @@ Array.prototype.toMatrix = function (rows, columns) {
  * @returns {Matrix}
  */
 Array.prototype.toVector = function (isRowVector) {
-    isRowVector = Matrix.__getBooleanOrDefault( isRowVector, false );
+    isRowVector = Matrix._getBooleanOrDefault( isRowVector, false );
 
     return new Matrix( this, (isRowVector) ? 1 : this.length, (isRowVector) ? this.length : 1 );
 };
@@ -1176,28 +1176,28 @@ Matrix.__getArrayOrElements = function (obj) {
 
 /**
  * @static
- * @private
+ * @protected
  * @ignore
  */
-Matrix.__getNumberOrDefault = function (obj, defaultValue) {
+Matrix._getNumberOrDefault = function (obj, defaultValue) {
     return (Matrix.__isNumber( obj )) ? obj : defaultValue;
 };
 
 /**
  * @static
- * @private
+ * @protected
  * @ignore
  */
-Matrix.__getStringOrDefault = function (obj, defaultValue) {
+Matrix._getStringOrDefault = function (obj, defaultValue) {
     return (typeof obj === 'string') ? obj : defaultValue;
 };
 
 /**
  * @static
- * @private
+ * @protected
  * @ignore
  */
-Matrix.__getBooleanOrDefault = function (obj, defaultValue) {
+Matrix._getBooleanOrDefault = function (obj, defaultValue) {
     return (typeof obj === 'boolean') ? obj : defaultValue;
 };
 
@@ -1267,7 +1267,7 @@ Matrix.applicators = {
  * @static
  */
 Matrix.zeros = function (rows, columns) {
-    columns = Matrix.__getNumberOrDefault( columns, rows );
+    columns = Matrix._getNumberOrDefault( columns, rows );
 
     return new Matrix( rows, columns );
 };
@@ -1280,7 +1280,7 @@ Matrix.zeros = function (rows, columns) {
  * @static
  */
 Matrix.ones = function (rows, columns) {
-    columns = Matrix.__getNumberOrDefault( columns, rows );
+    columns = Matrix._getNumberOrDefault( columns, rows );
 
     var elements = [];
     for( var i = 0; i < rows * columns; i++ ) {
@@ -1315,7 +1315,7 @@ Matrix.eye = function (n) {
  */
 Matrix.diag = function (elements, k) {
     elements = Matrix.__getArrayOrElements( elements );
-    k = Matrix.__getNumberOrDefault( k, 0 );
+    k = Matrix._getNumberOrDefault( k, 0 );
 
     var Result = new Matrix( elements.length + Math.abs( k ) ),
         rowOffset = -Math.min( k, 0 ),
@@ -1339,10 +1339,10 @@ Matrix.diag = function (elements, k) {
  * @static
  */
 Matrix.random = function (rows, columns, minVal, maxVal, onlyInteger) {
-    columns = Matrix.__getNumberOrDefault( columns, rows );
-    minVal = Matrix.__getNumberOrDefault( minVal, 0 );
-    maxVal = Matrix.__getNumberOrDefault( maxVal, 1 );
-    onlyInteger = Matrix.__getBooleanOrDefault( onlyInteger, true );
+    columns = Matrix._getNumberOrDefault( columns, rows );
+    minVal = Matrix._getNumberOrDefault( minVal, 0 );
+    maxVal = Matrix._getNumberOrDefault( maxVal, 1 );
+    onlyInteger = Matrix._getBooleanOrDefault( onlyInteger, true );
 
     var Result = new Matrix( rows, columns ),
         factor = ( maxVal - minVal ) + ( (onlyInteger) ? 1 : 0 ),
