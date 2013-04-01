@@ -52,6 +52,10 @@ function Matrix () {
      * @ignore
      */
     this.__set = function (index, value) {
+        if( !Matrix.__isNumber( value ) ) {
+            throw new Matrix.MatrixError( Matrix.ErrorCodes.INVALID_PARAMETERS, 'Value must be a number' );
+        }
+
         __elements[index] = value;
         return this;
     };
@@ -69,6 +73,10 @@ function Matrix () {
      * @ignore
      */
     this.__setElements = function (elements) {
+        if( !Matrix.__isNumberArray( elements ) ) {
+            throw new Matrix.MatrixError( Matrix.ErrorCodes.INVALID_PARAMETERS, 'Elements must be numbers' );
+        }
+
         __elements = elements;
         return this;
     };
@@ -91,9 +99,12 @@ function Matrix () {
             __columns = -1;
 
             for( var i = 0; i < args[0].length; i++ ) {
-                if( args[0][i].length !== __columns && __columns !== -1 ) {
+                if( (args[0][i].length !== __columns && __columns !== -1) ) {
                     throw new Matrix.MatrixError( Matrix.ErrorCodes.INVALID_PARAMETERS,
                         'Number of columns must be the same for all rows' );
+                }
+                if( !Matrix.__isNumberArray( args[0][i] ) ) {
+                    throw new Matrix.MatrixError( Matrix.ErrorCodes.INVALID_PARAMETERS, 'Elements must be numbers' );
                 }
                 __columns = Math.max( __columns, args[0][i].length );
 
@@ -103,6 +114,10 @@ function Matrix () {
             }
         } else if( args.length >= 1 && args.length <= 3 && args[0] instanceof Array
             && ( args[0].length === 0 || (args[0].length !== 0 && Matrix.__isNumber( args[0][0] ) ) ) ) {
+
+            if( !Matrix.__isNumberArray( args[0] ) ) {
+                throw new Matrix.MatrixError( Matrix.ErrorCodes.INVALID_PARAMETERS, 'Elements must be numbers' );
+            }
 
             __elements = args[0];
             var rows = args[1],
@@ -1130,6 +1145,21 @@ Matrix.__isInteger = function (k) {
  */
 Matrix.__isMatrix = function (obj) {
     return obj instanceof Matrix;
+};
+
+/**
+ * @static
+ * @private
+ * @ignore
+ */
+Matrix.__isNumberArray = function (obj) {
+    for( var i = 0; i < obj.length; i++ ) {
+        if( !Matrix.__isNumber( obj[i] || 0 ) ) {
+            return false;
+        }
+    }
+
+    return true;
 };
 
 /**
