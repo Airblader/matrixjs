@@ -1416,3 +1416,22 @@ Matrix.random = function (rows, columns, minVal, maxVal, onlyInteger) {
 
     return Result;
 };
+
+/**
+ * Generate an array with linearly increasing numbers
+ * @param {Number} start Number to start with
+ * @param {Number} end Number to end with
+ * @param {Number} [step=1] Step in between numbers
+ * @returns {Number[]}
+ * @static
+ */
+Matrix.linspace = function (start, end, step) {
+    step = Matrix._getNumberOrDefault( step, 1 );
+    var result = [];
+
+    for( var i = start; i <= end; i += step ) {
+        result.push( i );
+    }
+
+    return result;
+};
