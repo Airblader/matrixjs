@@ -144,9 +144,11 @@ function Matrix () {
         } else if( args.length === 1 && Matrix.__isInteger( args[0] ) ) {
             __rows = args[0];
             __columns = args[0];
+            __elements = Matrix.repeat( __rows * __columns, 0 );
         } else if( args.length === 2 && Matrix.__isInteger( args[0] ) && Matrix.__isInteger( args[1] ) ) {
             __rows = args[0];
             __columns = args[1];
+            __elements = Matrix.repeat( __rows * __columns, 0 );
         } else {
             throw new Matrix.MatrixError( Matrix.ErrorCodes.INVALID_PARAMETERS,
                 'Parameters must match a supported signature' );
@@ -172,13 +174,13 @@ Matrix.prototype.get = function (row, column) {
             throw new Matrix.MatrixError( Matrix.ErrorCodes.OUT_OF_BOUNDS );
         }
 
-        return this.__get( index - 1 ) || 0;
+        return this.__get( index - 1 );
     } else {
         if( !this.__inRange( row, column ) ) {
             throw new Matrix.MatrixError( Matrix.ErrorCodes.OUT_OF_BOUNDS );
         }
 
-        return this.__get( this.__convertToIndex( row, column ) ) || 0;
+        return this.__get( this.__convertToIndex( row, column ) );
     }
 };
 
@@ -210,10 +212,7 @@ Matrix.prototype.set = function (row, column, value) {
         index = this.__convertToIndex( row, column );
     }
 
-    if( this.__get( index ) || value !== 0 ) {
-        this.__set( index, value );
-    }
-
+    this.__set( index, value );
     return this;
 };
 
@@ -232,9 +231,6 @@ Matrix.prototype.getRow = function (row, asMatrix) {
 
     var start = this.__convertToIndex( row, 1 ),
         elements = this.__getElements().slice( start, start + this.dim( 2 ) );
-    for( var i = 0; i < this.dim( 2 ); i++ ) {
-        elements[i] = elements[i] || 0;
-    }
 
     return (asMatrix) ? new Matrix( elements, 1 ) : elements;
 };
@@ -278,7 +274,7 @@ Matrix.prototype.getColumn = function (column, asMatrix) {
     var start = this.__convertToIndex( 1, column ),
         elements = [];
     for( var i = 0; i < this.dim( 1 ); i++ ) {
-        elements[i] = this.__get( start + i * this.dim( 2 ) ) || 0;
+        elements[i] = this.__get( start + i * this.dim( 2 ) );
     }
 
     return (asMatrix) ? new Matrix( elements, null, 1 ) : elements;
@@ -363,7 +359,7 @@ Matrix.prototype.__isTriangular = function (upper) {
         diag = this.diag( sign * i );
 
         for( var j = 0; j < diag.length; j++ ) {
-            if( ( diag[j] || 0 ) !== 0 ) {
+            if( diag[j] !== 0 ) {
                 return false;
             }
         }
@@ -447,13 +443,8 @@ Matrix.prototype.add = function (M) {
         current;
 
     for( var i = 1; i <= this.size(); i++ ) {
-        if( this.get( i ) !== 0 && M.get( i ) !== 0 ) {
-            current = this.get( i ) + M.get( i );
-
-            if( current !== 0 ) {
-                elementsResult[i - 1] = current;
-            }
-        }
+        current = this.get( i ) + M.get( i );
+        elementsResult[i - 1] = current;
     }
 
     Result.__setElements( elementsResult );
@@ -483,13 +474,8 @@ Matrix.prototype.subtract = function (M) {
         current;
 
     for( var i = 1; i <= this.size(); i++ ) {
-        if( this.get( i ) !== 0 && M.get( i ) !== 0 ) {
-            current = this.get( i ) - M.get( i );
-
-            if( current !== 0 ) {
-                elementsResult[i - 1] = current;
-            }
-        }
+        current = this.get( i ) - M.get( i );
+        elementsResult[i - 1] = current;
     }
 
     Result.__setElements( elementsResult );
@@ -509,9 +495,7 @@ Matrix.prototype.scale = function (k) {
 
     var __elements = this.__getElements();
     for( var i = 0; i < this.size(); i++ ) {
-        if( __elements[i] ) {
-            __elements[i] = k * __elements[i];
-        }
+        __elements[i] = k * __elements[i];
     }
 
     return new Matrix( __elements, this.dim( 1 ), this.dim( 2 ) );
@@ -889,7 +873,7 @@ Matrix.prototype.contains = function (needle, precision) {
         throw new Matrix.MatrixError( Matrix.ErrorCodes.INVALID_PARAMETERS, 'Parameter must be a number' );
     }
 
-    if( needle !== 0 && precision === 0 ) {
+    if( precision === 0 ) {
         return this.__getElements().indexOf( needle ) !== -1;
     } else {
         for( var i = 1; i <= this.size(); i++ ) {
@@ -1063,7 +1047,7 @@ Matrix.prototype.pnorm = function (p) {
 
     var norm = 0;
     for( var i = 0; i < this.size(); i++ ) {
-        norm += Math.pow( Math.abs( this.__get( i ) || 0 ), p );
+        norm += Math.pow( Math.abs( this.__get( i ) ), p );
     }
 
     return Math.pow( norm, 1 / p );
@@ -1076,7 +1060,7 @@ Matrix.prototype.pnorm = function (p) {
 Matrix.prototype.maxnorm = function () {
     var norm = 0;
     for( var i = 0; i < this.size(); i++ ) {
-        norm = Math.max( norm, Math.abs( this.__get( i ) || 0 ) );
+        norm = Math.max( norm, Math.abs( this.__get( i ) ) );
     }
 
     return norm;
@@ -1240,7 +1224,7 @@ Matrix.__isMatrix = function (obj) {
  */
 Matrix.__isNumberArray = function (obj) {
     for( var i = 0; i < obj.length; i++ ) {
-        if( !Matrix.__isNumber( obj[i] || 0 ) ) {
+        if( !Matrix.__isNumber( obj[i] ) ) {
             return false;
         }
     }
@@ -1375,7 +1359,7 @@ Matrix.ones = function (rows, columns) {
         elements[i] = 1;
     }
 
-    return new Matrix( rows, columns ).__setElements( elements );
+    return new Matrix( elements, rows, columns );
 };
 
 /**
@@ -1462,6 +1446,21 @@ Matrix.linspace = function (start, end, step) {
 
     for( var i = start; i <= end; i += step ) {
         result.push( i );
+    }
+
+    return result;
+};
+
+/**
+ * Generate an array with a repeated constant value.
+ * @param {Number} times Number of times to repeat
+ * @param {Number} value Constant value to repeat
+ * @returns {Array}
+ */
+Matrix.repeat = function (times, value) {
+    var result = [];
+    for( var i = 1; i <= times; i++ ) {
+        result[i - 1] = value;
     }
 
     return result;
