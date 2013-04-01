@@ -849,26 +849,22 @@ Matrix.prototype.contains = function (needle, precision) {
  * @returns {String}
  */
 Matrix.prototype.stringify = function (rowSeparator, columnSeparator) {
-    // TODO move from concatenation to join
     rowSeparator = Matrix._getStringOrDefault( rowSeparator, '\r\n' );
     columnSeparator = Matrix._getStringOrDefault( columnSeparator, '\t' );
 
-    var str = '';
+    var rows = [],
+        current;
     for( var i = 1; i <= this.dim( 1 ); i++ ) {
+        current = [];
+
         for( var j = 1; j <= this.dim( 2 ); j++ ) {
-            str += this.get( i, j );
-
-            if( j !== this.dim( 2 ) ) {
-                str += columnSeparator;
-            }
+            current.push( this.get( i, j ) );
         }
 
-        if( i !== this.dim( 1 ) ) {
-            str += rowSeparator;
-        }
+        rows.push( current.join( columnSeparator ) );
     }
 
-    return str;
+    return rows.join( rowSeparator );
 };
 
 /**
