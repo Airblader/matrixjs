@@ -527,7 +527,7 @@ new Test( function () {
 
     assertMatrix( A.abs(), A );
     assertMatrix( B.abs(), B );
-    assertMatrix( C.abs(), A );
+    assertMatrix( C.abs(), B );
 }, 'Abs 2' );
 
 new Test( function () {
