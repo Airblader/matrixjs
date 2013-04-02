@@ -329,7 +329,15 @@ Matrix.prototype.isSymmetric = function () {
         throw new Matrix.MatrixError( Matrix.ErrorCodes.DIMENSION_MISMATCH, 'Matrix must be square' );
     }
 
-    return this.equals( this.transpose() );
+    for( var i = 2; i <= this.dim( 1 ); i++ ) {
+        for( var j = 1; j < i; j++ ) {
+            if( this.__get( this.__convertToIndex( i, j ) ) !== this.__get( this.__convertToIndex( j, i ) ) ) {
+                return false;
+            }
+        }
+    }
+
+    return true;
 };
 
 /**
