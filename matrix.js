@@ -458,18 +458,15 @@ Matrix.prototype.add = function (M) {
         throw new Matrix.MatrixError( Matrix.ErrorCodes.DIMENSION_MISMATCH, 'Matrices must be of the same size' );
     }
 
-    var Result = new Matrix( this.dim( 1 ), this.dim( 2 ) ),
-        elementsResult = [],
+    var elements = [],
         current;
 
-    for( var i = 1; i <= this.size(); i++ ) {
-        current = this.get( i ) + M.get( i );
-        elementsResult[i - 1] = current;
+    for( var i = 0; i < this.size(); i++ ) {
+        current = this.__get( i ) + M.__get( i );
+        elements[i] = current;
     }
 
-    Result.__setElements( elementsResult );
-
-    return Result;
+    return  new Matrix( elements, this.dim( 1 ), this.dim( 2 ) );
 };
 
 /**
@@ -489,18 +486,15 @@ Matrix.prototype.subtract = function (M) {
         throw new Matrix.MatrixError( Matrix.ErrorCodes.DIMENSION_MISMATCH, 'Matrices must be of the same size' );
     }
 
-    var Result = new Matrix( this.dim( 1 ), this.dim( 2 ) ),
-        elementsResult = [],
+    var elements = [],
         current;
 
-    for( var i = 1; i <= this.size(); i++ ) {
-        current = this.get( i ) - M.get( i );
-        elementsResult[i - 1] = current;
+    for( var i = 0; i < this.size(); i++ ) {
+        current = this.__get( i ) - M.__get( i );
+        elements[i] = current;
     }
 
-    Result.__setElements( elementsResult );
-
-    return Result;
+    return new Matrix( elements, this.dim( 1 ), this.dim( 2 ) );
 };
 
 /**
@@ -513,12 +507,12 @@ Matrix.prototype.scale = function (k) {
         throw new Matrix.MatrixError( Matrix.ErrorCodes.INVALID_PARAMETERS, 'Parameter must be a number' );
     }
 
-    var __elements = this.__getElements();
+    var elements = [];
     for( var i = 0; i < this.size(); i++ ) {
-        __elements[i] = k * __elements[i];
+        elements[i] = k * this.__get( i );
     }
 
-    return new Matrix( __elements, this.dim( 1 ), this.dim( 2 ) );
+    return new Matrix( elements, this.dim( 1 ), this.dim( 2 ) );
 };
 
 /**
@@ -541,7 +535,7 @@ Matrix.prototype.multiply = function (M) {
                 temp += this.get( i, k ) * M.get( k, j );
             }
 
-            Result.set( i, j, temp );
+            Result.__set( Result.__convertToIndex( i, j ), temp );
         }
     }
 
@@ -595,7 +589,7 @@ Matrix.prototype.LUDecomposition = function () {
             maxArg = -1;
 
         for( i = k; i <= this.dim( 1 ); i++ ) {
-            var currArg = Math.abs( LU.get( i, k ) );
+            var currArg = Math.abs( LU.__get( LU.__convertToIndex( i, k ) ) );
 
             if( currArg >= maxArg ) {
                 pivot = i;
@@ -603,7 +597,7 @@ Matrix.prototype.LUDecomposition = function () {
             }
         }
 
-        if( LU.get( pivot, k ) === 0 ) {
+        if( LU.__get( LU.__convertToIndex( pivot, k ) ) === 0 ) {
             throw new Matrix.MatrixError( Matrix.ErrorCodes.MATRIX_IS_SINGULAR );
         }
 
@@ -618,10 +612,12 @@ Matrix.prototype.LUDecomposition = function () {
 
         for( i = k + 1; i <= this.dim( 1 ); i++ ) {
             for( j = k + 1; j <= this.dim( 2 ); j++ ) {
-                LU.set( i, j, LU.get( i, j ) - LU.get( k, j ) * ( LU.get( i, k ) / LU.get( k, k ) ) );
+                LU.__set( LU.__convertToIndex( i, j ),
+                    LU.__get( LU.__convertToIndex( i, j ) ) - LU.__get( LU.__convertToIndex( k, j ) )
+                        * ( LU.__get( LU.__convertToIndex( i, k ) ) / LU.__get( LU.__convertToIndex( k, k ) ) ) );
             }
 
-            LU.set( i, k, 0 );
+            LU.__set( LU.__convertToIndex( i, k ), 0 );
         }
     }
 
@@ -647,7 +643,7 @@ Matrix.prototype.det = function () {
         det = 1;
 
         for( i = 1; i <= this.dim( 1 ); i++ ) {
-            det = det * this.get( i, i );
+            det = det * this.__get( this.__convertToIndex( i, i ) );
         }
     } else {
         try {
@@ -663,7 +659,7 @@ Matrix.prototype.det = function () {
         det = Math.pow( -1, LU.swappedRows );
 
         for( i = 1; i <= this.dim( 1 ); i++ ) {
-            det = det * LU.get( i, i );
+            det = det * LU.__get( LU.__convertToIndex( i, i ) );
         }
     }
 
@@ -679,36 +675,37 @@ Matrix.prototype.inverse = function () {
         throw new Matrix.MatrixError( Matrix.ErrorCodes.DIMENSION_MISMATCH, 'Matrix must be square' );
     }
 
-    var augmentedM = this.augment( Matrix.eye( this.dim( 1 ) ) ),
+    var M = this.augment( Matrix.eye( this.dim( 1 ) ) ),
         row, i, j, k;
 
     try {
-        augmentedM = augmentedM.LUDecomposition();
+        M = M.LUDecomposition();
 
         // TODO The following two loops can probably be rewritten into something smarter
-        for( i = augmentedM.dim( 1 ); i > 1; i-- ) {
-            row = augmentedM.getRow( i );
-            var factor = augmentedM.get( i - 1, i ) / augmentedM.get( i, i );
+        for( i = M.dim( 1 ); i > 1; i-- ) {
+            row = M.getRow( i );
+            var factor = M.__get( M.__convertToIndex( i - 1, i ) ) / M.__get( M.__convertToIndex( i, i ) );
 
             for( k = 0; k < row.length; k++ ) {
-                augmentedM.set( i - 1, k + 1, augmentedM.get( i - 1, k + 1 ) - (row[k] * factor ) );
+                M.__set( M.__convertToIndex( i - 1, k + 1 ),
+                    M.__get( M.__convertToIndex( i - 1, k + 1 ) ) - (row[k] * factor ) );
             }
         }
 
-        for( j = 1; j <= augmentedM.dim( 1 ); j++ ) {
-            row = augmentedM.getRow( j );
+        for( j = 1; j <= M.dim( 1 ); j++ ) {
+            row = M.getRow( j );
 
             for( k = 0; k < row.length; k++ ) {
-                row[k] = row[k] / augmentedM.get( j, j );
+                row[k] = row[k] / M.__get( M.__convertToIndex( j, j ) );
             }
 
-            augmentedM.setRow( j, row );
+            M.setRow( j, row );
         }
     } catch( e ) {
         throw new Matrix.MatrixError( Matrix.ErrorCodes.MATRIX_IS_SINGULAR );
     }
 
-    return augmentedM.submatrix( 1, augmentedM.dim( 1 ), this.dim( 2 ) + 1, augmentedM.dim( 2 ) );
+    return M.submatrix( 1, M.dim( 1 ), this.dim( 2 ) + 1, M.dim( 2 ) );
 };
 
 /**
@@ -801,16 +798,12 @@ Matrix.prototype.roundTo = function (digits) {
     digits = Matrix._getNumberOrDefault( digits, 0 );
 
     var Result = this.copy(),
-        elements = Result.__getElements(),
         power = Math.pow( 10, digits );
 
-    for( var i = 0; i < elements.length; i++ ) {
-        if( elements[i] ) {
-            elements[i] = Math.round( elements[i] * power ) / power;
-        }
+    for( var i = 0; i < Result.size(); i++ ) {
+        Result.__set( i, Math.round( Result.__get( i ) * power ) / power );
     }
 
-    Result.__setElements( elements );
     return Result;
 };
 
@@ -819,15 +812,13 @@ Matrix.prototype.roundTo = function (digits) {
  * @returns {Matrix} Matrix M with M(i,j) = abs( this(i,j) ) for all i,j.
  */
 Matrix.prototype.abs = function () {
-    var elements = this.__getElements();
+    var Result = this.copy();
 
     for( var i = 0; i < this.size(); i++ ) {
-        if( elements[i] ) {
-            elements[i] = Math.abs( elements[i] );
-        }
+        Result.__set( i, Math.abs( Result.__get( i ) ) );
     }
 
-    return new Matrix( elements, this.dim( 1 ), this.dim( 2 ) );
+    return Result;
 };
 
 /**
@@ -843,9 +834,9 @@ Matrix.prototype.cross = function (M) {
     }
 
     return new Matrix( [
-        [this.get( 2 ) * M.get( 3 ) - this.get( 3 ) * M.get( 2 )],
-        [this.get( 3 ) * M.get( 1 ) - this.get( 1 ) * M.get( 3 )],
-        [this.get( 1 ) * M.get( 2 ) - this.get( 2 ) * M.get( 1 )]
+        [this.__get( 1 ) * M.__get( 2 ) - this.__get( 2 ) * M.__get( 1 )],
+        [this.__get( 2 ) * M.__get( 0 ) - this.__get( 0 ) * M.__get( 2 )],
+        [this.__get( 0 ) * M.__get( 1 ) - this.__get( 1 ) * M.__get( 0 )]
     ] );
 };
 
@@ -875,9 +866,7 @@ Matrix.prototype.addRow = function (elements) {
  * @returns {Matrix}
  */
 Matrix.prototype.addColumn = function (elements) {
-    elements = Matrix.__getArrayOrElements( elements );
-
-    return this.copy().augment( new Matrix( elements, null, 1 ) );
+    return this.copy().augment( new Matrix( Matrix.__getArrayOrElements( elements ), null, 1 ) );
 };
 
 /**
@@ -896,8 +885,8 @@ Matrix.prototype.contains = function (needle, precision) {
     if( precision === 0 ) {
         return this.__getElements().indexOf( needle ) !== -1;
     } else {
-        for( var i = 1; i <= this.size(); i++ ) {
-            if( Math.abs( this.get( i ) - needle ) <= precision ) {
+        for( var i = 0; i < this.size(); i++ ) {
+            if( Math.abs( this.__get( i ) - needle ) <= precision ) {
                 return true;
             }
         }
@@ -923,7 +912,7 @@ Matrix.prototype.stringify = function (rowSeparator, columnSeparator) {
         current = [];
 
         for( var j = 1; j <= this.dim( 2 ); j++ ) {
-            current.push( this.get( i, j ) );
+            current.push( this.__get( this.__convertToIndex( i, j ) ) );
         }
 
         rows.push( current.join( columnSeparator ) );
@@ -942,8 +931,8 @@ Matrix.prototype.equals = function (M) {
         return false;
     }
 
-    for( var i = 1; i <= this.size(); i++ ) {
-        if( this.get( i ) !== M.get( i ) ) {
+    for( var i = 0; i < this.size(); i++ ) {
+        if( this.__get( i ) !== M.__get( i ) ) {
             return false;
         }
     }
