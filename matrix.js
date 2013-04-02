@@ -306,7 +306,7 @@ Matrix.prototype.setColumn = function (column, elements) {
 
 /**
  * Check if the matrix is a vector.
- * @returns {boolean} True if at least one dimension is 1.
+ * @returns {Boolean} True if at least one dimension is 1.
  */
 Matrix.prototype.isVector = function () {
     return this.dim( 'min' ) === 1;
@@ -314,10 +314,22 @@ Matrix.prototype.isVector = function () {
 
 /**
  * Check if the matrix is a square matrix.
- * @returns {boolean} True if the number of rows and columns equal, false otherwise.
+ * @returns {Boolean} True if the number of rows and columns equal, false otherwise.
  */
 Matrix.prototype.isSquare = function () {
     return this.dim( 1 ) === this.dim( 2 );
+};
+
+/**
+ * Check if the matrix is symmetric.
+ * @returns {Boolean}
+ */
+Matrix.prototype.isSymmetric = function () {
+    if( !this.isSquare() ) {
+        throw new Matrix.MatrixError( Matrix.ErrorCodes.DIMENSION_MISMATCH, 'Matrix must be square' );
+    }
+
+    return this.equals( this.transpose() );
 };
 
 /**

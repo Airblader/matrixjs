@@ -707,6 +707,15 @@ new Test( function () {
     assertMatrix( M.stringify( ',', ';' ).toMatrix( ',', ';' ), M );
 }, 'String to Matrix 1' );
 
+new Test( function () {
+    assertEquals( Matrix.zeros( 3 ).isSymmetric(), true );
+    assertEquals( Matrix.eye( 3 ).isSymmetric(), true );
+    assertEquals( Matrix.ones( 3 ).isSymmetric(), true );
+
+    assertEquals( Matrix.eye( 3 ).set( 3, 1, 1 ).isSymmetric(), false );
+    assertEquals( Matrix.eye( 3 ).set( 3, 1, 1 ).set( 1, 3, 1 ).isSymmetric(), true );
+}, 'Is Symmetric 1' );
+
 // ##########
 
 Test.runAll();
