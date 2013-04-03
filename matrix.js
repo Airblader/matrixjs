@@ -159,6 +159,17 @@ function Matrix () {
 }
 
 /**
+ * Define default settings
+ * @static
+ */
+Matrix.options = {
+    stringify: {
+        rowSeparator: '\r\n',
+        columnSeparator: '\t'
+    }
+};
+
+/**
  * Get an element from the matrix.
  * If called with both arguments, the entry (row, column) will be returned. If called with only one argument,
  * that argument will be mapped linearly (left to right, top to bottom).
@@ -897,14 +908,14 @@ Matrix.prototype.contains = function (needle, precision) {
 
 /**
  * Create a string representation of the matrix.
- * @param {String} [rowSeparator='\r\n'] Delimiter between columns
- * @param {String} [columnSeparator='\t'] Delimiter between the last column of the previous and first column of the
- * next row
+ * @param {String} [rowSeparator=Matrix.options.stringify.rowSeparator] Delimiter between columns
+ * @param {String} [columnSeparator=Matrix.options.stringify.columnSeparator] Delimiter between the last column of the
+ * previous and first column of the next row
  * @returns {String}
  */
 Matrix.prototype.stringify = function (rowSeparator, columnSeparator) {
-    rowSeparator = Matrix._getStringOrDefault( rowSeparator, '\r\n' );
-    columnSeparator = Matrix._getStringOrDefault( columnSeparator, '\t' );
+    rowSeparator = Matrix._getStringOrDefault( rowSeparator, Matrix.options.stringify.rowSeparator );
+    columnSeparator = Matrix._getStringOrDefault( columnSeparator, Matrix.options.stringify.columnSeparator );
 
     var rows = [],
         current;
