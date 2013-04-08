@@ -166,6 +166,24 @@ Matrix.options = {
     stringify: {
         rowSeparator: '\r\n',
         columnSeparator: '\t'
+    },
+
+    isTriangular: {
+        mode: 'both'
+    },
+
+    roundTo: {
+        digits: 0
+    },
+
+    norm: {
+        which: 'max'
+    },
+
+    random: {
+        minVal: 0,
+        maxVal: 1,
+        onlyInteger: true
     }
 };
 
@@ -360,7 +378,7 @@ Matrix.prototype.isSymmetric = function () {
  * @returns {Boolean}
  */
 Matrix.prototype.isTriangular = function (mode) {
-    mode = Matrix._getStringOrDefault( mode, 'both' );
+    mode = Matrix._getStringOrDefault( mode, Matrix.options.isTriangular.mode );
 
     if( !this.isSquare() ) {
         throw new Matrix.MatrixError( Matrix.ErrorCodes.DIMENSION_MISMATCH, 'Matrix must be square' );
@@ -806,7 +824,7 @@ Matrix.prototype.round = function () {
  * @returns {Matrix}
  */
 Matrix.prototype.roundTo = function (digits) {
-    digits = Matrix._getNumberOrDefault( digits, 0 );
+    digits = Matrix._getNumberOrDefault( digits, Matrix.options.roundTo.digits );
 
     var Result = this.copy(),
         power = Math.pow( 10, digits );
@@ -1030,7 +1048,7 @@ Matrix.prototype.pow = function (n) {
  * @returns {Number}
  */
 Matrix.prototype.norm = function (which, args) {
-    which = Matrix._getStringOrDefault( which, 'max' );
+    which = Matrix._getStringOrDefault( which, Matrix.options.norm.which );
     args = args || {};
 
     switch( which.toLowerCase() ) {
@@ -1432,9 +1450,9 @@ Matrix.diag = function (elements, k) {
  */
 Matrix.random = function (rows, columns, minVal, maxVal, onlyInteger) {
     columns = Matrix._getNumberOrDefault( columns, rows );
-    minVal = Matrix._getNumberOrDefault( minVal, 0 );
-    maxVal = Matrix._getNumberOrDefault( maxVal, 1 );
-    onlyInteger = Matrix._getBooleanOrDefault( onlyInteger, true );
+    minVal = Matrix._getNumberOrDefault( minVal, Matrix.options.random.minVal );
+    maxVal = Matrix._getNumberOrDefault( maxVal, Matrix.options.random.maxVal );
+    onlyInteger = Matrix._getBooleanOrDefault( onlyInteger, Matrix.options.random.onlyInteger );
 
     var Result = new Matrix( rows, columns ),
         factor = ( maxVal - minVal ) + ( (onlyInteger) ? 1 : 0 ),
