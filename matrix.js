@@ -52,10 +52,6 @@ function Matrix () {
      * @ignore
      */
     this.___set = function (index, value) {
-        if( !Matrix.__isNumber( value ) ) {
-            throw new Matrix.MatrixError( Matrix.ErrorCodes.INVALID_PARAMETERS, 'Value must be a number' );
-        }
-
         __elements[index] = value;
         return this;
     };
@@ -205,7 +201,7 @@ Matrix.prototype.get = function (row, column) {
             throw new Matrix.MatrixError( Matrix.ErrorCodes.OUT_OF_BOUNDS );
         }
 
-        return this.___get( this.__convertToIndex( row, column ) );
+        return this.__get( row, column );
     }
 };
 
@@ -229,15 +225,16 @@ Matrix.prototype.set = function (row, column, value) {
         if( index < 0 || index >= this.size() ) {
             throw new Matrix.MatrixError( Matrix.ErrorCodes.OUT_OF_BOUNDS );
         }
+
+        this.___set( index, value );
     } else {
         if( !this.__inRange( row, column ) ) {
             throw new Matrix.MatrixError( Matrix.ErrorCodes.OUT_OF_BOUNDS );
         }
 
-        index = this.__convertToIndex( row, column );
+        this.__set( row, column, value );
     }
 
-    this.___set( index, value );
     return this;
 };
 
@@ -296,10 +293,9 @@ Matrix.prototype.getColumn = function (column, asMatrix) {
         throw new Matrix.MatrixError( Matrix.ErrorCodes.OUT_OF_BOUNDS );
     }
 
-    var start = this.__convertToIndex( 1, column ),
-        elements = [];
-    for( var i = 0; i < this.dim( 1 ); i++ ) {
-        elements[i] = this.___get( start + i * this.dim( 2 ) );
+    var elements = [];
+    for( var i = 1; i <= this.dim( 1 ); i++ ) {
+        elements[i - 1] = this.__get( i, column );
     }
 
     return (asMatrix) ? new Matrix( elements, null, 1 ) : elements;
@@ -323,7 +319,7 @@ Matrix.prototype.setColumn = function (column, elements) {
     }
 
     for( var i = 0; i < elements.length; i++ ) {
-        this.___set( this.__convertToIndex( i + 1, column ), elements[i] );
+        this.__set( i + 1, column, elements[i] );
     }
 
     return this;
@@ -356,7 +352,7 @@ Matrix.prototype.isSymmetric = function () {
 
     for( var i = 2; i <= this.dim( 1 ); i++ ) {
         for( var j = 1; j < i; j++ ) {
-            if( this.___get( this.__convertToIndex( i, j ) ) !== this.___get( this.__convertToIndex( j, i ) ) ) {
+            if( this.__get( i, j ) !== this.__get( j, i ) ) {
                 return false;
             }
         }
@@ -483,15 +479,15 @@ Matrix.prototype.add = function (M) {
         throw new Matrix.MatrixError( Matrix.ErrorCodes.DIMENSION_MISMATCH, 'Matrices must be of the same size' );
     }
 
-    var elements = [],
+    var __elements = [],
         current;
 
     for( var i = 0; i < this.size(); i++ ) {
         current = this.___get( i ) + M.___get( i );
-        elements[i] = current;
+        __elements[i] = current;
     }
 
-    return  new Matrix( elements, this.dim( 1 ), this.dim( 2 ) );
+    return  new Matrix( __elements, this.dim( 1 ), this.dim( 2 ) );
 };
 
 /**
@@ -511,15 +507,15 @@ Matrix.prototype.subtract = function (M) {
         throw new Matrix.MatrixError( Matrix.ErrorCodes.DIMENSION_MISMATCH, 'Matrices must be of the same size' );
     }
 
-    var elements = [],
+    var __elements = [],
         current;
 
     for( var i = 0; i < this.size(); i++ ) {
         current = this.___get( i ) - M.___get( i );
-        elements[i] = current;
+        __elements[i] = current;
     }
 
-    return new Matrix( elements, this.dim( 1 ), this.dim( 2 ) );
+    return new Matrix( __elements, this.dim( 1 ), this.dim( 2 ) );
 };
 
 /**
@@ -532,12 +528,12 @@ Matrix.prototype.scale = function (k) {
         throw new Matrix.MatrixError( Matrix.ErrorCodes.INVALID_PARAMETERS, 'Parameter must be a number' );
     }
 
-    var elements = [];
+    var __elements = [];
     for( var i = 0; i < this.size(); i++ ) {
-        elements[i] = k * this.___get( i );
+        __elements[i] = k * this.___get( i );
     }
 
-    return new Matrix( elements, this.dim( 1 ), this.dim( 2 ) );
+    return new Matrix( __elements, this.dim( 1 ), this.dim( 2 ) );
 };
 
 /**
@@ -560,7 +556,7 @@ Matrix.prototype.multiply = function (M) {
                 temp += this.get( i, k ) * M.get( k, j );
             }
 
-            Result.___set( Result.__convertToIndex( i, j ), temp );
+            Result.__set( i, j, temp );
         }
     }
 
@@ -614,7 +610,7 @@ Matrix.prototype.LUDecomposition = function () {
             maxArg = -1;
 
         for( i = k; i <= this.dim( 1 ); i++ ) {
-            var currArg = Math.abs( LU.___get( LU.__convertToIndex( i, k ) ) );
+            var currArg = Math.abs( LU.__get( i, k ) );
 
             if( currArg >= maxArg ) {
                 pivot = i;
@@ -622,7 +618,7 @@ Matrix.prototype.LUDecomposition = function () {
             }
         }
 
-        if( LU.___get( LU.__convertToIndex( pivot, k ) ) === 0 ) {
+        if( LU.__get( pivot, k ) === 0 ) {
             throw new Matrix.MatrixError( Matrix.ErrorCodes.MATRIX_IS_SINGULAR );
         }
 
@@ -637,12 +633,10 @@ Matrix.prototype.LUDecomposition = function () {
 
         for( i = k + 1; i <= this.dim( 1 ); i++ ) {
             for( j = k + 1; j <= this.dim( 2 ); j++ ) {
-                LU.___set( LU.__convertToIndex( i, j ),
-                    LU.___get( LU.__convertToIndex( i, j ) ) - LU.___get( LU.__convertToIndex( k, j ) )
-                        * ( LU.___get( LU.__convertToIndex( i, k ) ) / LU.___get( LU.__convertToIndex( k, k ) ) ) );
+                LU.__set( i, j, LU.__get( i, j ) - LU.__get( k, j ) * ( LU.__get( i, k ) / LU.__get( k, k ) ) );
             }
 
-            LU.___set( LU.__convertToIndex( i, k ), 0 );
+            LU.__set( i, k, 0 );
         }
     }
 
@@ -668,7 +662,7 @@ Matrix.prototype.det = function () {
         det = 1;
 
         for( i = 1; i <= this.dim( 1 ); i++ ) {
-            det = det * this.___get( this.__convertToIndex( i, i ) );
+            det = det * this.__get( i, i );
         }
     } else {
         try {
@@ -684,7 +678,7 @@ Matrix.prototype.det = function () {
         det = Math.pow( -1, LU.swappedRows );
 
         for( i = 1; i <= this.dim( 1 ); i++ ) {
-            det = det * LU.___get( LU.__convertToIndex( i, i ) );
+            det = det * LU.__get( i, i );
         }
     }
 
@@ -709,11 +703,10 @@ Matrix.prototype.inverse = function () {
         // TODO The following two loops can probably be rewritten into something smarter
         for( i = M.dim( 1 ); i > 1; i-- ) {
             row = M.getRow( i );
-            var factor = M.___get( M.__convertToIndex( i - 1, i ) ) / M.___get( M.__convertToIndex( i, i ) );
+            var factor = M.__get( i - 1, i ) / M.__get( i, i );
 
             for( k = 0; k < row.length; k++ ) {
-                M.___set( M.__convertToIndex( i - 1, k + 1 ),
-                    M.___get( M.__convertToIndex( i - 1, k + 1 ) ) - (row[k] * factor ) );
+                M.__set( i - 1, k + 1, M.__get( i - 1, k + 1 ) - (row[k] * factor ) );
             }
         }
 
@@ -721,7 +714,7 @@ Matrix.prototype.inverse = function () {
             row = M.getRow( j );
 
             for( k = 0; k < row.length; k++ ) {
-                row[k] = row[k] / M.___get( M.__convertToIndex( j, j ) );
+                row[k] = row[k] / M.__get( j, j );
             }
 
             M.setRow( j, row );
@@ -937,7 +930,7 @@ Matrix.prototype.stringify = function (rowSeparator, columnSeparator) {
         current = [];
 
         for( var j = 1; j <= this.dim( 2 ); j++ ) {
-            current.push( this.___get( this.__convertToIndex( i, j ) ) );
+            current.push( this.__get( i, j ) );
         }
 
         rows.push( current.join( columnSeparator ) );
@@ -1204,6 +1197,22 @@ String.prototype.toMatrix = function (rowSeparator, columnSeparator) {
     }
 
     return new Matrix( __elements, rows.length, numColumns );
+};
+
+/**
+ * @private
+ * @ignore
+ */
+Matrix.prototype.__get = function (row, column) {
+    return this.___get( this.__convertToIndex( row, column ) );
+};
+
+/**
+ * @private
+ * @ignore
+ */
+Matrix.prototype.__set = function (row, column, value) {
+    return this.___set( this.__convertToIndex( row, column ), value );
 };
 
 /**
