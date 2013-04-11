@@ -470,15 +470,14 @@ Matrix.prototype.add = function (M) {
         throw new Matrix.MatrixError( Matrix.ErrorCodes.DIMENSION_MISMATCH, 'Matrices must be of the same size' );
     }
 
-    var __elements = [],
-        current;
-
-    for( var i = 0; i < this.size(); i++ ) {
-        current = this.___get( i ) + M.___get( i );
-        __elements[i] = current;
+    var Result = new Matrix( this.dim( 1 ), this.dim( 2 ) );
+    for( var i = 1; i <= this.dim( 1 ); i++ ) {
+        for( var j = 1; j <= this.dim( 2 ); j++ ) {
+            Result.__set( i, j, this.__get( i, j ) + M.__get( i, j ) );
+        }
     }
 
-    return  new Matrix( __elements, this.dim( 1 ), this.dim( 2 ) );
+    return Result;
 };
 
 /**
@@ -498,15 +497,14 @@ Matrix.prototype.subtract = function (M) {
         throw new Matrix.MatrixError( Matrix.ErrorCodes.DIMENSION_MISMATCH, 'Matrices must be of the same size' );
     }
 
-    var __elements = [],
-        current;
-
-    for( var i = 0; i < this.size(); i++ ) {
-        current = this.___get( i ) - M.___get( i );
-        __elements[i] = current;
+    var Result = new Matrix( this.dim( 1 ), this.dim( 2 ) );
+    for( var i = 1; i <= this.dim( 1 ); i++ ) {
+        for( var j = 1; j <= this.dim( 2 ); j++ ) {
+            Result.__set( i, j, this.__get( i, j ) - M.__get( i, j ) );
+        }
     }
 
-    return new Matrix( __elements, this.dim( 1 ), this.dim( 2 ) );
+    return Result;
 };
 
 /**
