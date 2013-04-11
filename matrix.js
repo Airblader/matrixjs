@@ -517,12 +517,14 @@ Matrix.prototype.scale = function (k) {
         throw new Matrix.MatrixError( Matrix.ErrorCodes.INVALID_PARAMETERS, 'Parameter must be a number' );
     }
 
-    var __elements = [];
-    for( var i = 0; i < this.size(); i++ ) {
-        __elements[i] = k * this.___get( i );
+    var Result = new Matrix( this.dim( 1 ), this.dim( 2 ) );
+    for( var i = 1; i <= this.dim( 1 ); i++ ) {
+        for( var j = 1; j <= this.dim( 2 ); j++ ) {
+            Result.__set( i, j, k * this.__get( i, j ) );
+        }
     }
 
-    return new Matrix( __elements, this.dim( 1 ), this.dim( 2 ) );
+    return Result;
 };
 
 /**
@@ -542,7 +544,7 @@ Matrix.prototype.multiply = function (M) {
         for( var j = 1; j <= Result.dim( 2 ); j++ ) {
             var temp = 0;
             for( var k = 1; k <= this.dim( 2 ); k++ ) {
-                temp += this.get( i, k ) * M.get( k, j );
+                temp += this.__get( i, k ) * M.__get( k, j );
             }
 
             Result.__set( i, j, temp );
@@ -807,8 +809,10 @@ Matrix.prototype.roundTo = function (digits) {
     var Result = this.copy(),
         power = Math.pow( 10, digits );
 
-    for( var i = 0; i < Result.size(); i++ ) {
-        Result.___set( i, Math.round( Result.___get( i ) * power ) / power );
+    for( var i = 1; i <= Result.dim( 1 ); i++ ) {
+        for( var j = 1; j <= Result.dim( 2 ); j++ ) {
+            Result.__set( i, j, Math.round( Result.__get( i, j ) * power ) / power );
+        }
     }
 
     return Result;
@@ -821,29 +825,30 @@ Matrix.prototype.roundTo = function (digits) {
 Matrix.prototype.abs = function () {
     var Result = this.copy();
 
-    for( var i = 0; i < this.size(); i++ ) {
-        Result.___set( i, Math.abs( Result.___get( i ) ) );
+    for( var i = 1; i <= Result.dim( 1 ); i++ ) {
+        for( var j = 1; j <= Result.dim( 2 ); j++ ) {
+            Result.__set( i, j, Math.abs( Result.__get( i, j ) ) );
+        }
     }
 
     return Result;
 };
 
 /**
- * Returns the cross product. It doesn't matter whether the vectors are row or column vectors.
- * The resulting vector will always be a column vector.
+ * Returns the cross product. Both vectors have to be column vectors. The resulting vector will also be a column vector.
  * @param {Matrix} M Three-dimensional vector
  * @returns {Matrix} The three-dimensional vector V = A x M.
  */
 Matrix.prototype.cross = function (M) {
-    if( !this.isVector() || !M.isVector() || this.dim( 'max' ) !== 3 || M.dim( 'max' ) !== 3 ) {
+    if( !this.isVector() || !M.isVector() || this.dim( 1 ) !== 3 || M.dim( 1 ) !== 3 ) {
         throw new Matrix.MatrixError( Matrix.ErrorCodes.INVALID_PARAMETERS,
-            'Parameters must be three-dimensional vectors' );
+            'Parameters must be three-dimensional column vectors' );
     }
 
     return new Matrix( [
-        [this.___get( 1 ) * M.___get( 2 ) - this.___get( 2 ) * M.___get( 1 )],
-        [this.___get( 2 ) * M.___get( 0 ) - this.___get( 0 ) * M.___get( 2 )],
-        [this.___get( 0 ) * M.___get( 1 ) - this.___get( 1 ) * M.___get( 0 )]
+        [this.__get( 2, 1 ) * M.__get( 3, 1 ) - this.__get( 3, 1 ) * M.__get( 2, 1 )],
+        [this.__get( 3, 1 ) * M.__get( 1, 1 ) - this.__get( 1, 1 ) * M.__get( 3, 1 )],
+        [this.__get( 1, 1 ) * M.__get( 2, 1 ) - this.__get( 2, 1 ) * M.__get( 1, 1 )]
     ] );
 };
 
@@ -1281,13 +1286,14 @@ Matrix.__getArrayOrElements = function (obj) {
         throw new Matrix.MatrixError( Matrix.ErrorCodes.DIMENSION_MISMATCH, 'Argument has to be vector' );
     }
 
+    var temp_obj = obj.copy();
     if( obj.dim( 'max' ) !== obj.dim( 1 ) ) {
-        obj = obj.transpose();
+        temp_obj = temp_obj.transpose();
     }
 
     var result = [];
-    for( var i = 1; i <= obj.dim( 1 ); i++ ) {
-        result.push( obj.get( i, 1 ) );
+    for( var i = 1; i <= temp_obj.dim( 1 ); i++ ) {
+        result.push( temp_obj.get( i, 1 ) );
     }
 
     return result;

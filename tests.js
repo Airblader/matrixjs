@@ -533,17 +533,17 @@ new Test( function () {
 new Test( function () {
     var A = new Matrix( [
             [1, 2, 3]
-        ] ),
+        ] ).transpose(),
         B = new Matrix( [
             [-7, 8, 9]
-        ] ),
+        ] ).transpose(),
         C = new Matrix( [
             [-6, -30, 22]
-        ] ),
-        D = Matrix.zeros( 1, 3 );
+        ] ).transpose(),
+        D = Matrix.zeros( 3, 1 );
 
-    assertMatrix( A.cross( B ), C.transpose() );
-    assertMatrix( D.cross( D ), D.transpose() );
+    assertMatrix( A.cross( B ), C );
+    assertMatrix( D.cross( D ), D );
 
     assertMatrix( A.cross( B ), B.cross( A ).scale( -1 ) );
     assertMatrix( A.cross( A ), Matrix.zeros( 3, 1 ) );
@@ -554,8 +554,8 @@ new Test( function () {
 
     assertEquals( Math.round( V.multiply( A.cross( B ) ).get( 1 ) ), Math.round( new Matrix( 3 )
         .setColumn( 1, V.getRow( 1 ) )
-        .setColumn( 2, A.getRow( 1 ) )
-        .setColumn( 3, B.getRow( 1 ) )
+        .setColumn( 2, A.getColumn( 1 ) )
+        .setColumn( 3, B.getColumn( 1 ) )
         .det()
     ) );
 }, 'Cross Product 1' );
