@@ -872,11 +872,11 @@ Matrix.prototype.addRow = function (row) {
 
 /**
  * Add a column to the matrix.
- * @param {Number[]|Matrix} elements Array or matrix of entries to add
+ * @param {Number[]|Matrix} column Array or matrix of entries to add
  * @returns {Matrix}
  */
-Matrix.prototype.addColumn = function (elements) {
-    return this.copy().augment( new Matrix( Matrix.__getArrayOrElements( elements ), null, 1 ) );
+Matrix.prototype.addColumn = function (column) {
+    return this.copy().augment( new Matrix( Matrix.__getArrayOrElements( column ), null, 1 ) );
 };
 
 /**
@@ -945,9 +945,11 @@ Matrix.prototype.equals = function (M) {
         return false;
     }
 
-    for( var i = 0; i < this.size(); i++ ) {
-        if( this.___get( i ) !== M.___get( i ) ) {
-            return false;
+    for( var i = 1; i <= this.dim( 1 ); i++ ) {
+        for( var j = 1; j <= this.dim( 2 ); j++ ) {
+            if( this.__get( i, j ) !== M.__get( i, j ) ) {
+                return false;
+            }
         }
     }
 
@@ -960,7 +962,7 @@ Matrix.prototype.equals = function (M) {
  * column index) and has to return the new value to write in the matrix. Predefined applicators can be found at
  * {@link Matrix.applicators}.
  * @param {function} [filter=Matrix.filters.all] A function that will be called with the same arguments as applicator.
- * If provided, applicator will only be applied if filter returns true. Predefined filters can be found at
+ * If provided, applicator will only be applied if filter evaluates to true. Predefined filters can be found at
  * {@link Matrix.filters}.
  * @returns {Matrix}
  */
@@ -980,10 +982,10 @@ Matrix.prototype.apply = function (applicator, filter) {
 
     for( var i = 1; i <= Result.dim( 1 ); i++ ) {
         for( var j = 1; j <= Result.dim( 2 ); j++ ) {
-            current = Result.get( i, j );
+            current = Result.__get( i, j );
 
-            if( filter( current, i, j ) === true ) {
-                Result.set( i, j, applicator( current, i, j ) );
+            if( filter( current, i, j ) ) {
+                Result.__set( i, j, applicator( current, i, j ) );
             }
         }
     }
