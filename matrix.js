@@ -59,6 +59,7 @@ function Matrix () {
     /**
      * @private
      * @ignore
+     * @deprecated
      */
     this.___getElements = function () {
         return [].slice.call( __elements );
@@ -67,6 +68,7 @@ function Matrix () {
     /**
      * @private
      * @ignore
+     * @deprecated
      */
     this.___setElements = function (elements) {
         __elements = elements;
@@ -251,10 +253,12 @@ Matrix.prototype.getRow = function (row, asMatrix) {
         throw new Matrix.MatrixError( Matrix.ErrorCodes.OUT_OF_BOUNDS );
     }
 
-    var start = this.__convertToIndex( row, 1 ),
-        elements = this.___getElements().slice( start, start + this.dim( 2 ) );
+    var result = [];
+    for( var i = 1; i <= this.dim( 2 ); i++ ) {
+        result.push( this.get( row, i ) );
+    }
 
-    return (asMatrix) ? new Matrix( elements, 1 ) : elements;
+    return (asMatrix) ? new Matrix( result, 1 ) : result;
 };
 
 /**
@@ -274,10 +278,11 @@ Matrix.prototype.setRow = function (row, elements) {
         throw new Matrix.MatrixError( 'Wrong number of columns in row.' );
     }
 
-    var __elements = this.___getElements();
-    __elements.splice.apply( __elements, [this.__convertToIndex( row, 1 ), this.dim( 2 )].concat( elements ) );
+    for( var i = 1; i <= this.dim( 2 ); i++ ) {
+        this.set( row, i, elements[i - 1] );
+    }
 
-    return this.___setElements( __elements );
+    return this;
 };
 
 /**
@@ -293,12 +298,12 @@ Matrix.prototype.getColumn = function (column, asMatrix) {
         throw new Matrix.MatrixError( Matrix.ErrorCodes.OUT_OF_BOUNDS );
     }
 
-    var elements = [];
+    var result = [];
     for( var i = 1; i <= this.dim( 1 ); i++ ) {
-        elements[i - 1] = this.__get( i, column );
+        result.push( this.__get( i, column ) );
     }
 
-    return (asMatrix) ? new Matrix( elements, null, 1 ) : elements;
+    return (asMatrix) ? new Matrix( result, null, 1 ) : result;
 };
 
 /**
@@ -318,8 +323,8 @@ Matrix.prototype.setColumn = function (column, elements) {
         throw new Matrix.MatrixError( 'Wrong number of rows in column' );
     }
 
-    for( var i = 0; i < elements.length; i++ ) {
-        this.__set( i + 1, column, elements[i] );
+    for( var i = 1; i <= this.dim( 1 ); i++ ) {
+        this.__set( i, column, elements[i - 1] );
     }
 
     return this;
