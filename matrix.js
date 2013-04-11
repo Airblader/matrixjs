@@ -59,25 +59,6 @@ function Matrix () {
     /**
      * @private
      * @ignore
-     * @deprecated
-     */
-    this.___getElements = function () {
-        return [].slice.call( __elements );
-    };
-
-    /**
-     * @private
-     * @ignore
-     * @deprecated
-     */
-    this.___setElements = function (elements) {
-        __elements = elements;
-        return this;
-    };
-
-    /**
-     * @private
-     * @ignore
      */
     this.___dim = function () {
         return {
@@ -419,7 +400,12 @@ Matrix.prototype.__isTriangular = function (upper) {
  * @returns {Matrix}
  */
 Matrix.prototype.copy = function () {
-    return new Matrix( this.___getElements(), this.dim( 1 ), this.dim( 2 ) );
+    var Copy = new Matrix( this.dim( 1 ), this.dim( 2 ) );
+    for( var i = 1; i <= this.dim( 1 ); i++ ) {
+        Copy.setRow( i, this.getRow( i ) );
+    }
+
+    return Copy;
 };
 
 /**
@@ -865,21 +851,19 @@ Matrix.prototype.cross = function (M) {
 
 /**
  * Add a row to the matrix.
- * @param {Number[]|Matrix} elements Array or matrix of entries to add
+ * @param {Number[]|Matrix} row Array or matrix of entries to add
  * @returns {Matrix}
  */
-Matrix.prototype.addRow = function (elements) {
-    elements = Matrix.__getArrayOrElements( elements );
+Matrix.prototype.addRow = function (row) {
+    row = Matrix.__getArrayOrElements( row );
 
-    var Result = new Matrix( this.dim( 1 ) + 1, this.dim( 2 ) ),
-        __elements = this.___getElements(),
-        oldLength = __elements.length;
+    var Result = new Matrix( this.dim( 1 ) + 1, this.dim( 2 ) );
 
-    for( var i = 0; i < Result.dim( 2 ); i++ ) {
-        __elements[oldLength + i] = elements[i];
+    for( var i = 1; i <= this.dim( 1 ); i++ ) {
+        Result.setRow( i, this.getRow( i ) );
     }
 
-    Result.___setElements( __elements );
+    Result.setRow( this.dim( 1 ) + 1, row );
     return Result;
 };
 
@@ -905,17 +889,21 @@ Matrix.prototype.contains = function (needle, precision) {
         throw new Matrix.MatrixError( Matrix.ErrorCodes.INVALID_PARAMETERS, 'Parameter must be a number' );
     }
 
-    if( precision === 0 ) {
-        return this.___getElements().indexOf( needle ) !== -1;
-    } else {
-        for( var i = 0; i < this.size(); i++ ) {
-            if( Math.abs( this.___get( i ) - needle ) <= precision ) {
-                return true;
+    for( var i = 1; i <= this.dim( 1 ); i++ ) {
+        for( var j = 1; j <= this.dim( 2 ); j++ ) {
+            if( precision === 0 ) {
+                if( this.__get( i, j ) === needle ) {
+                    return true;
+                }
+            } else {
+                if( Math.abs( this.__get( i, j ) - needle ) <= precision ) {
+                    return true;
+                }
             }
         }
-
-        return false;
     }
+
+    return false;
 };
 
 /**
@@ -1287,11 +1275,24 @@ Matrix.__isNumberArray = function (obj) {
  * @ignore
  */
 Matrix.__getArrayOrElements = function (obj) {
-    if( Matrix.__isMatrix( obj ) ) {
-        return obj.___getElements();
+    if( !Matrix.__isMatrix( obj ) ) {
+        return obj;
     }
 
-    return obj;
+    if( !obj.isVector() ) {
+        throw new Matrix.MatrixError( Matrix.ErrorCodes.DIMENSION_MISMATCH, 'Argument has to be vector' );
+    }
+
+    if( obj.dim( 'max' ) !== obj.dim( 1 ) ) {
+        obj = obj.transpose();
+    }
+
+    var result = [];
+    for( var i = 1; i <= obj.dim( 1 ); i++ ) {
+        result.push( obj.get( i, 1 ) );
+    }
+
+    return result;
 };
 
 /**
