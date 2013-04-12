@@ -1133,7 +1133,7 @@ Matrix.prototype.diag = function (k) {
     }
 
     for( var i = 1; i <= endOfLoop; i++ ) {
-        diag.push( this.get( i + rowOffset, i + columnOffset ) );
+        diag.push( this.__get( i + rowOffset, i + columnOffset ) );
     }
 
     return diag;
