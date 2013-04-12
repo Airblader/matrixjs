@@ -245,22 +245,22 @@ Matrix.prototype.getRow = function (row, asMatrix) {
 /**
  * Replace a row in the matrix with a new one.
  * @param {Number} row The row index of the row to replace
- * @param {Number[]|Matrix} elements An array or Matrix containing the new entries for the row
+ * @param {Number[]|Matrix} entries An array or Matrix containing the new entries for the row
  * @returns {*}
  */
-Matrix.prototype.setRow = function (row, elements) {
-    elements = Matrix.__toArray( elements );
+Matrix.prototype.setRow = function (row, entries) {
+    entries = Matrix.__toArray( entries );
 
     if( !this.__inRange( row, null ) ) {
         throw new Matrix.MatrixError( Matrix.ErrorCodes.OUT_OF_BOUNDS );
     }
 
-    if( elements.length !== this.dim( 2 ) ) {
+    if( entries.length !== this.dim( 2 ) ) {
         throw new Matrix.MatrixError( 'Wrong number of columns in row.' );
     }
 
     for( var i = 1; i <= this.dim( 2 ); i++ ) {
-        this.set( row, i, elements[i - 1] );
+        this.set( row, i, entries[i - 1] );
     }
 
     return this;
@@ -290,22 +290,22 @@ Matrix.prototype.getColumn = function (column, asMatrix) {
 /**
  * Replace a column in the matrix with a new one.
  * @param {Number} column The column index of the column to replace
- * @param {Number[]|Matrix} elements An array or matrix containing the new entries for the column
+ * @param {Number[]|Matrix} entries An array or matrix containing the new entries for the column
  * @returns {*}
  */
-Matrix.prototype.setColumn = function (column, elements) {
-    elements = Matrix.__toArray( elements );
+Matrix.prototype.setColumn = function (column, entries) {
+    entries = Matrix.__toArray( entries );
 
     if( !this.__inRange( null, column ) ) {
         throw new Matrix.MatrixError( Matrix.ErrorCodes.OUT_OF_BOUNDS );
     }
 
-    if( elements.length !== this.dim( 1 ) ) {
+    if( entries.length !== this.dim( 1 ) ) {
         throw new Matrix.MatrixError( 'Wrong number of rows in column' );
     }
 
     for( var i = 1; i <= this.dim( 1 ); i++ ) {
-        this.__set( i, column, elements[i - 1] );
+        this.__set( i, column, entries[i - 1] );
     }
 
     return this;
@@ -1174,22 +1174,25 @@ String.prototype.toMatrix = function (rowSeparator, columnSeparator) {
     var rows = this.split( rowSeparator ),
         columns,
         numColumns = 0,
-        __elements = [];
+        Result = new Matrix( 0 );
 
     for( var i = 0; i < rows.length; i++ ) {
         columns = rows[i].split( columnSeparator );
-        numColumns = (numColumns === 0) ? columns.length : numColumns;
+        if( numColumns === 0 ) {
+            numColumns = columns.length;
+            Result = new Matrix( rows.length, numColumns );
+        }
 
         if( columns.length !== numColumns ) {
             throw new Matrix.MatrixError( Matrix.ErrorCodes.INVALID_PARAMETERS, 'Number of columns is inconsistent' );
         }
 
-        for( var j = 0; j < numColumns; j++ ) {
-            __elements.push( Number( columns[j] ) );
+        for( var j = 1; j <= numColumns; j++ ) {
+            Result.__set( i + 1, j, Number( columns[j - 1] ) );
         }
     }
 
-    return new Matrix( __elements, rows.length, numColumns );
+    return Result;
 };
 
 /**
@@ -1403,13 +1406,15 @@ Matrix.zeros = function (rows, columns) {
  */
 Matrix.ones = function (rows, columns) {
     columns = Matrix._getNumberOrDefault( columns, rows );
+    var Result = new Matrix( rows, columns );
 
-    var elements = [];
-    for( var i = 0; i < rows * columns; i++ ) {
-        elements[i] = 1;
+    for( var i = 1; i <= rows; i++ ) {
+        for( var j = 1; j <= columns; j++ ) {
+            Result.__set( i, j, 1 );
+        }
     }
 
-    return new Matrix( elements, rows, columns );
+    return Result;
 };
 
 /**
@@ -1430,21 +1435,21 @@ Matrix.eye = function (n) {
 /**
  * Returns a diagonal matrix.
  * If called with a second parameter k, the k-th diagonal will be filled instead of the main diagonal.
- * @param {Number[]|Matrix} elements Array or matrix of diagonal elements
+ * @param {Number[]|Matrix} entries Array or matrix of diagonal entries
  * @param {Number} [k=0] Offset specifying the diagonal, i.e. k = 1 is the first upper diagonal
- * @returns {Matrix} Matrix with the specified elements on its diagonal.
+ * @returns {Matrix} Matrix with the specified entries on its diagonal.
  * @static
  */
-Matrix.diag = function (elements, k) {
-    elements = Matrix.__toArray( elements );
+Matrix.diag = function (entries, k) {
+    entries = Matrix.__toArray( entries );
     k = Matrix._getNumberOrDefault( k, 0 );
 
-    var Result = new Matrix( elements.length + Math.abs( k ) ),
+    var Result = new Matrix( entries.length + Math.abs( k ) ),
         rowOffset = -Math.min( k, 0 ),
         columnOffset = Math.max( k, 0 );
 
     for( var i = 1; i <= ( Result.dim( 1 ) - Math.abs( k ) ); i++ ) {
-        Result.set( i + rowOffset, i + columnOffset, elements[i - 1] );
+        Result.set( i + rowOffset, i + columnOffset, entries[i - 1] );
     }
 
     return Result;
