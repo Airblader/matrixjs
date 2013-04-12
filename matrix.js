@@ -1063,8 +1063,10 @@ Matrix.prototype.pnorm = function (p) {
     }
 
     var norm = 0;
-    for( var i = 0; i < this.size(); i++ ) {
-        norm += Math.pow( Math.abs( this.___get( i ) ), p );
+    for( var i = 1; i <= this.dim( 1 ); i++ ) {
+        for( var j = 1; j <= this.dim( 2 ); j++ ) {
+            norm += Math.pow( Math.abs( this.__get( i, j ) ), p );
+        }
     }
 
     return Math.pow( norm, 1 / p );
@@ -1076,8 +1078,10 @@ Matrix.prototype.pnorm = function (p) {
  */
 Matrix.prototype.maxnorm = function () {
     var norm = 0;
-    for( var i = 0; i < this.size(); i++ ) {
-        norm = Math.max( norm, Math.abs( this.___get( i ) ) );
+    for( var i = 1; i <= this.dim( 1 ); i++ ) {
+        for( var j = 1; j <= this.dim( 2 ); j++ ) {
+            norm = Math.max( norm, Math.abs( this.__get( i, j ) ) );
+        }
     }
 
     return norm;
