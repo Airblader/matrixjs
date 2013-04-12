@@ -247,6 +247,7 @@ Matrix.prototype.getRow = function (row, asMatrix) {
 
 /**
  * @private
+ * @ignore
  */
 Matrix.prototype.__getRow = function (row, asMatrix) {
     var result = [];
@@ -280,6 +281,7 @@ Matrix.prototype.setRow = function (row, entries) {
 
 /**
  * @private
+ * @ignore
  */
 Matrix.prototype.__setRow = function (row, entries) {
     for( var i = 1; i <= this.dim( 2 ); i++ ) {
@@ -307,6 +309,7 @@ Matrix.prototype.getColumn = function (column, asMatrix) {
 
 /**
  * @private
+ * @ignore
  */
 Matrix.prototype.__getColumn = function (column, asMatrix) {
     var result = [];
@@ -340,6 +343,7 @@ Matrix.prototype.setColumn = function (column, entries) {
 
 /**
  * @private
+ * @ignore
  */
 Matrix.prototype.__setColumn = function (column, entries) {
     for( var i = 1; i <= this.dim( 1 ); i++ ) {
@@ -1075,14 +1079,11 @@ Matrix.prototype.norm = function (which, args) {
         case 'rows':
         case 'rowsum':
             return this.rownorm();
-            break;
         case 'columns':
         case 'columnsum':
             return this.columnnorm();
-            break;
         case 'max':
             return this.maxnorm();
-            break;
         default:
             throw new Matrix.MatrixError( Matrix.ErrorCodes.INVALID_PARAMETERS, 'Norm not supported' );
     }
