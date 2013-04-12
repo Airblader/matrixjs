@@ -433,21 +433,16 @@ Matrix.prototype.dim = function (which) {
     switch( which ) {
         case undefined:
             return dim;
-            break;
         case 1:
         case 'rows':
             return dim.rows;
-            break;
         case 2:
         case 'columns':
             return dim.columns;
-            break;
         case 'max':
             return Math.max( dim.rows, dim.columns );
-            break;
         case 'min':
             return Math.min( dim.rows, dim.columns );
-            break;
         default:
             throw new Matrix.MatrixError( Matrix.ErrorCodes.INVALID_PARAMETERS, 'Parameter must match a known value' );
     }
