@@ -249,7 +249,7 @@ Matrix.prototype.getRow = function (row, asMatrix) {
  * @returns {*}
  */
 Matrix.prototype.setRow = function (row, elements) {
-    elements = Matrix.__getArrayOrElements( elements );
+    elements = Matrix.__toArray( elements );
 
     if( !this.__inRange( row, null ) ) {
         throw new Matrix.MatrixError( Matrix.ErrorCodes.OUT_OF_BOUNDS );
@@ -294,7 +294,7 @@ Matrix.prototype.getColumn = function (column, asMatrix) {
  * @returns {*}
  */
 Matrix.prototype.setColumn = function (column, elements) {
-    elements = Matrix.__getArrayOrElements( elements );
+    elements = Matrix.__toArray( elements );
 
     if( !this.__inRange( null, column ) ) {
         throw new Matrix.MatrixError( Matrix.ErrorCodes.OUT_OF_BOUNDS );
@@ -858,7 +858,7 @@ Matrix.prototype.cross = function (M) {
  * @returns {Matrix}
  */
 Matrix.prototype.addRow = function (row) {
-    row = Matrix.__getArrayOrElements( row );
+    row = Matrix.__toArray( row );
 
     var Result = new Matrix( this.dim( 1 ) + 1, this.dim( 2 ) );
 
@@ -876,7 +876,7 @@ Matrix.prototype.addRow = function (row) {
  * @returns {Matrix}
  */
 Matrix.prototype.addColumn = function (column) {
-    return this.copy().augment( new Matrix( Matrix.__getArrayOrElements( column ), null, 1 ) );
+    return this.copy().augment( new Matrix( Matrix.__toArray( column ), null, 1 ) );
 };
 
 /**
@@ -1000,24 +1000,24 @@ Matrix.prototype.apply = function (applicator, filter) {
  * {@link Matrix.applicators}.
  * @returns {Matrix}
  */
-Matrix.prototype.nzapply = function (applicator) {
+Matrix.prototype.nz_apply = function (applicator) {
     return this.apply( applicator, Matrix.filters.nonZero );
 };
 
 /**
- * Apply the exponential function to each entry.
+ * Apply the exponential function point-wise.
  * @returns {Matrix}
  */
-Matrix.prototype.exp = function () {
+Matrix.prototype.pw_exp = function () {
     return this.apply( Matrix.applicators.exp );
 };
 
 /**
- * Raise to the n-th power.
+ * Raise to the n-th power point-wise.
  * @param {Number} n Power
  * @returns {Matrix} The matrix M^n.
  */
-Matrix.prototype.pow = function (n) {
+Matrix.prototype.pw_pow = function (n) {
     return this.apply( function (value) {
         return Math.pow( value, n );
     } );
@@ -1279,7 +1279,7 @@ Matrix.__isNumberArray = function (obj) {
  * @private
  * @ignore
  */
-Matrix.__getArrayOrElements = function (obj) {
+Matrix.__toArray = function (obj) {
     if( !Matrix.__isMatrix( obj ) ) {
         return obj;
     }
@@ -1441,7 +1441,7 @@ Matrix.eye = function (n) {
  * @static
  */
 Matrix.diag = function (elements, k) {
-    elements = Matrix.__getArrayOrElements( elements );
+    elements = Matrix.__toArray( elements );
     k = Matrix._getNumberOrDefault( k, 0 );
 
     var Result = new Matrix( elements.length + Math.abs( k ) ),

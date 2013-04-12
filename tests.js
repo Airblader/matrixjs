@@ -631,18 +631,18 @@ new Test( function () {
 }, 'Apply 3' );
 
 new Test( function () {
-    assertMatrix( Matrix.eye( 3 ).nzapply( function (value) {
+    assertMatrix( Matrix.eye( 3 ).nz_apply( function (value) {
         return value + 1;
     } ), Matrix.eye( 3 ).scale( 2 ) );
 }, 'Non-Zero Apply 1' );
 
 new Test( function () {
     var e = Math.E;
-    assertMatrix( Matrix.eye( 3 ).exp(), new Matrix( [e, 1, 1, 1, e, 1, 1, 1, e] ) );
+    assertMatrix( Matrix.eye( 3 ).pw_exp(), new Matrix( [e, 1, 1, 1, e, 1, 1, 1, e] ) );
 }, 'Exp 1' );
 
 new Test( function () {
-    assertMatrix( Matrix.eye( 3 ).scale( 2 ).pow( 3 ), Matrix.eye( 3 ).scale( 8 ) );
+    assertMatrix( Matrix.eye( 3 ).scale( 2 ).pw_pow( 3 ), Matrix.eye( 3 ).scale( 8 ) );
 }, 'Pow 1' );
 
 new Test( function () {
