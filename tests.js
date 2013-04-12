@@ -34,6 +34,20 @@ function assertDimension (M, rows, columns) {
     assertEquals( M.dim().columns, columns );
 }
 
+function assertException (func) {
+    var hasThrown = false;
+
+    try {
+        func();
+    } catch( e ) {
+        hasThrown = true;
+    } finally {
+        if( !hasThrown ) {
+            throw new Error( 'Expected exception, but none was thrown.' );
+        }
+    }
+}
+
 // ##########
 
 function Test (func, name, ignore) {
@@ -352,16 +366,9 @@ new Test( function () {
 }, 'Inverse 3' );
 
 new Test( function () {
-    var isSingular = false;
-    try {
+    assertException( function () {
         Matrix.zeros( 3 ).inverse();
-    } catch( e ) {
-        isSingular = true;
-    } finally {
-        if( !isSingular ) {
-            fail( 'Expected error for singular matrix.' );
-        }
-    }
+    } );
 }, 'Inverse 4' );
 
 new Test( function () {
