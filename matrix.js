@@ -88,7 +88,7 @@ function Matrix () {
                 }
             }
         } else if( args.length >= 1 && args.length <= 3 && args[0] instanceof Array
-            && ( args[0].length === 0 || (args[0].length !== 0 && Matrix.__isNumber( args[0][0] ) ) ) ) {
+            && ( args[0].length === 0 || Matrix.__isNumber( args[0][0] ) ) ) {
 
             if( !Matrix.__isNumberArray( args[0] ) ) {
                 throw new Matrix.MatrixError( Matrix.ErrorCodes.INVALID_PARAMETERS, 'Elements must be numbers' );
