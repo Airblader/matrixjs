@@ -172,9 +172,6 @@ new Test( function () {
     assertEquals( M.get( 2, 2 ), 2 );
     assertEquals( M.get( 3, 3 ), 3 );
     assertEquals( M.get( 2, 3 ), 7 );
-
-    assertEquals( M.get( 1 ), 1 );
-    assertEquals( M.get( 6 ), 7 );
 }, 'Set/Get Single Element 2' );
 
 new Test( function () {

@@ -163,59 +163,67 @@ Matrix.options = {
 };
 
 /**
- * Get an element from the matrix.
- * If called with both arguments, the entry (row, column) will be returned. If called with only one argument,
- * that argument will be mapped linearly (left to right, top to bottom).
+ * Get an entry from the matrix.
+ * If the instance this is called on is a vector, the second argument may be omitted and the first one specifies
+ * which entry to return.
  * @param {Number} row Row index if column is set or linear index
- * @param {Number} [column] Column index
+ * @param {Number} [column] Column index, can be omitted for vectors
  * @returns {Number}
  */
 Matrix.prototype.get = function (row, column) {
-    if( !Matrix.__isNumber( column ) ) {
-        var index = arguments[0];
-
-        if( index < 1 || index > this.size() ) {
-            throw new Matrix.MatrixError( Matrix.ErrorCodes.OUT_OF_BOUNDS );
-        }
-
-        return this.___get( index - 1 );
-    } else {
+    if( Matrix.__isNumber( column ) ) {
         if( !this.__inRange( row, column ) ) {
             throw new Matrix.MatrixError( Matrix.ErrorCodes.OUT_OF_BOUNDS );
         }
 
         return this.__get( row, column );
+    } else {
+        var index = arguments[0];
+
+        if( !this.isVector() ) {
+            throw new Matrix.MatrixError( Matrix.ErrorCodes.INVALID_PARAMETERS );
+        }
+
+        if( index < 1 || index > this.size() ) {
+            throw new Matrix.MatrixError( Matrix.ErrorCodes.OUT_OF_BOUNDS );
+        }
+
+        return (this.dim( 1 ) === 1) ? this.__get( 1, index ) : this.__get( index, 1 );
     }
 };
 
 /**
- * Set an element in the matrix.
- * If called with all three arguments, the entry (row, column) will be set to value. If called with only two
- * arguments, the first argument will be mapped linearly (left to right, top to bottom) and then be set
- * to value.
+ * Set an entry in the matrix.
+ * If the instance this is called on is a vector, the second argument may be omitted and the first one specifies
+ * which entry to set.
+ * Note: This function modifies the instance it is called on.
  * @param {Number} row Row index of column is set or linear index
- * @param {Number} [column] Column index
+ * @param {Number} [column] Column index, can be omitted for vectors
  * @param {Number} value Value to assign
  * @returns {*}
  */
 Matrix.prototype.set = function (row, column, value) {
-    var index;
-
-    if( !Matrix.__isNumber( value ) ) {
-        index = row - 1;
-        value = column;
-
-        if( index < 0 || index >= this.size() ) {
-            throw new Matrix.MatrixError( Matrix.ErrorCodes.OUT_OF_BOUNDS );
-        }
-
-        this.___set( index, value );
-    } else {
+    if( Matrix.__isNumber( value ) ) {
         if( !this.__inRange( row, column ) ) {
             throw new Matrix.MatrixError( Matrix.ErrorCodes.OUT_OF_BOUNDS );
         }
 
         this.__set( row, column, value );
+    } else {
+        // the second argument is the value in this case, so map the variable
+        value = column;
+
+        var check = ( this.dim( 1 ) === 1 );
+
+        if( !this.isVector() ) {
+            throw new Matrix.MatrixError( Matrix.ErrorCodes.INVALID_PARAMETERS );
+        }
+
+        if( row < 1 || row > this.size() ) {
+            throw new Matrix.MatrixError( Matrix.ErrorCodes.OUT_OF_BOUNDS );
+        }
+
+        this.__set( (check) ? 1 : row, (check) ? row : 1, value );
     }
 
     return this;
@@ -251,6 +259,7 @@ Matrix.prototype.__getRow = function (row, asMatrix) {
 
 /**
  * Replace a row in the matrix with a new one.
+ * Note: This function modifies the instance it is called on.
  * @param {Number} row The row index of the row to replace
  * @param {Number[]|Matrix} entries An array or Matrix containing the new entries for the row
  * @returns {*}
@@ -310,6 +319,7 @@ Matrix.prototype.__getColumn = function (column, asMatrix) {
 
 /**
  * Replace a column in the matrix with a new one.
+ * Note: This function modifies the instance it is called on.
  * @param {Number} column The column index of the column to replace
  * @param {Number[]|Matrix} entries An array or matrix containing the new entries for the column
  * @returns {*}
@@ -364,6 +374,7 @@ Matrix.prototype.isSymmetric = function () {
         throw new Matrix.MatrixError( Matrix.ErrorCodes.DIMENSION_MISMATCH, 'Matrix must be square' );
     }
 
+    // shifted loop start because the diagonal doesn't need to be checked
     for( var i = 2; i <= this.dim( 1 ); i++ ) {
         for( var j = 1; j < i; j++ ) {
             if( this.__get( i, j ) !== this.__get( j, i ) ) {
@@ -556,8 +567,6 @@ Matrix.prototype.scale = function (k) {
  * @returns {Matrix} Matrix this * M.
  */
 Matrix.prototype.multiply = function (M) {
-    // TODO Idea: Strassen Algorithm for big matrices
-
     if( this.dim( 2 ) !== M.dim( 1 ) ) {
         throw new Matrix.MatrixError( Matrix.ErrorCodes.DIMENSION_MISMATCH, 'Inner dimensions must match' );
     }
@@ -665,8 +674,7 @@ Matrix.prototype.decomposeLU = function () {
  * @returns {Number}
  */
 Matrix.prototype.det = function () {
-    var i,
-        det;
+    var i, det;
 
     if( !this.isSquare() ) {
         throw new Matrix.MatrixError( Matrix.ErrorCodes.DIMENSION_MISMATCH, 'Matrix must be square' );
