@@ -236,7 +236,7 @@ Matrix.prototype.getRow = function (row, asMatrix) {
 
     var result = [];
     for( var i = 1; i <= this.dim( 2 ); i++ ) {
-        result.push( this.get( row, i ) );
+        result.push( this.__get( row, i ) );
     }
 
     return (asMatrix) ? new Matrix( result, 1 ) : result;
@@ -260,7 +260,7 @@ Matrix.prototype.setRow = function (row, entries) {
     }
 
     for( var i = 1; i <= this.dim( 2 ); i++ ) {
-        this.set( row, i, entries[i - 1] );
+        this.__set( row, i, entries[i - 1] );
     }
 
     return this;
@@ -573,7 +573,7 @@ Matrix.prototype.trace = function () {
 
     var trace = 0;
     for( var i = 1; i <= this.dim( 1 ); i++ ) {
-        trace += this.get( i, i );
+        trace += this.__get( i, i );
     }
 
     return trace;
@@ -761,25 +761,22 @@ Matrix.prototype.augment = function (B) {
 };
 
 /**
- * Calculate the dot product. It doesn't matter whether the vectors are row or column vectors.
+ * Calculate the dot product. Both vectors have to be column vectors.
  * @param {Matrix} M Matrix
  * @returns {Number} Euclidean dot product of this and M.
  */
 Matrix.prototype.dot = function (M) {
-    if( !this.isVector() || !M.isVector() ) {
-        throw new Matrix.MatrixError( Matrix.ErrorCodes.INVALID_PARAMETERS, 'Parameter must be a vector' );
+    if( !this.isVector() || !M.isVector() || this.dim( 2 ) !== 1 || M.dim( 2 ) !== 1 ) {
+        throw new Matrix.MatrixError( Matrix.ErrorCodes.INVALID_PARAMETERS, 'Parameter must be a column vector' );
     }
 
-    var dimA = this.dim( 'max' ),
-        dimB = M.dim( 'max' );
-
-    if( dimA !== dimB ) {
+    if( this.dim( 1 ) !== M.dim( 1 ) ) {
         throw new Matrix.MatrixError( Matrix.ErrorCodes.DIMENSION_MISMATCH );
     }
 
     var result = 0;
-    for( var i = 1; i <= dimA; i++ ) {
-        result += this.get( i ) * M.get( i );
+    for( var i = 1; i <= this.dim( 1 ); i++ ) {
+        result += this.__get( i, 1 ) * M.__get( i, 1 );
     }
 
     return result;
@@ -1293,7 +1290,7 @@ Matrix.__toArray = function (obj) {
 
     var result = [];
     for( var i = 1; i <= temp_obj.dim( 1 ); i++ ) {
-        result.push( temp_obj.get( i, 1 ) );
+        result.push( temp_obj.__get( i, 1 ) );
     }
 
     return result;
@@ -1426,7 +1423,7 @@ Matrix.ones = function (rows, columns) {
 Matrix.eye = function (n) {
     var Result = new Matrix( n, n );
     for( var i = 1; i <= n; i++ ) {
-        Result.set( i, i, 1 );
+        Result.__set( i, i, 1 );
     }
 
     return Result;
@@ -1449,7 +1446,7 @@ Matrix.diag = function (entries, k) {
         columnOffset = Math.max( k, 0 );
 
     for( var i = 1; i <= ( Result.dim( 1 ) - Math.abs( k ) ); i++ ) {
-        Result.set( i + rowOffset, i + columnOffset, entries[i - 1] );
+        Result.__set( i + rowOffset, i + columnOffset, entries[i - 1] );
     }
 
     return Result;
@@ -1475,13 +1472,15 @@ Matrix.random = function (rows, columns, minVal, maxVal, onlyInteger) {
         factor = ( maxVal - minVal ) + ( (onlyInteger) ? 1 : 0 ),
         current;
 
-    for( var i = 1; i <= Result.size(); i++ ) {
-        current = minVal + ( Math.random() * factor );
-        if( onlyInteger ) {
-            current = current | 0;
-        }
+    for( var i = 1; i <= Result.dim( 1 ); i++ ) {
+        for( var j = 1; j <= Result.dim( 2 ); j++ ) {
+            current = minVal + ( Math.random() * factor );
+            if( onlyInteger ) {
+                current = current | 0;
+            }
 
-        Result.set( i, current );
+            Result.__set( i, j, current );
+        }
     }
 
     return Result;

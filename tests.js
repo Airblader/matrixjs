@@ -453,7 +453,7 @@ new Test( function () {
 }, 'RoundTo 2' );
 
 new Test( function () {
-    var M = Matrix.zeros( 1, 3 );
+    var M = Matrix.zeros( 3, 1 );
 
     assertEquals( M.dot( M ), 0 );
 }, 'Dot Product 1' );
@@ -461,10 +461,10 @@ new Test( function () {
 new Test( function () {
     var A = new Matrix( [
             [1, 2, 3]
-        ] ),
+        ] ).transpose(),
         B = new Matrix( [
             [3, 2, 1]
-        ] );
+        ] ).transpose();
 
     assertEquals( A.dot( A ), 14 );
     assertEquals( B.dot( B ), 14 );
