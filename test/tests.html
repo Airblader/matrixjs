@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>matrix.js -- Tests</title>
+    <link href='http://fonts.googleapis.com/css?family=Source+Code+Pro:400,900' rel='stylesheet' type='text/css'>
+    <style type="text/css">
+        * {
+            font-family: 'Source Code Pro', sans-serif;
+        }
+
+        #result, #logger {
+            width: 50%;
+            margin: 20px auto 0 auto;
+
+            border: 1px solid black;
+        }
+
+        #result {
+            text-align: center;
+        }
+
+        #logger {
+            border-bottom-width: 0;
+            background: #ddd;
+        }
+
+        #logger .error, #logger .success {
+            border-bottom: 1px solid black;
+            padding-left: 15px;
+            padding-top: 5px;
+        }
+
+        .error {
+            background: #882525;
+            font-weight: bold;
+
+            min-height: 40px;
+            line-height: 40px;
+
+        }
+
+        .success {
+            background: #258825;
+
+            font-size: small;
+        }
+
+        #timer {
+            width: 50%;
+            text-align: right;
+            margin: 0 auto;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+<div id="result">
+    <h2>Test Result</h2>
+</div>
+<p id="timer">Total time to execute tests: <span id="time"></span>s</p>
+<div id="logger"></div>
+
+<script type="text/javascript" src="../matrix.js"></script>
+<script type="text/javascript" src="tests.js"></script>
+</body>
+</html>
