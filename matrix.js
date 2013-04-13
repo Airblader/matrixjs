@@ -33,8 +33,9 @@
  *      new Matrix( [1, 2, 3, 4, 5, 6], 2 );
  *      new Matrix( [1, 2, 3, 4, 5, 6], null, 3 );
  * @constructor
+ * @param {...*} var_args
  */
-function Matrix () {
+function Matrix (var_args) {
     var args = [].slice.call( arguments ),
         __rows, __columns,
         __elements = [];
@@ -958,12 +959,12 @@ Matrix.prototype.equals = function (M) {
 
 /**
  * Apply a custom function to each entry.
- * @param {function} applicator Function to apply. It will be provided with three arguments (value, row index,
- * column index) and has to return the new value to write in the matrix. Predefined applicators can be found at
- * {@link Matrix.applicators}.
- * @param {function} [filter=Matrix.filters.all] A function that will be called with the same arguments as applicator.
- * If provided, applicator will only be applied if filter evaluates to true. Predefined filters can be found at
- * {@link Matrix.filters}.
+ * @param {function(number, number, number): number} applicator Function to apply. It will be provided with three
+ * arguments (value, row index, column index) and has to return the new value to write in the matrix. Predefined
+ * applicators can be found at {@link Matrix.applicators}.
+ * @param {?function(number, number, number): boolean} [filter=Matrix.filters.all] A function that will be called with
+ * the same arguments as applicator. If provided, applicator will only be applied if filter evaluates to true.
+ * Predefined filters can be found at {@link Matrix.filters}.
  * @returns {Matrix}
  */
 Matrix.prototype.fun = function (applicator, filter) {
@@ -995,9 +996,9 @@ Matrix.prototype.fun = function (applicator, filter) {
 
 /**
  * Apply a custom function to each non-zero entry.
- * @param {function} applicator Function to apply. It will be provided with three arguments (value, row index,
- * column index) and has to return the new value to write in the matrix. Predefined applicators can be found at
- * {@link Matrix.applicators}.
+ * @param {function(number, number, number): number} applicator Function to apply. It will be provided with three
+ * arguments (value, row index, column index) and has to return the new value to write in the matrix. Predefined
+ * applicators can be found at {@link Matrix.applicators}.
  * @returns {Matrix}
  */
 Matrix.prototype.spfun = function (applicator) {
