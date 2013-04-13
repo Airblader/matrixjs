@@ -556,7 +556,7 @@ new Test( function () {
         [1, 2, 5]
     ] );
 
-    assertEquals( Math.round( V.multiply( A.cross( B ) ).get( 1 ) ), Math.round( new Matrix( 3 )
+    assertEquals( Math.round( V.multiply( A.cross( B ) ).get( 1, 1 ) ), Math.round( new Matrix( 3 )
         .setColumn( 1, V.getRow( 1 ) )
         .setColumn( 2, A.getColumn( 1 ) )
         .setColumn( 3, B.getColumn( 1 ) )

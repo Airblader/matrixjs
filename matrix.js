@@ -171,62 +171,31 @@ Matrix.options = {
  * @returns {number}
  */
 Matrix.prototype.get = function (row, column) {
-    if( Matrix.__isNumber( column ) ) {
-        if( !this.__inRange( row, column ) ) {
-            throw new Matrix.MatrixError( Matrix.ErrorCodes.OUT_OF_BOUNDS );
-        }
-
-        return this.__get( row, column );
-    } else {
-        var index = arguments[0];
-
-        if( !this.isVector() ) {
-            throw new Matrix.MatrixError( Matrix.ErrorCodes.INVALID_PARAMETERS );
-        }
-
-        if( index < 1 || index > this.size() ) {
-            throw new Matrix.MatrixError( Matrix.ErrorCodes.OUT_OF_BOUNDS );
-        }
-
-        return (this.dim( 1 ) === 1) ? this.__get( 1, index ) : this.__get( index, 1 );
+    if( !this.__inRange( row, column ) ) {
+        throw new Matrix.MatrixError( Matrix.ErrorCodes.OUT_OF_BOUNDS );
     }
+
+    return this.__get( row, column );
 };
 
 /**
  * Set an entry in the matrix.
- * If the instance this is called on is a vector, the second argument may be omitted and the first one specifies
- * which entry to set.
  * Note: This function modifies the instance it is called on.
- * @param {number} row Row index of column is set or linear index
- * @param {number} [column] Column index, can be omitted for vectors
+ * @param {number} row Row index
+ * @param {number} column Column index
  * @param {number} value Value to assign
  * @returns {*}
  */
 Matrix.prototype.set = function (row, column, value) {
-    if( Matrix.__isNumber( value ) ) {
-        if( !this.__inRange( row, column ) ) {
-            throw new Matrix.MatrixError( Matrix.ErrorCodes.OUT_OF_BOUNDS );
-        }
-
-        this.__set( row, column, value );
-    } else {
-        // the second argument is the value in this case, so map the variable
-        value = column;
-
-        var check = ( this.dim( 1 ) === 1 );
-
-        if( !this.isVector() ) {
-            throw new Matrix.MatrixError( Matrix.ErrorCodes.INVALID_PARAMETERS );
-        }
-
-        if( row < 1 || row > this.size() ) {
-            throw new Matrix.MatrixError( Matrix.ErrorCodes.OUT_OF_BOUNDS );
-        }
-
-        this.__set( (check) ? 1 : row, (check) ? row : 1, value );
+    if( !this.__inRange( row, column ) ) {
+        throw new Matrix.MatrixError( Matrix.ErrorCodes.OUT_OF_BOUNDS );
     }
 
-    return this;
+    if( !Matrix.__isNumber( value ) ) {
+        throw new Matrix.MatrixError( Matrix.ErrorCodes.INVALID_PARAMETERS, 'Value has to be a number' );
+    }
+
+    return this.__set( row, column, value );
 };
 
 /**
