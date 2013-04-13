@@ -34,6 +34,7 @@
  *      new Matrix( [1, 2, 3, 4, 5, 6], null, 3 );
  * @constructor
  * @param {...*} var_args
+ * @export
  */
 function Matrix (var_args) {
     var args = [].slice.call( arguments ),
@@ -137,6 +138,7 @@ function Matrix (var_args) {
 /**
  * Define default settings
  * @static
+ * @export
  */
 Matrix.options = {
     stringify: {
@@ -170,6 +172,7 @@ Matrix.options = {
  * @param {number} row Row index if column is set or linear index
  * @param {number} [column] Column index, can be omitted for vectors
  * @returns {number}
+ * @export
  */
 Matrix.prototype.get = function (row, column) {
     if( !this.__inRange( row, column ) ) {
@@ -186,6 +189,7 @@ Matrix.prototype.get = function (row, column) {
  * @param {number} column Column index
  * @param {number} value Value to assign
  * @returns {*}
+ * @export
  */
 Matrix.prototype.set = function (row, column, value) {
     if( !this.__inRange( row, column ) ) {
@@ -204,6 +208,7 @@ Matrix.prototype.set = function (row, column, value) {
  * @param {number} row The row index of the row that shall be returned
  * @param {boolean} [asMatrix=false] If true, the row will be returned as a matrix, otherwise as an array.
  * @returns {Array.<number>|Matrix} Array of the elements in the specified row.
+ * @export
  */
 Matrix.prototype.getRow = function (row, asMatrix) {
     asMatrix = Matrix._getBooleanOrDefault( asMatrix, false );
@@ -234,6 +239,7 @@ Matrix.prototype.__getRow = function (row, asMatrix) {
  * @param {number} row The row index of the row to replace
  * @param {(Array.<number>|Matrix)} entries An array or Matrix containing the new entries for the row
  * @returns {*}
+ * @export
  */
 Matrix.prototype.setRow = function (row, entries) {
     entries = Matrix.__toArray( entries );
@@ -266,6 +272,7 @@ Matrix.prototype.__setRow = function (row, entries) {
  * @param {number} column The column index of the column that shall be returned
  * @param {boolean} [asMatrix=false] If true, the column will be returned as a matrix, otherwise as an array.
  * @returns {(Array.<number>|Matrix)} Array of the elements in the specified column.
+ * @export
  */
 Matrix.prototype.getColumn = function (column, asMatrix) {
     asMatrix = Matrix._getBooleanOrDefault( asMatrix, false );
@@ -296,6 +303,7 @@ Matrix.prototype.__getColumn = function (column, asMatrix) {
  * @param {number} column The column index of the column to replace
  * @param {(Array.<number>|Matrix)} entries An array or matrix containing the new entries for the column
  * @returns {*}
+ * @export
  */
 Matrix.prototype.setColumn = function (column, entries) {
     entries = Matrix.__toArray( entries );
@@ -326,6 +334,7 @@ Matrix.prototype.__setColumn = function (column, entries) {
 /**
  * Check if the matrix is a vector.
  * @returns {boolean} True if at least one dimension is 1.
+ * @export
  */
 Matrix.prototype.isVector = function () {
     return this.dim( 'min' ) === 1;
@@ -334,6 +343,7 @@ Matrix.prototype.isVector = function () {
 /**
  * Check if the matrix is a square matrix.
  * @returns {boolean} True if the number of rows and columns equal, false otherwise.
+ * @export
  */
 Matrix.prototype.isSquare = function () {
     return this.dim( 1 ) === this.dim( 2 );
@@ -342,6 +352,7 @@ Matrix.prototype.isSquare = function () {
 /**
  * Check if the matrix is symmetric.
  * @returns {boolean}
+ * @export
  */
 Matrix.prototype.isSymmetric = function () {
     if( !this.isSquare() ) {
@@ -367,6 +378,7 @@ Matrix.prototype.isSymmetric = function () {
  *  - 'upper': True if upper triangular matrix, false otherwise
  *  - 'both': True if either lower or upper triangular, false otherwise
  * @returns {boolean}
+ * @export
  */
 Matrix.prototype.isTriangular = function (mode) {
     mode = Matrix._getStringOrDefault( mode, Matrix.options.isTriangular.mode );
@@ -411,6 +423,7 @@ Matrix.prototype.__isTriangular = function (upper) {
 /**
  * Return a copy of the matrix. This prevents accidental usage of references.
  * @returns {Matrix}
+ * @export
  */
 Matrix.prototype.copy = function () {
     var Copy = new Matrix( this.dim( 1 ), this.dim( 2 ) );
@@ -424,6 +437,7 @@ Matrix.prototype.copy = function () {
 /**
  * Returns the number of elements in the matrix.
  * @returns {number}
+ * @export
  */
 Matrix.prototype.size = function () {
     return this.dim( 1 ) * this.dim( 2 );
@@ -438,6 +452,7 @@ Matrix.prototype.size = function () {
  *  - 'min' : Smaller dimension
  * @returns {number} Object with the dimensions of requested dimension or just
  * the requested dimension.
+ * @export
  */
 Matrix.prototype.dim = function (which) {
     var dim = this.___dim();
@@ -463,6 +478,7 @@ Matrix.prototype.dim = function (which) {
  * If more than one matrix is passed, they will be added in order, i.e. this + M + N + ...
  * @param {Matrix} M Matrix
  * @returns {Matrix} Component-wise sum of this and M.
+ * @export
  */
 Matrix.prototype.add = function (M) {
     if( arguments.length > 1 ) {
@@ -490,6 +506,7 @@ Matrix.prototype.add = function (M) {
  * If more than one matrix is passed, they wll be subtracted in order, i.e. this - M - N - ...
  * @param {Matrix} M Matrix
  * @returns {Matrix} Component-wise difference of this and M.
+ * @export
  */
 Matrix.prototype.subtract = function (M) {
     if( arguments.length > 1 ) {
@@ -516,6 +533,7 @@ Matrix.prototype.subtract = function (M) {
  * Scale with a constant factor (i.e. calculate k * this)
  * @param {number} k Factor
  * @returns {Matrix} Matrix with all entries multiplied by k.
+ * @export
  */
 Matrix.prototype.scale = function (k) {
     if( !Matrix.__isNumber( k ) ) {
@@ -536,6 +554,7 @@ Matrix.prototype.scale = function (k) {
  * Multiply with another matrix.
  * @param {Matrix} M Matrix
  * @returns {Matrix} Matrix this * M.
+ * @export
  */
 Matrix.prototype.multiply = function (M) {
     if( this.dim( 2 ) !== M.dim( 1 ) ) {
@@ -560,6 +579,7 @@ Matrix.prototype.multiply = function (M) {
 /**
  * Transpose the matrix, i.e. take the rows as the columns of the resulting matrix.
  * @returns {Matrix}
+ * @export
  */
 Matrix.prototype.transpose = function () {
     var Result = new Matrix( this.dim( 2 ), this.dim( 1 ) );
@@ -573,6 +593,7 @@ Matrix.prototype.transpose = function () {
 /**
  * Calculate the trace, i.e. the sum of all diagonal entries.
  * @returns {number} Sum of diagonal entries.
+ * @export
  */
 Matrix.prototype.trace = function () {
     if( !this.isSquare() ) {
@@ -592,6 +613,7 @@ Matrix.prototype.trace = function () {
  * diagonal entries will not be stored.
  * @returns {Matrix} Matrix with the LU entries. There is also a hidden property swappedRows with the number
  * of rows that were swapped in the process.
+ * @export
  */
 Matrix.prototype.decomposeLU = function () {
     var swappedRows = 0,
@@ -643,6 +665,7 @@ Matrix.prototype.decomposeLU = function () {
 /**
  * Calculate the determinant.
  * @returns {number}
+ * @export
  */
 Matrix.prototype.det = function () {
     var i, det;
@@ -681,6 +704,7 @@ Matrix.prototype.det = function () {
 /**
  * Calculate the inverse matrix.
  * @returns {Matrix}
+ * @export
  */
 Matrix.prototype.inverse = function () {
     if( !this.isSquare() ) {
@@ -728,6 +752,7 @@ Matrix.prototype.inverse = function () {
  * @param {number} columnStart Column index where to start the cut
  * @param {number} columnEnd Column index where to end the cut
  * @returns {Matrix}
+ * @export
  */
 Matrix.prototype.submatrix = function (rowStart, rowEnd, columnStart, columnEnd) {
     if( !this.__inRange( rowStart, columnStart ) || !this.__inRange( rowEnd, columnEnd )
@@ -751,6 +776,7 @@ Matrix.prototype.submatrix = function (rowStart, rowEnd, columnStart, columnEnd)
  * Augment with another matrix.
  * @param {Matrix} B Matrix
  * @returns {Matrix} Augmented matrix this|B.
+ * @export
  */
 Matrix.prototype.augment = function (B) {
     if( this.dim( 1 ) !== B.dim( 1 ) ) {
@@ -773,6 +799,7 @@ Matrix.prototype.augment = function (B) {
  * Calculate the dot product. Both vectors have to be column vectors.
  * @param {Matrix} M Matrix
  * @returns {number} Euclidean dot product of this and M.
+ * @export
  */
 Matrix.prototype.dot = function (M) {
     if( !this.isVector() || !M.isVector() || this.dim( 2 ) !== 1 || M.dim( 2 ) !== 1 ) {
@@ -794,6 +821,7 @@ Matrix.prototype.dot = function (M) {
 /**
  * Rounds each element to the nearest integer.
  * @see Matrix.prototype.roundTo
+ * @export
  */
 Matrix.prototype.round = function () {
     return this.roundTo( 0 );
@@ -803,6 +831,7 @@ Matrix.prototype.round = function () {
  * Rounds each element to a given number of digits.
  * @param {number} [digits=0] Precision in digits after the comma
  * @returns {Matrix}
+ * @export
  */
 Matrix.prototype.roundTo = function (digits) {
     digits = Matrix._getNumberOrDefault( digits, Matrix.options.roundTo.digits );
@@ -822,6 +851,7 @@ Matrix.prototype.roundTo = function (digits) {
 /**
  * Pointwise absolute value of the matrix.
  * @returns {Matrix} Matrix M with M(i,j) = abs( this(i,j) ) for all i,j.
+ * @export
  */
 Matrix.prototype.abs = function () {
     var Result = this.copy();
@@ -839,6 +869,7 @@ Matrix.prototype.abs = function () {
  * Returns the cross product. Both vectors have to be column vectors. The resulting vector will also be a column vector.
  * @param {Matrix} M Three-dimensional vector
  * @returns {Matrix} The three-dimensional vector V = A x M.
+ * @export
  */
 Matrix.prototype.cross = function (M) {
     if( !this.isVector() || !M.isVector() || this.dim( 1 ) !== 3 || M.dim( 1 ) !== 3 ) {
@@ -857,6 +888,7 @@ Matrix.prototype.cross = function (M) {
  * Add a row to the matrix.
  * @param {(Array.<number>|Matrix)} row Array or matrix of entries to add
  * @returns {Matrix}
+ * @export
  */
 Matrix.prototype.addRow = function (row) {
     row = Matrix.__toArray( row );
@@ -875,6 +907,7 @@ Matrix.prototype.addRow = function (row) {
  * Add a column to the matrix.
  * @param {(Array.<number>|Matrix)} column Array or matrix of entries to add
  * @returns {Matrix}
+ * @export
  */
 Matrix.prototype.addColumn = function (column) {
     return this.copy().augment( new Matrix( Matrix.__toArray( column ), null, 1 ) );
@@ -885,6 +918,7 @@ Matrix.prototype.addColumn = function (column) {
  * @param {number} needle Value to look for
  * @param {number} [precision=0] Match if any value is in [needle-precision, needle+precision]
  * @returns {boolean}
+ * @export
  */
 Matrix.prototype.contains = function (needle, precision) {
     precision = Matrix._getNumberOrDefault( precision, 0 );
@@ -916,6 +950,7 @@ Matrix.prototype.contains = function (needle, precision) {
  * @param {string} [columnSeparator=Matrix.options.stringify.columnSeparator] Delimiter between the last column of the
  * previous and first column of the next row
  * @returns {string}
+ * @export
  */
 Matrix.prototype.stringify = function (rowSeparator, columnSeparator) {
     rowSeparator = Matrix._getStringOrDefault( rowSeparator, Matrix.options.stringify.rowSeparator );
@@ -940,6 +975,7 @@ Matrix.prototype.stringify = function (rowSeparator, columnSeparator) {
  * Compare with another matrix.
  * @param {Matrix} M Matrix
  * @returns {boolean} True if A = M, false otherwise.
+ * @export
  */
 Matrix.prototype.equals = function (M) {
     if( this.dim( 1 ) !== M.dim( 1 ) || this.dim( 2 ) !== M.dim( 2 ) ) {
@@ -966,6 +1002,7 @@ Matrix.prototype.equals = function (M) {
  * the same arguments as applicator. If provided, applicator will only be applied if filter evaluates to true.
  * Predefined filters can be found at {@link Matrix.filters}.
  * @returns {Matrix}
+ * @export
  */
 Matrix.prototype.fun = function (applicator, filter) {
     filter = filter || Matrix.filters.all;
@@ -1000,6 +1037,7 @@ Matrix.prototype.fun = function (applicator, filter) {
  * arguments (value, row index, column index) and has to return the new value to write in the matrix. Predefined
  * applicators can be found at {@link Matrix.applicators}.
  * @returns {Matrix}
+ * @export
  */
 Matrix.prototype.spfun = function (applicator) {
     return this.fun( applicator, Matrix.filters.nonZero );
@@ -1008,6 +1046,7 @@ Matrix.prototype.spfun = function (applicator) {
 /**
  * Apply the exponential function point-wise.
  * @returns {Matrix}
+ * @export
  */
 Matrix.prototype.pw_exp = function () {
     return this.fun( Matrix.applicators.exp, null );
@@ -1017,6 +1056,7 @@ Matrix.prototype.pw_exp = function () {
  * Raise to the n-th power point-wise.
  * @param {number} n Power
  * @returns {Matrix} The matrix M^n.
+ * @export
  */
 Matrix.prototype.pw_pow = function (n) {
     return this.fun( function (value) {
@@ -1034,6 +1074,7 @@ Matrix.prototype.pw_pow = function (n) {
  *  - 'max': Maximum norm.
  * @param {(Object|Number)} [args] Additional parameters a norm may need, e.g. the parameter p for p-norms
  * @returns {number}
+ * @export
  */
 Matrix.prototype.norm = function (which, args) {
     which = Matrix._getStringOrDefault( which, Matrix.options.norm.which );
@@ -1062,6 +1103,7 @@ Matrix.prototype.norm = function (which, args) {
  * Calculate the p-norm.
  * @param {number} p
  * @returns {number}
+ * @export
  */
 Matrix.prototype.pnorm = function (p) {
     if( !Matrix.__isInteger( p ) ) {
@@ -1081,6 +1123,7 @@ Matrix.prototype.pnorm = function (p) {
 /**
  * Calculate the maximum norm.
  * @returns {number}
+ * @export
  */
 Matrix.prototype.maxnorm = function () {
     var norm = 0;
@@ -1096,6 +1139,7 @@ Matrix.prototype.maxnorm = function () {
 /**
  * Calculate the row-sum norm.
  * @returns {number}
+ * @export
  */
 Matrix.prototype.rownorm = function () {
     var norm = 0;
@@ -1110,6 +1154,7 @@ Matrix.prototype.rownorm = function () {
 /**
  * Calculate the column-sum norm.
  * @returns {number}
+ * @export
  */
 Matrix.prototype.columnnorm = function () {
     var norm = 0;
@@ -1125,6 +1170,7 @@ Matrix.prototype.columnnorm = function () {
  * Get the diagonal of the matrix.
  * @param {number} [k=0] Specified which diagonal to return, i.e. 1 for the first upper secondary diagonal.
  * @returns {Array.<number>}
+ * @export
  */
 Matrix.prototype.diag = function (k) {
     k = Matrix._getNumberOrDefault( k, 0 );
@@ -1151,6 +1197,7 @@ Matrix.prototype.diag = function (k) {
  * @param {number} [rows] Number of rows
  * @param {number} [columns] Number of columns
  * @returns {Matrix}
+ * @export
  */
 Array.prototype.toMatrix = function (rows, columns) {
     return new Matrix( this, rows, columns );
@@ -1161,6 +1208,7 @@ Array.prototype.toMatrix = function (rows, columns) {
  * @param {boolean} [isRowVector=false] If set to true, the vector will be a row vector, otherwise it will be a
  * column vector
  * @returns {Matrix}
+ * @export
  */
 Array.prototype.toVector = function (isRowVector) {
     isRowVector = Matrix._getBooleanOrDefault( isRowVector, false );
@@ -1173,6 +1221,7 @@ Array.prototype.toVector = function (isRowVector) {
  * @param {string} [rowSeparator='\r\n'] Row separator
  * @param {string} [columnSeparator='\t'] Column separator
  * @returns {Matrix}
+ * @export
  */
 String.prototype.toMatrix = function (rowSeparator, columnSeparator) {
     rowSeparator = Matrix._getStringOrDefault( rowSeparator, '\r\n' );
@@ -1338,6 +1387,7 @@ Matrix._getBooleanOrDefault = function (obj, defaultValue) {
  * @param {string} code Error code, one of {@link Matrix.ErrorCodes}
  * @param {string} [msg] Additional message string
  * @constructor
+ * @export
  */
 Matrix.MatrixError = function (code, msg) {
     this.name = 'MatrixError';
@@ -1349,27 +1399,34 @@ Matrix.MatrixError = function (code, msg) {
     }
 };
 
+/**
+ * @export
+ */
 Matrix.ErrorCodes = {
-    INVALID_PARAMETERS: 'Invalid parameters',
-    OUT_OF_BOUNDS: 'Out of bounds',
-    DIMENSION_MISMATCH: 'Dimension mismatch',
-    MATRIX_IS_SINGULAR: 'Matrix is singular'
+    /** @expose */ INVALID_PARAMETERS: 'Invalid parameters',
+    /** @expose */ OUT_OF_BOUNDS: 'Out of bounds',
+    /** @expose */ DIMENSION_MISMATCH: 'Dimension mismatch',
+    /** @expose */ MATRIX_IS_SINGULAR: 'Matrix is singular'
 };
 
 /**
  * Predefined filters that can be used with methods like {@link Matrix.apply}.
  * These functions can take up to three arguments (value, row index, column index).
  * @static
+ * @export
  */
 Matrix.filters = {
+    /** @expose */
     all: function () {
         return true;
     },
 
+    /** @expose */
     nonZero: function (value) {
         return value !== 0;
     },
 
+    /** @expose */
     diag: function (value, i, j) {
         return i === j;
     }
@@ -1379,12 +1436,15 @@ Matrix.filters = {
  * Predefined functions that can be used for methods like {@link Matrix.apply}.
  * These functions can take up to three arguments (value, row index, column index).
  * @static
+ * @export
  */
 Matrix.applicators = {
+    /** @expose */
     exp: function (value) {
         return Math.exp( value );
     },
 
+    /** @expose */
     square: function (value) {
         return value * value;
     }
@@ -1397,6 +1457,7 @@ Matrix.applicators = {
  * @param {number} [columns=rows] Number of columns (defaults to the value of rows)
  * @returns {Matrix} A new matrix of the specified size containing zeros everywhere.
  * @static
+ * @export
  */
 Matrix.zeros = function (rows, columns) {
     columns = Matrix._getNumberOrDefault( columns, rows );
@@ -1410,6 +1471,7 @@ Matrix.zeros = function (rows, columns) {
  * @param {number} [columns=rows] Number of columns
  * @returns {Matrix} A new matrix of the specified size containing ones everywhere.
  * @static
+ * @export
  */
 Matrix.ones = function (rows, columns) {
     columns = Matrix._getNumberOrDefault( columns, rows );
@@ -1429,6 +1491,7 @@ Matrix.ones = function (rows, columns) {
  * @param {number} n Size of the matrix
  * @returns {Matrix} A new n-by-n identity matrix.
  * @static
+ * @export
  */
 Matrix.eye = function (n) {
     var Result = new Matrix( n, n );
@@ -1446,6 +1509,7 @@ Matrix.eye = function (n) {
  * @param {number} [k=0] Offset specifying the diagonal, i.e. k = 1 is the first upper diagonal
  * @returns {Matrix} Matrix with the specified entries on its diagonal.
  * @static
+ * @export
  */
 Matrix.diag = function (entries, k) {
     entries = Matrix.__toArray( entries );
@@ -1471,6 +1535,7 @@ Matrix.diag = function (entries, k) {
  * @param {boolean} [onlyInteger=true] If true, all entries will be integers
  * @returns {Matrix}
  * @static
+ * @export
  */
 Matrix.random = function (rows, columns, minVal, maxVal, onlyInteger) {
     columns = Matrix._getNumberOrDefault( columns, rows );
@@ -1503,6 +1568,7 @@ Matrix.random = function (rows, columns, minVal, maxVal, onlyInteger) {
  * @param {number} [step=1] Step in between numbers
  * @returns {Array.<number>}
  * @static
+ * @export
  */
 Matrix.linspace = function (start, end, step) {
     step = Matrix._getNumberOrDefault( step, 1 );
@@ -1520,6 +1586,7 @@ Matrix.linspace = function (start, end, step) {
  * @param {number} times Number of times to repeat
  * @param {number} value Constant value to repeat
  * @returns {Array}
+ * @export
  */
 Matrix.repeat = function (times, value) {
     var result = [];
