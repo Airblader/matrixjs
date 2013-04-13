@@ -712,6 +712,15 @@ new Test( function () {
     assertEquals( Matrix.eye( 3 ).set( 3, 1, 1 ).set( 1, 3, 1 ).isSymmetric(), true );
 }, 'Is Symmetric 1' );
 
+new Test( function () {
+    var M;
+
+    for( var i = 1; i <= 20; i++ ) {
+        M = Matrix.random( 100, 100, -10, 10, true );
+        M.pw_exp().det();
+    }
+}, 'Big Matrices Performance Test', true );
+
 // ##########
 
 Test.runAll();
