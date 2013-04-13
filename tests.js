@@ -30,8 +30,8 @@ function assertMatrix (found, expected) {
 }
 
 function assertDimension (M, rows, columns) {
-    assertEquals( M.dim().rows, rows );
-    assertEquals( M.dim().columns, columns );
+    assertEquals( M.dim( 1 ), rows );
+    assertEquals( M.dim( 2 ), columns );
 }
 
 function assertException (func) {
@@ -567,8 +567,8 @@ new Test( function () {
 new Test( function () {
     var M = Matrix.eye( 3 );
 
-    assertEquals( M.dim().rows, 3 );
-    assertEquals( M.dim().columns, 3 );
+    assertEquals( M.dim( 1 ), 3 );
+    assertEquals( M.dim( 2 ), 3 );
 }, 'Get Dimensions 1' );
 
 new Test( function () {
@@ -612,30 +612,30 @@ new Test( function () {
 }, 'Add Row 3' );
 
 new Test( function () {
-    assertMatrix( Matrix.zeros( 3 ).apply( function (value) {
+    assertMatrix( Matrix.zeros( 3 ).fun( function (value) {
         return value + 1;
     } ), Matrix.ones( 3 ) );
 }, 'Apply 1' );
 
 new Test( function () {
-    assertMatrix( Matrix.zeros( 3 ).apply( function (value) {
+    assertMatrix( Matrix.zeros( 3 ).fun( function (value) {
         return value + 1;
     }, Matrix.filters.diag ), Matrix.eye( 3 ) );
 }, 'Apply 2' );
 
 new Test( function () {
-    assertMatrix( Matrix.eye( 3 ).apply( function (value, row, column) {
+    assertMatrix( Matrix.eye( 3 ).fun( function (value, row, column) {
         return value + row * column;
     } ), new Matrix( [2, 2, 3, 2, 5, 6, 3, 6, 10] ) );
 }, 'Apply 2' );
 
 new Test( function () {
-    assertMatrix( Matrix.eye( 3 ).scale( 2 ).apply( Matrix.applicators.square ),
+    assertMatrix( Matrix.eye( 3 ).scale( 2 ).fun( Matrix.applicators.square ),
         Matrix.eye( 3 ).scale( 4 ) );
 }, 'Apply 3' );
 
 new Test( function () {
-    assertMatrix( Matrix.eye( 3 ).nz_apply( function (value) {
+    assertMatrix( Matrix.eye( 3 ).spfun( function (value) {
         return value + 1;
     } ), Matrix.eye( 3 ).scale( 2 ) );
 }, 'Non-Zero Apply 1' );

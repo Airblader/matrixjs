@@ -231,7 +231,7 @@ Matrix.prototype.__getRow = function (row, asMatrix) {
  * Replace a row in the matrix with a new one.
  * Note: This function modifies the instance it is called on.
  * @param {number} row The row index of the row to replace
- * @param {Array.<number>|Matrix} entries An array or Matrix containing the new entries for the row
+ * @param {(Array.<number>|Matrix)} entries An array or Matrix containing the new entries for the row
  * @returns {*}
  */
 Matrix.prototype.setRow = function (row, entries) {
@@ -264,7 +264,7 @@ Matrix.prototype.__setRow = function (row, entries) {
  * Get a column from the matrix as an array.
  * @param {number} column The column index of the column that shall be returned
  * @param {boolean} [asMatrix=false] If true, the column will be returned as a matrix, otherwise as an array.
- * @returns {Array.<number>|Matrix} Array of the elements in the specified column.
+ * @returns {(Array.<number>|Matrix)} Array of the elements in the specified column.
  */
 Matrix.prototype.getColumn = function (column, asMatrix) {
     asMatrix = Matrix._getBooleanOrDefault( asMatrix, false );
@@ -293,7 +293,7 @@ Matrix.prototype.__getColumn = function (column, asMatrix) {
  * Replace a column in the matrix with a new one.
  * Note: This function modifies the instance it is called on.
  * @param {number} column The column index of the column to replace
- * @param {Array.<number>|Matrix} entries An array or matrix containing the new entries for the column
+ * @param {(Array.<number>|Matrix)} entries An array or matrix containing the new entries for the column
  * @returns {*}
  */
 Matrix.prototype.setColumn = function (column, entries) {
@@ -430,21 +430,18 @@ Matrix.prototype.size = function () {
 
 /**
  * Get the dimensions of the matrix.
- * @param {number|string} [which] Define which dimension should be returned. If this parameter is not given,
- * an object with a 'rows' and 'columns' property is returned. Other possible values are:<br />
+ * @param {(number|string)} which Define which dimension should be returned. Possible values are:<br />
  *  - 1 or 'rows' : Number of rows<br />
  *  - 2 or 'columns' : Number of columns<br />
  *  - 'max' : Dominant dimension<br />
  *  - 'min' : Smaller dimension
- * @returns {{rows: number, columns: number}|number} Object with the dimensions of requested dimension or just
+ * @returns {number} Object with the dimensions of requested dimension or just
  * the requested dimension.
  */
 Matrix.prototype.dim = function (which) {
     var dim = this.___dim();
 
     switch( which ) {
-        case undefined:
-            return dim;
         case 1:
         case 'rows':
             return dim.rows;
@@ -857,7 +854,7 @@ Matrix.prototype.cross = function (M) {
 
 /**
  * Add a row to the matrix.
- * @param {Array.<number>|Matrix} row Array or matrix of entries to add
+ * @param {(Array.<number>|Matrix)} row Array or matrix of entries to add
  * @returns {Matrix}
  */
 Matrix.prototype.addRow = function (row) {
@@ -875,7 +872,7 @@ Matrix.prototype.addRow = function (row) {
 
 /**
  * Add a column to the matrix.
- * @param {Array.<number>|Matrix} column Array or matrix of entries to add
+ * @param {(Array.<number>|Matrix)} column Array or matrix of entries to add
  * @returns {Matrix}
  */
 Matrix.prototype.addColumn = function (column) {
@@ -969,7 +966,7 @@ Matrix.prototype.equals = function (M) {
  * {@link Matrix.filters}.
  * @returns {Matrix}
  */
-Matrix.prototype.apply = function (applicator, filter) {
+Matrix.prototype.fun = function (applicator, filter) {
     filter = filter || Matrix.filters.all;
 
     if( typeof applicator !== 'function' ) {
@@ -1003,8 +1000,8 @@ Matrix.prototype.apply = function (applicator, filter) {
  * {@link Matrix.applicators}.
  * @returns {Matrix}
  */
-Matrix.prototype.nz_apply = function (applicator) {
-    return this.apply( applicator, Matrix.filters.nonZero );
+Matrix.prototype.spfun = function (applicator) {
+    return this.fun( applicator, Matrix.filters.nonZero );
 };
 
 /**
@@ -1012,7 +1009,7 @@ Matrix.prototype.nz_apply = function (applicator) {
  * @returns {Matrix}
  */
 Matrix.prototype.pw_exp = function () {
-    return this.apply( Matrix.applicators.exp );
+    return this.fun( Matrix.applicators.exp, null );
 };
 
 /**
@@ -1021,9 +1018,9 @@ Matrix.prototype.pw_exp = function () {
  * @returns {Matrix} The matrix M^n.
  */
 Matrix.prototype.pw_pow = function (n) {
-    return this.apply( function (value) {
+    return this.fun( function (value) {
         return Math.pow( value, n );
-    } );
+    }, null );
 };
 
 /**
@@ -1034,7 +1031,7 @@ Matrix.prototype.pw_pow = function (n) {
  *  - 'rows' or 'rowsum': Row-sum norm.
  *  - 'columns' or 'columnsum': Column-sum norm.
  *  - 'max': Maximum norm.
- * @param {Object|Number} [args] Additional parameters a norm may need, e.g. the parameter p for p-norms
+ * @param {(Object|Number)} [args] Additional parameters a norm may need, e.g. the parameter p for p-norms
  * @returns {number}
  */
 Matrix.prototype.norm = function (which, args) {
@@ -1044,7 +1041,7 @@ Matrix.prototype.norm = function (which, args) {
     switch( which.toLowerCase() ) {
         case 'p':
         case 'pnorm':
-            return this.pnorm( args );
+            return this.pnorm( Number( args ) );
         case 'frobenius':
             return this.pnorm( 2 );
         case 'rows':
@@ -1281,7 +1278,7 @@ Matrix.__isNumberArray = function (obj) {
 };
 
 /**
- * @param {Matrix|Array.<number>} obj
+ * @param {(Matrix|Array.<number>)} obj
  * @static
  * @private
  * @ignore
@@ -1444,7 +1441,7 @@ Matrix.eye = function (n) {
 /**
  * Returns a diagonal matrix.
  * If called with a second parameter k, the k-th diagonal will be filled instead of the main diagonal.
- * @param {Array.<number>|Matrix} entries Array or matrix of diagonal entries
+ * @param {(Array.<number>|Matrix)} entries Array or matrix of diagonal entries
  * @param {number} [k=0] Offset specifying the diagonal, i.e. k = 1 is the first upper diagonal
  * @returns {Matrix} Matrix with the specified entries on its diagonal.
  * @static
