@@ -10,6 +10,95 @@
  */
 
 /**
+ * @param var_args
+ * @interface
+ */
+function IMatrix (var_args) {
+    this.___get = function (row, column) {
+    };
+
+    this.___set = function (row, column, value) {
+    };
+
+    this.___dim = function () {
+
+    };
+}
+
+/**
+ * @implements IMatrix
+ * @constructor
+ * @export
+ */
+function MatrixCommon () {
+    var console = ( window.console && window.console.log ) || {
+        log: function (str) {
+            // dummy implementation
+        }
+    };
+
+    this.___get = function (row, column) {
+        console.log( 'Tried to call MatrixCommon::___get(' + row + ', ' + column + ')' );
+
+        return null;
+    };
+
+    this.___set = function (row, column, value) {
+        console.log( 'Tried to call MatrixCommon::___set(' + row + ', ' + column + ', ' + value + ')' );
+
+        return this;
+    };
+
+    this.___dim = function () {
+        console.log( 'Tried to call MatrixCommon::___dim()' );
+
+        return {
+            rows: -1,
+            columns: -1
+        };
+    };
+
+    throw new Error( 'MatrixCommon cannot be instantiated' );
+}
+
+/**
+ * @static
+ * @constructor
+ * @export
+ */
+function MatrixUtils () {
+    throw new Error( 'This cannot be instantiated' );
+}
+
+/**
+ * Error thrown by matrixjs.
+ * @param {string} code Error code, one of {@link MatrixError.ErrorCodes}
+ * @param {string} [msg] Additional message string
+ * @constructor
+ * @export
+ */
+function MatrixError (code, msg) {
+    this.name = 'MatrixError';
+    this.code = code;
+    this.message = msg;
+
+    /** @override */
+    this.toString = function () {
+        return this.name + ' [' + this.code + ']: ' + (this.message || 'No message');
+    }
+};
+
+/**
+ * @export
+ */
+MatrixError.ErrorCodes = {
+    /** @expose */ INVALID_PARAMETERS: 'Invalid parameters',
+    /** @expose */ OUT_OF_BOUNDS: 'Out of bounds',
+    /** @expose */ DIMENSION_MISMATCH: 'Dimension mismatch',
+    /** @expose */ MATRIX_IS_SINGULAR: 'Matrix is singular'
+};
+
+/**
  * Creates a new Matrix.<br />
  * There is a number of different signatures for the parameter(s) to define the matrix.<br />
  *  - Use one number n to create a n-by-n matrix filled with zeros.<br />
@@ -33,6 +122,8 @@
  *      new Matrix( [1, 2, 3, 4, 5, 6], 2 );
  *      new Matrix( [1, 2, 3, 4, 5, 6], null, 3 );
  * @constructor
+ * @implements IMatrix
+ * @extends MatrixCommon
  * @param {...*} var_args
  * @export
  */
@@ -42,6 +133,7 @@ function Matrix (var_args) {
         __elements = [];
 
     /**
+     * @override
      * @private
      * @ignore
      */
@@ -50,6 +142,7 @@ function Matrix (var_args) {
     };
 
     /**
+     * @override
      * @private
      * @ignore
      */
@@ -59,6 +152,7 @@ function Matrix (var_args) {
     };
 
     /**
+     * @override
      * @private
      * @ignore
      */
@@ -77,11 +171,11 @@ function Matrix (var_args) {
 
             for( var i = 0; i < args[0].length; i++ ) {
                 if( (args[0][i].length !== __columns && __columns !== -1) ) {
-                    throw new Matrix.MatrixError( Matrix.ErrorCodes.INVALID_PARAMETERS,
+                    throw new MatrixError( MatrixError.ErrorCodes.INVALID_PARAMETERS,
                         'Number of columns must be the same for all rows' );
                 }
-                if( !Matrix.__isNumberArray( args[0][i] ) ) {
-                    throw new Matrix.MatrixError( Matrix.ErrorCodes.INVALID_PARAMETERS, 'Elements must be numbers' );
+                if( !MatrixUtils.isNumberArray( args[0][i] ) ) {
+                    throw new MatrixError( MatrixError.ErrorCodes.INVALID_PARAMETERS, 'Elements must be numbers' );
                 }
                 __columns = Math.max( __columns, args[0][i].length );
 
@@ -90,44 +184,44 @@ function Matrix (var_args) {
                 }
             }
         } else if( args.length >= 1 && args.length <= 3 && args[0] instanceof Array
-            && ( args[0].length === 0 || Matrix.__isNumber( args[0][0] ) ) ) {
+            && ( args[0].length === 0 || MatrixUtils.isNumber( args[0][0] ) ) ) {
 
-            if( !Matrix.__isNumberArray( args[0] ) ) {
-                throw new Matrix.MatrixError( Matrix.ErrorCodes.INVALID_PARAMETERS, 'Elements must be numbers' );
+            if( !MatrixUtils.isNumberArray( args[0] ) ) {
+                throw new MatrixError( MatrixError.ErrorCodes.INVALID_PARAMETERS, 'Elements must be numbers' );
             }
 
             __elements = args[0];
             var rows = args[1],
                 columns = args[2];
 
-            if( !Matrix.__isNumber( rows ) && !Matrix.__isNumber( columns ) ) {
+            if( !MatrixUtils.isNumber( rows ) && !MatrixUtils.isNumber( columns ) ) {
                 var dim = Math.sqrt( __elements.length );
 
                 rows = dim;
                 columns = dim;
-            } else if( !Matrix.__isNumber( rows ) && Matrix.__isInteger( columns ) ) {
+            } else if( !MatrixUtils.isNumber( rows ) && MatrixUtils.isInteger( columns ) ) {
                 rows = __elements.length / columns;
-            } else if( Matrix.__isInteger( rows ) && !Matrix.__isNumber( columns ) ) {
+            } else if( MatrixUtils.isInteger( rows ) && !MatrixUtils.isNumber( columns ) ) {
                 columns = __elements.length / rows;
             }
 
-            if( !Matrix.__isInteger( rows ) || !Matrix.__isInteger( columns ) ) {
-                throw new Matrix.MatrixError( Matrix.ErrorCodes.OUT_OF_BOUNDS,
+            if( !MatrixUtils.isInteger( rows ) || !MatrixUtils.isInteger( columns ) ) {
+                throw new MatrixError( MatrixError.ErrorCodes.OUT_OF_BOUNDS,
                     'Array must represent square matrix if no size is given' );
             }
 
             __rows = rows;
             __columns = columns;
-        } else if( args.length === 1 && Matrix.__isInteger( args[0] ) ) {
+        } else if( args.length === 1 && MatrixUtils.isInteger( args[0] ) ) {
             __rows = args[0];
             __columns = args[0];
             __elements = Matrix.repeat( __rows * __columns, 0 );
-        } else if( args.length === 2 && Matrix.__isInteger( args[0] ) && Matrix.__isInteger( args[1] ) ) {
+        } else if( args.length === 2 && MatrixUtils.isInteger( args[0] ) && MatrixUtils.isInteger( args[1] ) ) {
             __rows = args[0];
             __columns = args[1];
             __elements = Matrix.repeat( __rows * __columns, 0 );
         } else {
-            throw new Matrix.MatrixError( Matrix.ErrorCodes.INVALID_PARAMETERS,
+            throw new MatrixError( MatrixError.ErrorCodes.INVALID_PARAMETERS,
                 'Parameters must match a supported signature' );
         }
     })();
@@ -135,12 +229,14 @@ function Matrix (var_args) {
     return this;
 }
 
+Matrix.prototype = Object.create( MatrixCommon.prototype );
+
 /**
  * Define default settings
  * @static
  * @export
  */
-Matrix.options = {
+MatrixCommon.options = {
     stringify: {
         rowSeparator: '\r\n',
         columnSeparator: '\t'
@@ -174,9 +270,9 @@ Matrix.options = {
  * @returns {number}
  * @export
  */
-Matrix.prototype.get = function (row, column) {
+MatrixCommon.prototype.get = function (row, column) {
     if( !this.__inRange( row, column ) ) {
-        throw new Matrix.MatrixError( Matrix.ErrorCodes.OUT_OF_BOUNDS );
+        throw new MatrixError( MatrixError.ErrorCodes.OUT_OF_BOUNDS );
     }
 
     return this.___get( row, column );
@@ -191,13 +287,13 @@ Matrix.prototype.get = function (row, column) {
  * @returns {*}
  * @export
  */
-Matrix.prototype.set = function (row, column, value) {
+MatrixCommon.prototype.set = function (row, column, value) {
     if( !this.__inRange( row, column ) ) {
-        throw new Matrix.MatrixError( Matrix.ErrorCodes.OUT_OF_BOUNDS );
+        throw new MatrixError( MatrixError.ErrorCodes.OUT_OF_BOUNDS );
     }
 
-    if( !Matrix.__isNumber( value ) ) {
-        throw new Matrix.MatrixError( Matrix.ErrorCodes.INVALID_PARAMETERS, 'Value has to be a number' );
+    if( !MatrixUtils.isNumber( value ) ) {
+        throw new MatrixError( MatrixError.ErrorCodes.INVALID_PARAMETERS, 'Value has to be a number' );
     }
 
     return this.___set( row, column, value );
@@ -210,11 +306,11 @@ Matrix.prototype.set = function (row, column, value) {
  * @returns {Array.<number>|Matrix} Array of the elements in the specified row.
  * @export
  */
-Matrix.prototype.getRow = function (row, asMatrix) {
-    asMatrix = Matrix._getBooleanOrDefault( asMatrix, false );
+MatrixCommon.prototype.getRow = function (row, asMatrix) {
+    asMatrix = MatrixUtils.getBooleanWithDefault( asMatrix, false );
 
     if( !this.__inRange( row, null ) ) {
-        throw new Matrix.MatrixError( Matrix.ErrorCodes.OUT_OF_BOUNDS );
+        throw new MatrixError( MatrixError.ErrorCodes.OUT_OF_BOUNDS );
     }
 
     return this.__getRow( row, asMatrix );
@@ -224,7 +320,7 @@ Matrix.prototype.getRow = function (row, asMatrix) {
  * @private
  * @ignore
  */
-Matrix.prototype.__getRow = function (row, asMatrix) {
+MatrixCommon.prototype.__getRow = function (row, asMatrix) {
     var result = [],
         columns = this.___dim().columns;
 
@@ -243,15 +339,15 @@ Matrix.prototype.__getRow = function (row, asMatrix) {
  * @returns {*}
  * @export
  */
-Matrix.prototype.setRow = function (row, entries) {
-    entries = Matrix.__toArray( entries );
+MatrixCommon.prototype.setRow = function (row, entries) {
+    entries = MatrixUtils.toArray( entries );
 
     if( !this.__inRange( row, null ) ) {
-        throw new Matrix.MatrixError( Matrix.ErrorCodes.OUT_OF_BOUNDS );
+        throw new MatrixError( MatrixError.ErrorCodes.OUT_OF_BOUNDS );
     }
 
     if( entries.length !== this.___dim().columns ) {
-        throw new Matrix.MatrixError( Matrix.ErrorCodes.INVALID_PARAMETERS, 'Wrong number of columns in row.' );
+        throw new MatrixError( MatrixError.ErrorCodes.INVALID_PARAMETERS, 'Wrong number of columns in row.' );
     }
 
     return this.__setRow( row, entries );
@@ -261,7 +357,7 @@ Matrix.prototype.setRow = function (row, entries) {
  * @private
  * @ignore
  */
-Matrix.prototype.__setRow = function (row, entries) {
+MatrixCommon.prototype.__setRow = function (row, entries) {
     var columns = this.___dim().columns;
 
     for( var i = 1; i <= columns; i++ ) {
@@ -278,11 +374,11 @@ Matrix.prototype.__setRow = function (row, entries) {
  * @returns {(Array.<number>|Matrix)} Array of the elements in the specified column.
  * @export
  */
-Matrix.prototype.getColumn = function (column, asMatrix) {
-    asMatrix = Matrix._getBooleanOrDefault( asMatrix, false );
+MatrixCommon.prototype.getColumn = function (column, asMatrix) {
+    asMatrix = MatrixUtils.getBooleanWithDefault( asMatrix, false );
 
     if( !this.__inRange( null, column ) ) {
-        throw new Matrix.MatrixError( Matrix.ErrorCodes.OUT_OF_BOUNDS );
+        throw new MatrixError( MatrixError.ErrorCodes.OUT_OF_BOUNDS );
     }
 
     return this.__getColumn( column, asMatrix );
@@ -292,7 +388,7 @@ Matrix.prototype.getColumn = function (column, asMatrix) {
  * @private
  * @ignore
  */
-Matrix.prototype.__getColumn = function (column, asMatrix) {
+MatrixCommon.prototype.__getColumn = function (column, asMatrix) {
     var result = [],
         rows = this.___dim().rows;
 
@@ -311,15 +407,15 @@ Matrix.prototype.__getColumn = function (column, asMatrix) {
  * @returns {*}
  * @export
  */
-Matrix.prototype.setColumn = function (column, entries) {
-    entries = Matrix.__toArray( entries );
+MatrixCommon.prototype.setColumn = function (column, entries) {
+    entries = MatrixUtils.toArray( entries );
 
     if( !this.__inRange( null, column ) ) {
-        throw new Matrix.MatrixError( Matrix.ErrorCodes.OUT_OF_BOUNDS );
+        throw new MatrixError( MatrixError.ErrorCodes.OUT_OF_BOUNDS );
     }
 
     if( entries.length !== this.___dim().rows ) {
-        throw new Matrix.MatrixError( Matrix.ErrorCodes.INVALID_PARAMETERS, 'Wrong number of rows in column' );
+        throw new MatrixError( MatrixError.ErrorCodes.INVALID_PARAMETERS, 'Wrong number of rows in column' );
     }
 
     return this.__setColumn( column, entries );
@@ -329,7 +425,7 @@ Matrix.prototype.setColumn = function (column, entries) {
  * @private
  * @ignore
  */
-Matrix.prototype.__setColumn = function (column, entries) {
+MatrixCommon.prototype.__setColumn = function (column, entries) {
     var rows = this.___dim().rows;
 
     for( var i = 1; i <= rows; i++ ) {
@@ -344,7 +440,7 @@ Matrix.prototype.__setColumn = function (column, entries) {
  * @returns {boolean} True if at least one dimension is 1.
  * @export
  */
-Matrix.prototype.isVector = function () {
+MatrixCommon.prototype.isVector = function () {
     return this.dim( 'min' ) === 1;
 };
 
@@ -353,7 +449,7 @@ Matrix.prototype.isVector = function () {
  * @returns {boolean} True if the number of rows and columns equal, false otherwise.
  * @export
  */
-Matrix.prototype.isSquare = function () {
+MatrixCommon.prototype.isSquare = function () {
     return this.___dim().rows === this.___dim().columns;
 };
 
@@ -362,9 +458,9 @@ Matrix.prototype.isSquare = function () {
  * @returns {boolean}
  * @export
  */
-Matrix.prototype.isSymmetric = function () {
+MatrixCommon.prototype.isSymmetric = function () {
     if( !this.isSquare() ) {
-        throw new Matrix.MatrixError( Matrix.ErrorCodes.DIMENSION_MISMATCH, 'Matrix must be square' );
+        throw new MatrixError( MatrixError.ErrorCodes.DIMENSION_MISMATCH, 'Matrix must be square' );
     }
 
     var rows = this.___dim().rows;
@@ -390,11 +486,11 @@ Matrix.prototype.isSymmetric = function () {
  * @returns {boolean}
  * @export
  */
-Matrix.prototype.isTriangular = function (mode) {
-    mode = Matrix._getStringOrDefault( mode, Matrix.options.isTriangular.mode );
+MatrixCommon.prototype.isTriangular = function (mode) {
+    mode = MatrixUtils.getStringWithDefault( mode, MatrixCommon.options.isTriangular.mode );
 
     if( !this.isSquare() ) {
-        throw new Matrix.MatrixError( Matrix.ErrorCodes.DIMENSION_MISMATCH, 'Matrix must be square' );
+        throw new MatrixError( MatrixError.ErrorCodes.DIMENSION_MISMATCH, 'Matrix must be square' );
     }
 
     switch( mode.toLowerCase() ) {
@@ -405,7 +501,7 @@ Matrix.prototype.isTriangular = function (mode) {
         case 'both':
             return ( this.__isTriangular( true ) || this.__isTriangular( false ) );
         default:
-            throw new Matrix.MatrixError( Matrix.ErrorCodes.INVALID_PARAMETERS, 'Mode not supported' );
+            throw new MatrixError( MatrixError.ErrorCodes.INVALID_PARAMETERS, 'Mode not supported' );
     }
 };
 
@@ -413,7 +509,7 @@ Matrix.prototype.isTriangular = function (mode) {
  * @private
  * @ignore
  */
-Matrix.prototype.__isTriangular = function (upper) {
+MatrixCommon.prototype.__isTriangular = function (upper) {
     var sign = (upper) ? 1 : -1,
         diag, num_diag,
         rows = this.___dim().rows;
@@ -437,7 +533,7 @@ Matrix.prototype.__isTriangular = function (upper) {
  * @returns {Matrix}
  * @export
  */
-Matrix.prototype.copy = function () {
+MatrixCommon.prototype.copy = function () {
     var rows = this.___dim().rows,
         columns = this.___dim().columns,
         Copy = new Matrix( rows, columns );
@@ -454,7 +550,7 @@ Matrix.prototype.copy = function () {
  * @returns {number}
  * @export
  */
-Matrix.prototype.size = function () {
+MatrixCommon.prototype.size = function () {
     return this.___dim().rows * this.___dim().columns;
 };
 
@@ -469,7 +565,7 @@ Matrix.prototype.size = function () {
  * the requested dimension.
  * @export
  */
-Matrix.prototype.dim = function (which) {
+MatrixCommon.prototype.dim = function (which) {
     var dim = this.___dim();
 
     switch( which ) {
@@ -484,7 +580,7 @@ Matrix.prototype.dim = function (which) {
         case 'min':
             return Math.min( dim.rows, dim.columns );
         default:
-            throw new Matrix.MatrixError( Matrix.ErrorCodes.INVALID_PARAMETERS, 'Parameter must match a known value' );
+            throw new MatrixError( MatrixError.ErrorCodes.INVALID_PARAMETERS, 'Parameter must match a known value' );
     }
 };
 
@@ -495,7 +591,7 @@ Matrix.prototype.dim = function (which) {
  * @returns {Matrix} Component-wise sum of this and M.
  * @export
  */
-Matrix.prototype.add = function (M) {
+MatrixCommon.prototype.add = function (M) {
     var rows = this.___dim().rows,
         columns = this.___dim().columns;
 
@@ -506,7 +602,7 @@ Matrix.prototype.add = function (M) {
     }
 
     if( rows !== M.___dim().rows || columns !== M.___dim().columns ) {
-        throw new Matrix.MatrixError( Matrix.ErrorCodes.DIMENSION_MISMATCH, 'Matrices must be of the same size' );
+        throw new MatrixError( MatrixError.ErrorCodes.DIMENSION_MISMATCH, 'Matrices must be of the same size' );
     }
 
     var Result = new Matrix( rows, columns );
@@ -527,7 +623,7 @@ Matrix.prototype.add = function (M) {
  * @returns {Matrix} Component-wise difference of this and M.
  * @export
  */
-Matrix.prototype.subtract = function (M) {
+MatrixCommon.prototype.subtract = function (M) {
     var rows = this.___dim().rows,
         columns = this.___dim().columns;
 
@@ -538,7 +634,7 @@ Matrix.prototype.subtract = function (M) {
     }
 
     if( rows !== M.___dim().rows || columns !== M.___dim().columns ) {
-        throw new Matrix.MatrixError( Matrix.ErrorCodes.DIMENSION_MISMATCH, 'Matrices must be of the same size' );
+        throw new MatrixError( MatrixError.ErrorCodes.DIMENSION_MISMATCH, 'Matrices must be of the same size' );
     }
 
     var Result = new Matrix( rows, columns );
@@ -558,9 +654,9 @@ Matrix.prototype.subtract = function (M) {
  * @returns {Matrix} Matrix with all entries multiplied by k.
  * @export
  */
-Matrix.prototype.scale = function (k) {
-    if( !Matrix.__isNumber( k ) ) {
-        throw new Matrix.MatrixError( Matrix.ErrorCodes.INVALID_PARAMETERS, 'Parameter must be a number' );
+MatrixCommon.prototype.scale = function (k) {
+    if( !MatrixUtils.isNumber( k ) ) {
+        throw new MatrixError( MatrixError.ErrorCodes.INVALID_PARAMETERS, 'Parameter must be a number' );
     }
 
     var rows = this.___dim().rows,
@@ -582,13 +678,13 @@ Matrix.prototype.scale = function (k) {
  * @returns {Matrix} Matrix this * M.
  * @export
  */
-Matrix.prototype.multiply = function (M) {
+MatrixCommon.prototype.multiply = function (M) {
     var dimOuterLeft = this.___dim().rows,
         dimInner = this.___dim().columns,
         dimOuterRight = M.___dim().columns;
 
     if( dimInner !== M.___dim().rows ) {
-        throw new Matrix.MatrixError( Matrix.ErrorCodes.DIMENSION_MISMATCH, 'Inner dimensions must match' );
+        throw new MatrixError( MatrixError.ErrorCodes.DIMENSION_MISMATCH, 'Inner dimensions must match' );
     }
 
     var Result = new Matrix( dimOuterLeft, dimOuterRight );
@@ -611,7 +707,7 @@ Matrix.prototype.multiply = function (M) {
  * @returns {Matrix}
  * @export
  */
-Matrix.prototype.transpose = function () {
+MatrixCommon.prototype.transpose = function () {
     var rows = this.___dim().rows,
         columns = this.___dim().columns,
         Result = new Matrix( columns, rows );
@@ -628,9 +724,9 @@ Matrix.prototype.transpose = function () {
  * @returns {number} Sum of diagonal entries.
  * @export
  */
-Matrix.prototype.trace = function () {
+MatrixCommon.prototype.trace = function () {
     if( !this.isSquare() ) {
-        throw new Matrix.MatrixError( Matrix.ErrorCodes.DIMENSION_MISMATCH, 'Matrix must be square' );
+        throw new MatrixError( MatrixError.ErrorCodes.DIMENSION_MISMATCH, 'Matrix must be square' );
     }
 
     var rows = this.___dim().rows,
@@ -650,7 +746,7 @@ Matrix.prototype.trace = function () {
  * of rows that were swapped in the process.
  * @export
  */
-Matrix.prototype.decomposeLU = function () {
+MatrixCommon.prototype.decomposeLU = function () {
     var swappedRows = 0,
         LU = this.copy();
 
@@ -674,7 +770,7 @@ Matrix.prototype.decomposeLU = function () {
         }
 
         if( LU.___get( pivot, k ) === 0 ) {
-            throw new Matrix.MatrixError( Matrix.ErrorCodes.MATRIX_IS_SINGULAR );
+            throw new MatrixError( MatrixError.ErrorCodes.MATRIX_IS_SINGULAR );
         }
 
         if( pivot !== k ) {
@@ -706,12 +802,12 @@ Matrix.prototype.decomposeLU = function () {
  * @returns {number}
  * @export
  */
-Matrix.prototype.det = function () {
+MatrixCommon.prototype.det = function () {
     var i, det,
         rows = this.___dim().rows;
 
     if( !this.isSquare() ) {
-        throw new Matrix.MatrixError( Matrix.ErrorCodes.DIMENSION_MISMATCH, 'Matrix must be square' );
+        throw new MatrixError( MatrixError.ErrorCodes.DIMENSION_MISMATCH, 'Matrix must be square' );
     }
 
     if( this.isTriangular() ) {
@@ -724,7 +820,7 @@ Matrix.prototype.det = function () {
         try {
             var LU = this.decomposeLU();
         } catch( e ) {
-            if( e.code && e.code === Matrix.ErrorCodes.MATRIX_IS_SINGULAR ) {
+            if( e.code && e.code === MatrixError.ErrorCodes.MATRIX_IS_SINGULAR ) {
                 return 0;
             }
 
@@ -746,9 +842,9 @@ Matrix.prototype.det = function () {
  * @returns {Matrix}
  * @export
  */
-Matrix.prototype.inverse = function () {
+MatrixCommon.prototype.inverse = function () {
     if( !this.isSquare() ) {
-        throw new Matrix.MatrixError( Matrix.ErrorCodes.DIMENSION_MISMATCH, 'Matrix must be square' );
+        throw new MatrixError( MatrixError.ErrorCodes.DIMENSION_MISMATCH, 'Matrix must be square' );
     }
 
     var M = this.augment( Matrix.eye( this.___dim().rows ) ),
@@ -781,7 +877,7 @@ Matrix.prototype.inverse = function () {
     } catch( e ) {
         // TODO if caching attributes like the determinant is introduced, replace this by checking
         // the determinant and throw a general error here
-        throw new Matrix.MatrixError( Matrix.ErrorCodes.MATRIX_IS_SINGULAR );
+        throw new MatrixError( MatrixError.ErrorCodes.MATRIX_IS_SINGULAR );
     }
 
     return M.submatrix( 1, M.___dim().rows, this.___dim().columns + 1, M.___dim().columns );
@@ -796,10 +892,10 @@ Matrix.prototype.inverse = function () {
  * @returns {Matrix}
  * @export
  */
-Matrix.prototype.submatrix = function (rowStart, rowEnd, columnStart, columnEnd) {
+MatrixCommon.prototype.submatrix = function (rowStart, rowEnd, columnStart, columnEnd) {
     if( !this.__inRange( rowStart, columnStart ) || !this.__inRange( rowEnd, columnEnd )
         || rowStart > rowEnd || columnStart > columnEnd ) {
-        throw new Matrix.MatrixError( Matrix.ErrorCodes.OUT_OF_BOUNDS );
+        throw new MatrixError( MatrixError.ErrorCodes.OUT_OF_BOUNDS );
     }
 
     var mResult = rowEnd - rowStart + 1,
@@ -819,12 +915,12 @@ Matrix.prototype.submatrix = function (rowStart, rowEnd, columnStart, columnEnd)
  * @returns {Matrix} Augmented matrix this|B.
  * @export
  */
-Matrix.prototype.augment = function (B) {
+MatrixCommon.prototype.augment = function (B) {
     var columns = this.___dim().columns,
         columnsB = B.___dim().columns;
 
     if( this.___dim().rows !== B.___dim().rows ) {
-        throw new Matrix.MatrixError( Matrix.ErrorCodes.INVALID_PARAMETERS, 'Number of rows must match' );
+        throw new MatrixError( MatrixError.ErrorCodes.INVALID_PARAMETERS, 'Number of rows must match' );
     }
 
     var Result = new Matrix( this.___dim().rows, columns + columnsB );
@@ -845,15 +941,15 @@ Matrix.prototype.augment = function (B) {
  * @returns {number} Euclidean dot product of this and M.
  * @export
  */
-Matrix.prototype.dot = function (M) {
+MatrixCommon.prototype.dot = function (M) {
     var rows = this.___dim().rows;
 
     if( !this.isVector() || !M.isVector() || this.___dim().columns !== 1 || M.___dim().columns !== 1 ) {
-        throw new Matrix.MatrixError( Matrix.ErrorCodes.INVALID_PARAMETERS, 'Parameter must be a column vector' );
+        throw new MatrixError( MatrixError.ErrorCodes.INVALID_PARAMETERS, 'Parameter must be a column vector' );
     }
 
     if( rows !== M.___dim().rows ) {
-        throw new Matrix.MatrixError( Matrix.ErrorCodes.DIMENSION_MISMATCH );
+        throw new MatrixError( MatrixError.ErrorCodes.DIMENSION_MISMATCH );
     }
 
     var result = 0;
@@ -866,10 +962,10 @@ Matrix.prototype.dot = function (M) {
 
 /**
  * Rounds each element to the nearest integer.
- * @see Matrix.prototype.roundTo
+ * @see MatrixCommon.prototype.roundTo
  * @export
  */
-Matrix.prototype.round = function () {
+MatrixCommon.prototype.round = function () {
     return this.roundTo( 0 );
 };
 
@@ -879,8 +975,8 @@ Matrix.prototype.round = function () {
  * @returns {Matrix}
  * @export
  */
-Matrix.prototype.roundTo = function (digits) {
-    digits = Matrix._getNumberOrDefault( digits, Matrix.options.roundTo.digits );
+MatrixCommon.prototype.roundTo = function (digits) {
+    digits = MatrixUtils.getNumberWithDefault( digits, MatrixCommon.options.roundTo.digits );
 
     var Result = this.copy(),
         power = Math.pow( 10, digits ),
@@ -901,7 +997,7 @@ Matrix.prototype.roundTo = function (digits) {
  * @returns {Matrix} Matrix M with M(i,j) = abs( this(i,j) ) for all i,j.
  * @export
  */
-Matrix.prototype.abs = function () {
+MatrixCommon.prototype.abs = function () {
     var Result = this.copy(),
         rows = Result.___dim().rows,
         columns = Result.___dim().columns;
@@ -921,9 +1017,9 @@ Matrix.prototype.abs = function () {
  * @returns {Matrix} The three-dimensional vector V = A x M.
  * @export
  */
-Matrix.prototype.cross = function (M) {
+MatrixCommon.prototype.cross = function (M) {
     if( !this.isVector() || !M.isVector() || this.___dim().rows !== 3 || M.___dim().rows !== 3 ) {
-        throw new Matrix.MatrixError( Matrix.ErrorCodes.INVALID_PARAMETERS,
+        throw new MatrixError( MatrixError.ErrorCodes.INVALID_PARAMETERS,
             'Parameters must be three-dimensional column vectors' );
     }
 
@@ -940,8 +1036,8 @@ Matrix.prototype.cross = function (M) {
  * @returns {Matrix}
  * @export
  */
-Matrix.prototype.addRow = function (row) {
-    row = Matrix.__toArray( row );
+MatrixCommon.prototype.addRow = function (row) {
+    row = MatrixUtils.toArray( row );
     var rows = this.___dim().rows;
 
     var Result = new Matrix( rows + 1, this.___dim().columns );
@@ -960,8 +1056,8 @@ Matrix.prototype.addRow = function (row) {
  * @returns {Matrix}
  * @export
  */
-Matrix.prototype.addColumn = function (column) {
-    return this.copy().augment( new Matrix( Matrix.__toArray( column ), null, 1 ) );
+MatrixCommon.prototype.addColumn = function (column) {
+    return this.copy().augment( new Matrix( MatrixUtils.toArray( column ), null, 1 ) );
 };
 
 /**
@@ -971,13 +1067,13 @@ Matrix.prototype.addColumn = function (column) {
  * @returns {boolean}
  * @export
  */
-Matrix.prototype.contains = function (needle, precision) {
-    precision = Matrix._getNumberOrDefault( precision, 0 );
+MatrixCommon.prototype.contains = function (needle, precision) {
+    precision = MatrixUtils.getNumberWithDefault( precision, 0 );
     var rows = this.___dim().rows,
         columns = this.___dim().columns;
 
-    if( !Matrix.__isNumber( needle ) || !Matrix.__isNumber( precision ) ) {
-        throw new Matrix.MatrixError( Matrix.ErrorCodes.INVALID_PARAMETERS, 'Parameter must be a number' );
+    if( !MatrixUtils.isNumber( needle ) || !MatrixUtils.isNumber( precision ) ) {
+        throw new MatrixError( MatrixError.ErrorCodes.INVALID_PARAMETERS, 'Parameter must be a number' );
     }
 
     for( var i = 1; i <= rows; i++ ) {
@@ -999,15 +1095,15 @@ Matrix.prototype.contains = function (needle, precision) {
 
 /**
  * Create a string representation of the matrix.
- * @param {string} [rowSeparator=Matrix.options.stringify.rowSeparator] Delimiter between columns
- * @param {string} [columnSeparator=Matrix.options.stringify.columnSeparator] Delimiter between the last column of the
+ * @param {string} [rowSeparator=MatrixCommon.options.stringify.rowSeparator] Delimiter between columns
+ * @param {string} [columnSeparator=MatrixCommon.options.stringify.columnSeparator] Delimiter between the last column of the
  * previous and first column of the next row
  * @returns {string}
  * @export
  */
-Matrix.prototype.stringify = function (rowSeparator, columnSeparator) {
-    rowSeparator = Matrix._getStringOrDefault( rowSeparator, Matrix.options.stringify.rowSeparator );
-    columnSeparator = Matrix._getStringOrDefault( columnSeparator, Matrix.options.stringify.columnSeparator );
+MatrixCommon.prototype.stringify = function (rowSeparator, columnSeparator) {
+    rowSeparator = MatrixUtils.getStringWithDefault( rowSeparator, MatrixCommon.options.stringify.rowSeparator );
+    columnSeparator = MatrixUtils.getStringWithDefault( columnSeparator, MatrixCommon.options.stringify.columnSeparator );
 
     var outputRows = [],
         current,
@@ -1033,7 +1129,7 @@ Matrix.prototype.stringify = function (rowSeparator, columnSeparator) {
  * @returns {boolean} True if A = M, false otherwise.
  * @export
  */
-Matrix.prototype.equals = function (M) {
+MatrixCommon.prototype.equals = function (M) {
     var rows = this.___dim().rows,
         columns = this.___dim().columns;
 
@@ -1056,22 +1152,22 @@ Matrix.prototype.equals = function (M) {
  * Apply a custom function to each entry.
  * @param {function(number, number, number): number} applicator Function to apply. It will be provided with three
  * arguments (value, row index, column index) and has to return the new value to write in the matrix. Predefined
- * applicators can be found at {@link Matrix.applicators}.
- * @param {?function(number, number, number): boolean} [filter=Matrix.filters.all] A function that will be called with
+ * applicators can be found at {@link MatrixUtils.applicators}.
+ * @param {?function(number, number, number): boolean} [filter=MatrixUtils.filters.all] A function that will be called with
  * the same arguments as applicator. If provided, applicator will only be applied if filter evaluates to true.
- * Predefined filters can be found at {@link Matrix.filters}.
+ * Predefined filters can be found at {@link MatrixUtils.filters}.
  * @returns {Matrix}
  * @export
  */
-Matrix.prototype.fun = function (applicator, filter) {
-    filter = filter || Matrix.filters.all;
+MatrixCommon.prototype.fun = function (applicator, filter) {
+    filter = filter || MatrixUtils.filters.all;
 
     if( typeof applicator !== 'function' ) {
-        throw new Matrix.MatrixError( Matrix.ErrorCodes.INVALID_PARAMETERS, 'Applicator must be a function' );
+        throw new MatrixError( MatrixError.ErrorCodes.INVALID_PARAMETERS, 'Applicator must be a function' );
     }
 
     if( typeof filter !== 'function' ) {
-        throw new Matrix.MatrixError( Matrix.ErrorCodes.INVALID_PARAMETERS, 'Filter must be a function' );
+        throw new MatrixError( MatrixError.ErrorCodes.INVALID_PARAMETERS, 'Filter must be a function' );
     }
 
     var Result = this.copy(),
@@ -1096,12 +1192,12 @@ Matrix.prototype.fun = function (applicator, filter) {
  * Apply a custom function to each non-zero entry.
  * @param {function(number, number, number): number} applicator Function to apply. It will be provided with three
  * arguments (value, row index, column index) and has to return the new value to write in the matrix. Predefined
- * applicators can be found at {@link Matrix.applicators}.
+ * applicators can be found at {@link MatrixUtils.applicators}.
  * @returns {Matrix}
  * @export
  */
-Matrix.prototype.spfun = function (applicator) {
-    return this.fun( applicator, Matrix.filters.nonZero );
+MatrixCommon.prototype.spfun = function (applicator) {
+    return this.fun( applicator, MatrixUtils.filters.nonZero );
 };
 
 /**
@@ -1109,8 +1205,8 @@ Matrix.prototype.spfun = function (applicator) {
  * @returns {Matrix}
  * @export
  */
-Matrix.prototype.pw_exp = function () {
-    return this.fun( Matrix.applicators.exp, null );
+MatrixCommon.prototype.pw_exp = function () {
+    return this.fun( MatrixUtils.applicators.exp, null );
 };
 
 /**
@@ -1119,7 +1215,7 @@ Matrix.prototype.pw_exp = function () {
  * @returns {Matrix} The matrix M^n.
  * @export
  */
-Matrix.prototype.pw_pow = function (n) {
+MatrixCommon.prototype.pw_pow = function (n) {
     return this.fun( function (value) {
         return Math.pow( value, n );
     }, null );
@@ -1137,8 +1233,8 @@ Matrix.prototype.pw_pow = function (n) {
  * @returns {number}
  * @export
  */
-Matrix.prototype.norm = function (which, args) {
-    which = Matrix._getStringOrDefault( which, Matrix.options.norm.which );
+MatrixCommon.prototype.norm = function (which, args) {
+    which = MatrixUtils.getStringWithDefault( which, MatrixCommon.options.norm.which );
     args = args || {};
 
     switch( which.toLowerCase() ) {
@@ -1156,7 +1252,7 @@ Matrix.prototype.norm = function (which, args) {
         case 'max':
             return this.maxnorm();
         default:
-            throw new Matrix.MatrixError( Matrix.ErrorCodes.INVALID_PARAMETERS, 'Norm not supported' );
+            throw new MatrixError( MatrixError.ErrorCodes.INVALID_PARAMETERS, 'Norm not supported' );
     }
 };
 
@@ -1166,9 +1262,9 @@ Matrix.prototype.norm = function (which, args) {
  * @returns {number}
  * @export
  */
-Matrix.prototype.pnorm = function (p) {
-    if( !Matrix.__isInteger( p ) ) {
-        throw new Matrix.MatrixError( Matrix.ErrorCodes.INVALID_PARAMETERS, 'Parameter must be an integer' );
+MatrixCommon.prototype.pnorm = function (p) {
+    if( !MatrixUtils.isInteger( p ) ) {
+        throw new MatrixError( MatrixError.ErrorCodes.INVALID_PARAMETERS, 'Parameter must be an integer' );
     }
 
     var norm = 0,
@@ -1189,7 +1285,7 @@ Matrix.prototype.pnorm = function (p) {
  * @returns {number}
  * @export
  */
-Matrix.prototype.maxnorm = function () {
+MatrixCommon.prototype.maxnorm = function () {
     var norm = 0,
         rows = this.___dim().rows,
         columns = this.___dim().columns;
@@ -1208,7 +1304,7 @@ Matrix.prototype.maxnorm = function () {
  * @returns {number}
  * @export
  */
-Matrix.prototype.rownorm = function () {
+MatrixCommon.prototype.rownorm = function () {
     var norm = 0,
         rows = this.___dim().rows;
 
@@ -1224,7 +1320,7 @@ Matrix.prototype.rownorm = function () {
  * @returns {number}
  * @export
  */
-Matrix.prototype.columnnorm = function () {
+MatrixCommon.prototype.columnnorm = function () {
     var norm = 0,
         columns = this.___dim().columns;
 
@@ -1241,8 +1337,8 @@ Matrix.prototype.columnnorm = function () {
  * @returns {Array.<number>}
  * @export
  */
-Matrix.prototype.diag = function (k) {
-    k = Matrix._getNumberOrDefault( k, 0 );
+MatrixCommon.prototype.diag = function (k) {
+    k = MatrixUtils.getNumberWithDefault( k, 0 );
 
     var diag = [],
         rowOffset = -Math.min( k, 0 ),
@@ -1250,7 +1346,7 @@ Matrix.prototype.diag = function (k) {
         endOfLoop = (rowOffset === 0 ) ? (this.___dim().columns - columnOffset) : (this.___dim().rows - rowOffset);
 
     if( endOfLoop <= 0 ) {
-        throw new Matrix.MatrixError( Matrix.ErrorCodes.OUT_OF_BOUNDS );
+        throw new MatrixError( MatrixError.ErrorCodes.OUT_OF_BOUNDS );
     }
 
     for( var i = 1; i <= endOfLoop; i++ ) {
@@ -1280,7 +1376,7 @@ Array.prototype.toMatrix = function (rows, columns) {
  * @export
  */
 Array.prototype.toVector = function (isRowVector) {
-    isRowVector = Matrix._getBooleanOrDefault( isRowVector, false );
+    isRowVector = MatrixUtils.getBooleanWithDefault( isRowVector, false );
 
     return new Matrix( this, (isRowVector) ? 1 : this.length, (isRowVector) ? this.length : 1 );
 };
@@ -1293,8 +1389,8 @@ Array.prototype.toVector = function (isRowVector) {
  * @export
  */
 String.prototype.toMatrix = function (rowSeparator, columnSeparator) {
-    rowSeparator = Matrix._getStringOrDefault( rowSeparator, '\r\n' );
-    columnSeparator = Matrix._getStringOrDefault( columnSeparator, '\t' );
+    rowSeparator = MatrixUtils.getStringWithDefault( rowSeparator, '\r\n' );
+    columnSeparator = MatrixUtils.getStringWithDefault( columnSeparator, '\t' );
 
     var rows = this.split( rowSeparator ),
         columns,
@@ -1309,7 +1405,7 @@ String.prototype.toMatrix = function (rowSeparator, columnSeparator) {
         }
 
         if( columns.length !== numColumns ) {
-            throw new Matrix.MatrixError( Matrix.ErrorCodes.INVALID_PARAMETERS, 'Number of columns is inconsistent' );
+            throw new MatrixError( MatrixError.ErrorCodes.INVALID_PARAMETERS, 'Number of columns is inconsistent' );
         }
 
         for( var j = 1; j <= numColumns; j++ ) {
@@ -1324,47 +1420,39 @@ String.prototype.toMatrix = function (rowSeparator, columnSeparator) {
  * @private
  * @ignore
  */
-Matrix.prototype.__inRange = function (row, column) {
-    return (!Matrix.__isNumber( row ) || ( row >= 1 && row <= this.___dim().rows ) )
-        && (!Matrix.__isNumber( column ) || ( column >= 1 && column <= this.___dim().columns ) );
+MatrixCommon.prototype.__inRange = function (row, column) {
+    return (!MatrixUtils.isNumber( row ) || ( row >= 1 && row <= this.___dim().rows ) )
+        && (!MatrixUtils.isNumber( column ) || ( column >= 1 && column <= this.___dim().columns ) );
 };
 
 
 /**
  * @static
- * @private
- * @ignore
  */
-Matrix.__isNumber = function (k) {
+MatrixUtils.isNumber = function (k) {
     return typeof k === 'number';
 };
 
 /**
  * @static
- * @private
- * @ignore
  */
-Matrix.__isInteger = function (k) {
-    return Matrix.__isNumber( k ) && (k | 0) === k;
+MatrixUtils.isInteger = function (k) {
+    return MatrixUtils.isNumber( k ) && (k | 0) === k;
 };
 
 /**
  * @static
- * @private
- * @ignore
  */
-Matrix.__isMatrix = function (obj) {
+MatrixUtils.isMatrix = function (obj) {
     return obj instanceof Matrix;
 };
 
 /**
  * @static
- * @private
- * @ignore
  */
-Matrix.__isNumberArray = function (obj) {
+MatrixUtils.isNumberArray = function (obj) {
     for( var i = 0; i < obj.length; i++ ) {
-        if( !Matrix.__isNumber( obj[i] ) ) {
+        if( !MatrixUtils.isNumber( obj[i] ) ) {
             return false;
         }
     }
@@ -1375,16 +1463,14 @@ Matrix.__isNumberArray = function (obj) {
 /**
  * @param {(Matrix|Array.<number>)} obj
  * @static
- * @private
- * @ignore
  */
-Matrix.__toArray = function (obj) {
-    if( !Matrix.__isMatrix( obj ) ) {
+MatrixUtils.toArray = function (obj) {
+    if( !MatrixUtils.isMatrix( obj ) ) {
         return obj;
     }
 
     if( !obj.isVector() ) {
-        throw new Matrix.MatrixError( Matrix.ErrorCodes.DIMENSION_MISMATCH, 'Argument has to be vector' );
+        throw new MatrixError( MatrixError.ErrorCodes.DIMENSION_MISMATCH, 'Argument has to be vector' );
     }
 
     var temp_obj = obj.copy();
@@ -1404,57 +1490,25 @@ Matrix.__toArray = function (obj) {
 
 /**
  * @static
- * @protected
- * @ignore
  */
-Matrix._getNumberOrDefault = function (obj, defaultValue) {
-    return (Matrix.__isNumber( obj )) ? obj : defaultValue;
+MatrixUtils.getNumberWithDefault = function (obj, defaultValue) {
+    return (MatrixUtils.isNumber( obj )) ? obj : defaultValue;
 };
 
 /**
  * @static
- * @protected
- * @ignore
  */
-Matrix._getStringOrDefault = function (obj, defaultValue) {
+MatrixUtils.getStringWithDefault = function (obj, defaultValue) {
     return (typeof obj === 'string') ? obj : defaultValue;
 };
 
 /**
  * @static
- * @protected
- * @ignore
  */
-Matrix._getBooleanOrDefault = function (obj, defaultValue) {
+MatrixUtils.getBooleanWithDefault = function (obj, defaultValue) {
     return (typeof obj === 'boolean') ? obj : defaultValue;
 };
 
-/**
- * Error thrown by matrixjs.
- * @param {string} code Error code, one of {@link Matrix.ErrorCodes}
- * @param {string} [msg] Additional message string
- * @constructor
- * @export
- */
-Matrix.MatrixError = function (code, msg) {
-    this.name = 'MatrixError';
-    this.code = code;
-    this.message = msg;
-
-    this.toString = function () {
-        return this.name + ' [' + this.code + ']: ' + (this.message || 'No message');
-    }
-};
-
-/**
- * @export
- */
-Matrix.ErrorCodes = {
-    /** @expose */ INVALID_PARAMETERS: 'Invalid parameters',
-    /** @expose */ OUT_OF_BOUNDS: 'Out of bounds',
-    /** @expose */ DIMENSION_MISMATCH: 'Dimension mismatch',
-    /** @expose */ MATRIX_IS_SINGULAR: 'Matrix is singular'
-};
 
 /**
  * Predefined filters that can be used with methods like {@link Matrix.apply}.
@@ -1462,7 +1516,7 @@ Matrix.ErrorCodes = {
  * @static
  * @export
  */
-Matrix.filters = {
+MatrixUtils.filters = {
     /** @expose */
     all: function () {
         return true;
@@ -1485,7 +1539,7 @@ Matrix.filters = {
  * @static
  * @export
  */
-Matrix.applicators = {
+MatrixUtils.applicators = {
     /** @expose */
     exp: function (value) {
         return Math.exp( value );
@@ -1507,7 +1561,7 @@ Matrix.applicators = {
  * @export
  */
 Matrix.zeros = function (rows, columns) {
-    columns = Matrix._getNumberOrDefault( columns, rows );
+    columns = MatrixUtils.getNumberWithDefault( columns, rows );
 
     return new Matrix( rows, columns );
 };
@@ -1521,7 +1575,7 @@ Matrix.zeros = function (rows, columns) {
  * @export
  */
 Matrix.ones = function (rows, columns) {
-    columns = Matrix._getNumberOrDefault( columns, rows );
+    columns = MatrixUtils.getNumberWithDefault( columns, rows );
     var Result = new Matrix( rows, columns );
 
     for( var i = 1; i <= rows; i++ ) {
@@ -1559,8 +1613,8 @@ Matrix.eye = function (n) {
  * @export
  */
 Matrix.diag = function (entries, k) {
-    entries = Matrix.__toArray( entries );
-    k = Matrix._getNumberOrDefault( k, 0 );
+    entries = MatrixUtils.toArray( entries );
+    k = MatrixUtils.getNumberWithDefault( k, 0 );
 
     var Result = new Matrix( entries.length + Math.abs( k ) ),
         rowOffset = -Math.min( k, 0 ),
@@ -1586,10 +1640,10 @@ Matrix.diag = function (entries, k) {
  * @export
  */
 Matrix.random = function (rows, columns, minVal, maxVal, onlyInteger) {
-    columns = Matrix._getNumberOrDefault( columns, rows );
-    minVal = Matrix._getNumberOrDefault( minVal, Matrix.options.random.minVal );
-    maxVal = Matrix._getNumberOrDefault( maxVal, Matrix.options.random.maxVal );
-    onlyInteger = Matrix._getBooleanOrDefault( onlyInteger, Matrix.options.random.onlyInteger );
+    columns = MatrixUtils.getNumberWithDefault( columns, rows );
+    minVal = MatrixUtils.getNumberWithDefault( minVal, MatrixCommon.options.random.minVal );
+    maxVal = MatrixUtils.getNumberWithDefault( maxVal, MatrixCommon.options.random.maxVal );
+    onlyInteger = MatrixUtils.getBooleanWithDefault( onlyInteger, MatrixCommon.options.random.onlyInteger );
 
     var Result = new Matrix( rows, columns ),
         factor = ( maxVal - minVal ) + ( (onlyInteger) ? 1 : 0 ),
@@ -1619,7 +1673,7 @@ Matrix.random = function (rows, columns, minVal, maxVal, onlyInteger) {
  * @export
  */
 Matrix.linspace = function (start, end, step) {
-    step = Matrix._getNumberOrDefault( step, 1 );
+    step = MatrixUtils.getNumberWithDefault( step, 1 );
     var result = [];
 
     for( var i = start; i <= end; i += step ) {

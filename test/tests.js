@@ -612,7 +612,7 @@ new Test( function () {
 new Test( function () {
     assertMatrix( Matrix.zeros( 3 ).fun( function (value) {
         return value + 1;
-    }, Matrix.filters.diag ), Matrix.eye( 3 ) );
+    }, MatrixUtils.filters.diag ), Matrix.eye( 3 ) );
 }, 'Apply 2' );
 
 new Test( function () {
@@ -622,7 +622,7 @@ new Test( function () {
 }, 'Apply 2' );
 
 new Test( function () {
-    assertMatrix( Matrix.eye( 3 ).scale( 2 ).fun( Matrix.applicators.square ),
+    assertMatrix( Matrix.eye( 3 ).scale( 2 ).fun( MatrixUtils.applicators.square ),
         Matrix.eye( 3 ).scale( 4 ) );
 }, 'Apply 3' );
 
