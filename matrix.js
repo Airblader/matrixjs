@@ -45,16 +45,16 @@ function Matrix (var_args) {
      * @private
      * @ignore
      */
-    this.___get = function (index) {
-        return __elements[index];
+    this.___get = function (row, column) {
+        return __elements[__columns * (row - 1) + column - 1];
     };
 
     /**
      * @private
      * @ignore
      */
-    this.___set = function (index, value) {
-        __elements[index] = value;
+    this.___set = function (row, column, value) {
+        __elements[__columns * (row - 1) + column - 1] = value;
         return this;
     };
 
@@ -179,7 +179,7 @@ Matrix.prototype.get = function (row, column) {
         throw new Matrix.MatrixError( Matrix.ErrorCodes.OUT_OF_BOUNDS );
     }
 
-    return this.__get( row, column );
+    return this.___get( row, column );
 };
 
 /**
@@ -200,7 +200,7 @@ Matrix.prototype.set = function (row, column, value) {
         throw new Matrix.MatrixError( Matrix.ErrorCodes.INVALID_PARAMETERS, 'Value has to be a number' );
     }
 
-    return this.__set( row, column, value );
+    return this.___set( row, column, value );
 };
 
 /**
@@ -229,7 +229,7 @@ Matrix.prototype.__getRow = function (row, asMatrix) {
         columns = this.___dim().columns;
 
     for( var i = 1; i <= columns; i++ ) {
-        result.push( this.__get( row, i ) );
+        result.push( this.___get( row, i ) );
     }
 
     return (asMatrix) ? new Matrix( result, 1 ) : result;
@@ -265,7 +265,7 @@ Matrix.prototype.__setRow = function (row, entries) {
     var columns = this.___dim().columns;
 
     for( var i = 1; i <= columns; i++ ) {
-        this.__set( row, i, entries[i - 1] );
+        this.___set( row, i, entries[i - 1] );
     }
 
     return this;
@@ -297,7 +297,7 @@ Matrix.prototype.__getColumn = function (column, asMatrix) {
         rows = this.___dim().rows;
 
     for( var i = 1; i <= rows; i++ ) {
-        result.push( this.__get( i, column ) );
+        result.push( this.___get( i, column ) );
     }
 
     return (asMatrix) ? new Matrix( result, null, 1 ) : result;
@@ -333,7 +333,7 @@ Matrix.prototype.__setColumn = function (column, entries) {
     var rows = this.___dim().rows;
 
     for( var i = 1; i <= rows; i++ ) {
-        this.__set( i, column, entries[i - 1] );
+        this.___set( i, column, entries[i - 1] );
     }
 
     return this;
@@ -372,7 +372,7 @@ Matrix.prototype.isSymmetric = function () {
     // shifted loop start because the diagonal doesn't need to be checked
     for( var i = 2; i <= rows; i++ ) {
         for( var j = 1; j < i; j++ ) {
-            if( this.__get( i, j ) !== this.__get( j, i ) ) {
+            if( this.___get( i, j ) !== this.___get( j, i ) ) {
                 return false;
             }
         }
@@ -513,7 +513,7 @@ Matrix.prototype.add = function (M) {
 
     for( var i = 1; i <= rows; i++ ) {
         for( var j = 1; j <= columns; j++ ) {
-            Result.__set( i, j, this.__get( i, j ) + M.__get( i, j ) );
+            Result.___set( i, j, this.___get( i, j ) + M.___get( i, j ) );
         }
     }
 
@@ -545,7 +545,7 @@ Matrix.prototype.subtract = function (M) {
 
     for( var i = 1; i <= rows; i++ ) {
         for( var j = 1; j <= columns; j++ ) {
-            Result.__set( i, j, this.__get( i, j ) - M.__get( i, j ) );
+            Result.___set( i, j, this.___get( i, j ) - M.___get( i, j ) );
         }
     }
 
@@ -569,7 +569,7 @@ Matrix.prototype.scale = function (k) {
 
     for( var i = 1; i <= rows; i++ ) {
         for( var j = 1; j <= columns; j++ ) {
-            Result.__set( i, j, k * this.__get( i, j ) );
+            Result.___set( i, j, k * this.___get( i, j ) );
         }
     }
 
@@ -596,10 +596,10 @@ Matrix.prototype.multiply = function (M) {
         for( var j = 1; j <= dimOuterRight; j++ ) {
             var temp = 0;
             for( var k = 1; k <= dimInner; k++ ) {
-                temp += this.__get( i, k ) * M.__get( k, j );
+                temp += this.___get( i, k ) * M.___get( k, j );
             }
 
-            Result.__set( i, j, temp );
+            Result.___set( i, j, temp );
         }
     }
 
@@ -637,7 +637,7 @@ Matrix.prototype.trace = function () {
         trace = 0;
 
     for( var i = 1; i <= rows; i++ ) {
-        trace += this.__get( i, i );
+        trace += this.___get( i, i );
     }
 
     return trace;
@@ -665,7 +665,7 @@ Matrix.prototype.decomposeLU = function () {
         maxArg = -1;
 
         for( i = k; i <= rows; i++ ) {
-            currArg = Math.abs( LU.__get( i, k ) );
+            currArg = Math.abs( LU.___get( i, k ) );
 
             if( currArg >= maxArg ) {
                 pivot = i;
@@ -673,7 +673,7 @@ Matrix.prototype.decomposeLU = function () {
             }
         }
 
-        if( LU.__get( pivot, k ) === 0 ) {
+        if( LU.___get( pivot, k ) === 0 ) {
             throw new Matrix.MatrixError( Matrix.ErrorCodes.MATRIX_IS_SINGULAR );
         }
 
@@ -688,10 +688,10 @@ Matrix.prototype.decomposeLU = function () {
 
         for( i = k + 1; i <= rows; i++ ) {
             for( j = k + 1; j <= columns; j++ ) {
-                LU.__set( i, j, LU.__get( i, j ) - LU.__get( k, j ) * ( LU.__get( i, k ) / LU.__get( k, k ) ) );
+                LU.___set( i, j, LU.___get( i, j ) - LU.___get( k, j ) * ( LU.___get( i, k ) / LU.___get( k, k ) ) );
             }
 
-            LU.__set( i, k, 0 );
+            LU.___set( i, k, 0 );
         }
     }
 
@@ -718,7 +718,7 @@ Matrix.prototype.det = function () {
         det = 1;
 
         for( i = 1; i <= this.___dim().rows; i++ ) {
-            det = det * this.__get( i, i );
+            det = det * this.___get( i, i );
         }
     } else {
         try {
@@ -734,7 +734,7 @@ Matrix.prototype.det = function () {
         det = Math.pow( -1, LU.swappedRows );
 
         for( i = 1; i <= rows; i++ ) {
-            det = det * LU.__get( i, i );
+            det = det * LU.___get( i, i );
         }
     }
 
@@ -762,10 +762,10 @@ Matrix.prototype.inverse = function () {
         // TODO The following two loops can probably be rewritten into something smarter
         for( i = rows; i > 1; i-- ) {
             row = M.__getRow( i, false );
-            factor = M.__get( i - 1, i ) / M.__get( i, i );
+            factor = M.___get( i - 1, i ) / M.___get( i, i );
 
             for( k = 0; k < columns; k++ ) {
-                M.__set( i - 1, k + 1, M.__get( i - 1, k + 1 ) - (row[k] * factor ) );
+                M.___set( i - 1, k + 1, M.___get( i - 1, k + 1 ) - (row[k] * factor ) );
             }
         }
 
@@ -773,7 +773,7 @@ Matrix.prototype.inverse = function () {
             row = M.__getRow( j, false );
 
             for( k = 0; k < columns; k++ ) {
-                row[k] = row[k] / M.__get( j, j );
+                row[k] = row[k] / M.___get( j, j );
             }
 
             M.__setRow( j, row );
@@ -858,7 +858,7 @@ Matrix.prototype.dot = function (M) {
 
     var result = 0;
     for( var i = 1; i <= rows; i++ ) {
-        result += this.__get( i, 1 ) * M.__get( i, 1 );
+        result += this.___get( i, 1 ) * M.___get( i, 1 );
     }
 
     return result;
@@ -889,7 +889,7 @@ Matrix.prototype.roundTo = function (digits) {
 
     for( var i = 1; i <= rows; i++ ) {
         for( var j = 1; j <= columns; j++ ) {
-            Result.__set( i, j, Math.round( Result.__get( i, j ) * power ) / power );
+            Result.___set( i, j, Math.round( Result.___get( i, j ) * power ) / power );
         }
     }
 
@@ -908,7 +908,7 @@ Matrix.prototype.abs = function () {
 
     for( var i = 1; i <= rows; i++ ) {
         for( var j = 1; j <= columns; j++ ) {
-            Result.__set( i, j, Math.abs( Result.__get( i, j ) ) );
+            Result.___set( i, j, Math.abs( Result.___get( i, j ) ) );
         }
     }
 
@@ -928,9 +928,9 @@ Matrix.prototype.cross = function (M) {
     }
 
     return new Matrix( [
-        [this.__get( 2, 1 ) * M.__get( 3, 1 ) - this.__get( 3, 1 ) * M.__get( 2, 1 )],
-        [this.__get( 3, 1 ) * M.__get( 1, 1 ) - this.__get( 1, 1 ) * M.__get( 3, 1 )],
-        [this.__get( 1, 1 ) * M.__get( 2, 1 ) - this.__get( 2, 1 ) * M.__get( 1, 1 )]
+        [this.___get( 2, 1 ) * M.___get( 3, 1 ) - this.___get( 3, 1 ) * M.___get( 2, 1 )],
+        [this.___get( 3, 1 ) * M.___get( 1, 1 ) - this.___get( 1, 1 ) * M.___get( 3, 1 )],
+        [this.___get( 1, 1 ) * M.___get( 2, 1 ) - this.___get( 2, 1 ) * M.___get( 1, 1 )]
     ] );
 };
 
@@ -983,11 +983,11 @@ Matrix.prototype.contains = function (needle, precision) {
     for( var i = 1; i <= rows; i++ ) {
         for( var j = 1; j <= columns; j++ ) {
             if( precision === 0 ) {
-                if( this.__get( i, j ) === needle ) {
+                if( this.___get( i, j ) === needle ) {
                     return true;
                 }
             } else {
-                if( Math.abs( this.__get( i, j ) - needle ) <= precision ) {
+                if( Math.abs( this.___get( i, j ) - needle ) <= precision ) {
                     return true;
                 }
             }
@@ -1018,7 +1018,7 @@ Matrix.prototype.stringify = function (rowSeparator, columnSeparator) {
         current = [];
 
         for( var j = 1; j <= columns; j++ ) {
-            current.push( this.__get( i, j ) );
+            current.push( this.___get( i, j ) );
         }
 
         outputRows.push( current.join( columnSeparator ) );
@@ -1043,7 +1043,7 @@ Matrix.prototype.equals = function (M) {
 
     for( var i = 1; i <= rows; i++ ) {
         for( var j = 1; j <= columns; j++ ) {
-            if( this.__get( i, j ) !== M.__get( i, j ) ) {
+            if( this.___get( i, j ) !== M.___get( i, j ) ) {
                 return false;
             }
         }
@@ -1081,10 +1081,10 @@ Matrix.prototype.fun = function (applicator, filter) {
 
     for( var i = 1; i <= rows; i++ ) {
         for( var j = 1; j <= columns; j++ ) {
-            current = Result.__get( i, j );
+            current = Result.___get( i, j );
 
             if( filter( current, i, j ) ) {
-                Result.__set( i, j, applicator( current, i, j ) );
+                Result.___set( i, j, applicator( current, i, j ) );
             }
         }
     }
@@ -1177,7 +1177,7 @@ Matrix.prototype.pnorm = function (p) {
 
     for( var i = 1; i <= rows; i++ ) {
         for( var j = 1; j <= columns; j++ ) {
-            norm += Math.pow( Math.abs( this.__get( i, j ) ), p );
+            norm += Math.pow( Math.abs( this.___get( i, j ) ), p );
         }
     }
 
@@ -1196,7 +1196,7 @@ Matrix.prototype.maxnorm = function () {
 
     for( var i = 1; i <= rows; i++ ) {
         for( var j = 1; j <= columns; j++ ) {
-            norm = Math.max( norm, Math.abs( this.__get( i, j ) ) );
+            norm = Math.max( norm, Math.abs( this.___get( i, j ) ) );
         }
     }
 
@@ -1254,7 +1254,7 @@ Matrix.prototype.diag = function (k) {
     }
 
     for( var i = 1; i <= endOfLoop; i++ ) {
-        diag.push( this.__get( i + rowOffset, i + columnOffset ) );
+        diag.push( this.___get( i + rowOffset, i + columnOffset ) );
     }
 
     return diag;
@@ -1313,35 +1313,11 @@ String.prototype.toMatrix = function (rowSeparator, columnSeparator) {
         }
 
         for( var j = 1; j <= numColumns; j++ ) {
-            Result.__set( i + 1, j, Number( columns[j - 1] ) );
+            Result.___set( i + 1, j, Number( columns[j - 1] ) );
         }
     }
 
     return Result;
-};
-
-/**
- * @private
- * @ignore
- */
-Matrix.prototype.__get = function (row, column) {
-    return this.___get( this.__convertToIndex( row, column ) );
-};
-
-/**
- * @private
- * @ignore
- */
-Matrix.prototype.__set = function (row, column, value) {
-    return this.___set( this.__convertToIndex( row, column ), value );
-};
-
-/**
- * @private
- * @ignore
- */
-Matrix.prototype.__convertToIndex = function (row, column) {
-    return this.___dim().columns * (row - 1) + column - 1;
 };
 
 /**
@@ -1420,7 +1396,7 @@ Matrix.__toArray = function (obj) {
         rows = temp_obj.___dim().rows;
 
     for( var i = 1; i <= rows; i++ ) {
-        result.push( temp_obj.__get( i, 1 ) );
+        result.push( temp_obj.___get( i, 1 ) );
     }
 
     return result;
@@ -1550,7 +1526,7 @@ Matrix.ones = function (rows, columns) {
 
     for( var i = 1; i <= rows; i++ ) {
         for( var j = 1; j <= columns; j++ ) {
-            Result.__set( i, j, 1 );
+            Result.___set( i, j, 1 );
         }
     }
 
@@ -1567,7 +1543,7 @@ Matrix.ones = function (rows, columns) {
 Matrix.eye = function (n) {
     var Result = new Matrix( n, n );
     for( var i = 1; i <= n; i++ ) {
-        Result.__set( i, i, 1 );
+        Result.___set( i, i, 1 );
     }
 
     return Result;
@@ -1592,7 +1568,7 @@ Matrix.diag = function (entries, k) {
         endOfLoop = ( Result.___dim().rows - Math.abs( k ) );
 
     for( var i = 1; i <= endOfLoop; i++ ) {
-        Result.__set( i + rowOffset, i + columnOffset, entries[i - 1] );
+        Result.___set( i + rowOffset, i + columnOffset, entries[i - 1] );
     }
 
     return Result;
@@ -1626,7 +1602,7 @@ Matrix.random = function (rows, columns, minVal, maxVal, onlyInteger) {
                 current = current | 0;
             }
 
-            Result.__set( i, j, current );
+            Result.___set( i, j, current );
         }
     }
 
