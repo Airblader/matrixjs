@@ -1,1 +1,1 @@
-cd closure-compiler && ./matrixjs.sh
+cd scripts/closure-compiler && ./matrixjs.sh
