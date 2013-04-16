@@ -219,11 +219,11 @@ function Matrix (var_args) {
         } else if( args.length === 1 && MatrixUtils.isInteger( args[0] ) ) {
             __rows = args[0];
             __columns = args[0];
-            __elements = Matrix.repeat( __rows * __columns, 0 );
+            __elements = MatrixUtils.repeat( __rows * __columns, 0 );
         } else if( args.length === 2 && MatrixUtils.isInteger( args[0] ) && MatrixUtils.isInteger( args[1] ) ) {
             __rows = args[0];
             __columns = args[1];
-            __elements = Matrix.repeat( __rows * __columns, 0 );
+            __elements = MatrixUtils.repeat( __rows * __columns, 0 );
         } else {
             throw new MatrixError( MatrixError.ErrorCodes.INVALID_PARAMETERS,
                 'Parameters must match a supported signature' );
@@ -1497,42 +1497,6 @@ Matrix.random = function (rows, columns, minVal, maxVal, onlyInteger) {
     return Result;
 };
 
-/**
- * Generate an array with linearly increasing numbers
- * @param {number} start Number to start with
- * @param {number} end Number to end with
- * @param {number} [step=1] Step in between numbers
- * @returns {Array.<number>}
- * @static
- * @export
- */
-Matrix.linspace = function (start, end, step) {
-    step = MatrixUtils.getNumberWithDefault( step, 1 );
-    var result = [];
-
-    for( var i = start; i <= end; i += step ) {
-        result.push( i );
-    }
-
-    return result;
-};
-
-/**
- * Generate an array with a repeated constant value.
- * @param {number} times Number of times to repeat
- * @param {number} value Constant value to repeat
- * @returns {Array}
- * @export
- */
-Matrix.repeat = function (times, value) {
-    var result = [];
-    for( var i = 1; i <= times; i++ ) {
-        result[i - 1] = value;
-    }
-
-    return result;
-};
-
 /*
  ======================================================================================================================
  ================================================ MatrixUtils =========================================================
@@ -1571,6 +1535,42 @@ MatrixUtils.isNumberArray = function (obj) {
     }
 
     return true;
+};
+
+/**
+ * Generate an array with linearly increasing numbers
+ * @param {number} start Number to start with
+ * @param {number} end Number to end with
+ * @param {number} [step=1] Step in between numbers
+ * @returns {Array.<number>}
+ * @static
+ * @export
+ */
+MatrixUtils.linspace = function (start, end, step) {
+    step = MatrixUtils.getNumberWithDefault( step, 1 );
+    var result = [];
+
+    for( var i = start; i <= end; i += step ) {
+        result.push( i );
+    }
+
+    return result;
+};
+
+/**
+ * Generate an array with a repeated constant value.
+ * @param {number} times Number of times to repeat
+ * @param {number} value Constant value to repeat
+ * @returns {Array.<number>}
+ * @export
+ */
+MatrixUtils.repeat = function (times, value) {
+    var result = [];
+    for( var i = 1; i <= times; i++ ) {
+        result[i - 1] = value;
+    }
+
+    return result;
 };
 
 /**
@@ -1679,6 +1679,8 @@ MatrixUtils.applicators = {
  * @export
  */
 Array.prototype.toMatrix = function (rows, columns) {
+    // TODO: add flag to specify matrix type
+
     return new Matrix( this, rows, columns );
 };
 
@@ -1690,6 +1692,8 @@ Array.prototype.toMatrix = function (rows, columns) {
  * @export
  */
 Array.prototype.toVector = function (isRowVector) {
+    // TODO: Return vector instance instead of Matrix
+
     isRowVector = MatrixUtils.getBooleanWithDefault( isRowVector, false );
 
     return new Matrix( this, (isRowVector) ? 1 : this.length, (isRowVector) ? this.length : 1 );
@@ -1703,6 +1707,8 @@ Array.prototype.toVector = function (isRowVector) {
  * @export
  */
 String.prototype.toMatrix = function (rowSeparator, columnSeparator) {
+    // TODO: add flag to define matrix type and adjust documentation accordingly
+
     rowSeparator = MatrixUtils.getStringWithDefault( rowSeparator, '\r\n' );
     columnSeparator = MatrixUtils.getStringWithDefault( columnSeparator, '\t' );
 
