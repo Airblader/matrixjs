@@ -10,6 +10,7 @@
  */
 
 /**
+ * General interface for matrix-like objects.
  * @param var_args
  * @interface
  */
@@ -26,6 +27,7 @@ function IMatrix (var_args) {
 }
 
 /**
+ * Base class for matrix-like objects that should be able to communicate with each other.
  * @implements IMatrix
  * @constructor
  * @export
@@ -62,6 +64,7 @@ function MatrixCommon () {
 }
 
 /**
+ * Static class for utility functions.
  * @static
  * @constructor
  * @export
@@ -86,9 +89,10 @@ function MatrixError (code, msg) {
     this.toString = function () {
         return this.name + ' [' + this.code + ']: ' + (this.message || 'No message');
     }
-};
+}
 
 /**
+ * Error codes for MatrixError.
  * @export
  */
 MatrixError.ErrorCodes = {
@@ -229,10 +233,17 @@ function Matrix (var_args) {
     return this;
 }
 
+// Let Matrix inherit from MatrixCommon
 Matrix.prototype = Object.create( MatrixCommon.prototype );
 
+/*
+ ======================================================================================================================
+ =============================================== MatrixCommon =========================================================
+ ======================================================================================================================
+ */
+
 /**
- * Define default settings
+ * Default settings
  * @static
  * @export
  */
@@ -263,15 +274,13 @@ MatrixCommon.options = {
 
 /**
  * Get an entry from the matrix.
- * If the instance this is called on is a vector, the second argument may be omitted and the first one specifies
- * which entry to return.
- * @param {number} row Row index if column is set or linear index
- * @param {number} [column] Column index, can be omitted for vectors
+ * @param {number} row
+ * @param {number} column
  * @returns {number}
  * @export
  */
 MatrixCommon.prototype.get = function (row, column) {
-    if( !this.__inRange( row, column ) ) {
+    if( !this.isInRange( row, column ) ) {
         throw new MatrixError( MatrixError.ErrorCodes.OUT_OF_BOUNDS );
     }
 
@@ -281,14 +290,14 @@ MatrixCommon.prototype.get = function (row, column) {
 /**
  * Set an entry in the matrix.
  * Note: This function modifies the instance it is called on.
- * @param {number} row Row index
- * @param {number} column Column index
- * @param {number} value Value to assign
- * @returns {*}
+ * @param {number} row
+ * @param {number} column
+ * @param {number} value
+ * @returns {MatrixCommon}
  * @export
  */
 MatrixCommon.prototype.set = function (row, column, value) {
-    if( !this.__inRange( row, column ) ) {
+    if( !this.isInRange( row, column ) ) {
         throw new MatrixError( MatrixError.ErrorCodes.OUT_OF_BOUNDS );
     }
 
@@ -300,16 +309,16 @@ MatrixCommon.prototype.set = function (row, column, value) {
 };
 
 /**
- * Get a row from the matrix as an array.
+ * Get a row.
  * @param {number} row The row index of the row that shall be returned
  * @param {boolean} [asMatrix=false] If true, the row will be returned as a matrix, otherwise as an array.
- * @returns {Array.<number>|Matrix} Array of the elements in the specified row.
+ * @returns {Array.<number>|MatrixCommon} Array of the elements in the specified row.
  * @export
  */
 MatrixCommon.prototype.getRow = function (row, asMatrix) {
     asMatrix = MatrixUtils.getBooleanWithDefault( asMatrix, false );
 
-    if( !this.__inRange( row, null ) ) {
+    if( !this.isInRange( row, null ) ) {
         throw new MatrixError( MatrixError.ErrorCodes.OUT_OF_BOUNDS );
     }
 
@@ -332,17 +341,17 @@ MatrixCommon.prototype.__getRow = function (row, asMatrix) {
 };
 
 /**
- * Replace a row in the matrix with a new one.
+ * Replace a row.
  * Note: This function modifies the instance it is called on.
  * @param {number} row The row index of the row to replace
- * @param {(Array.<number>|Matrix)} entries An array or Matrix containing the new entries for the row
- * @returns {*}
+ * @param {(Array.<number>|MatrixCommon)} entries An array or Matrix containing the new entries for the row
+ * @returns {MatrixCommon}
  * @export
  */
 MatrixCommon.prototype.setRow = function (row, entries) {
     entries = MatrixUtils.toArray( entries );
 
-    if( !this.__inRange( row, null ) ) {
+    if( !this.isInRange( row, null ) ) {
         throw new MatrixError( MatrixError.ErrorCodes.OUT_OF_BOUNDS );
     }
 
@@ -368,16 +377,16 @@ MatrixCommon.prototype.__setRow = function (row, entries) {
 };
 
 /**
- * Get a column from the matrix as an array.
+ * Get a column.
  * @param {number} column The column index of the column that shall be returned
  * @param {boolean} [asMatrix=false] If true, the column will be returned as a matrix, otherwise as an array.
- * @returns {(Array.<number>|Matrix)} Array of the elements in the specified column.
+ * @returns {(Array.<number>|MatrixCommon)} Array of the elements in the specified column.
  * @export
  */
 MatrixCommon.prototype.getColumn = function (column, asMatrix) {
     asMatrix = MatrixUtils.getBooleanWithDefault( asMatrix, false );
 
-    if( !this.__inRange( null, column ) ) {
+    if( !this.isInRange( null, column ) ) {
         throw new MatrixError( MatrixError.ErrorCodes.OUT_OF_BOUNDS );
     }
 
@@ -400,17 +409,17 @@ MatrixCommon.prototype.__getColumn = function (column, asMatrix) {
 };
 
 /**
- * Replace a column in the matrix with a new one.
+ * Replace a column.
  * Note: This function modifies the instance it is called on.
  * @param {number} column The column index of the column to replace
- * @param {(Array.<number>|Matrix)} entries An array or matrix containing the new entries for the column
- * @returns {*}
+ * @param {(Array.<number>|MatrixCommon)} entries An array or matrix containing the new entries for the column
+ * @returns {MatrixCommon}
  * @export
  */
 MatrixCommon.prototype.setColumn = function (column, entries) {
     entries = MatrixUtils.toArray( entries );
 
-    if( !this.__inRange( null, column ) ) {
+    if( !this.isInRange( null, column ) ) {
         throw new MatrixError( MatrixError.ErrorCodes.OUT_OF_BOUNDS );
     }
 
@@ -530,7 +539,7 @@ MatrixCommon.prototype.__isTriangular = function (upper) {
 
 /**
  * Return a copy of the matrix. This prevents accidental usage of references.
- * @returns {Matrix}
+ * @returns {MatrixCommon}
  * @export
  */
 MatrixCommon.prototype.copy = function () {
@@ -587,8 +596,8 @@ MatrixCommon.prototype.dim = function (which) {
 /**
  * Add a matrix.
  * If more than one matrix is passed, they will be added in order, i.e. this + M + N + ...
- * @param {Matrix} M Matrix
- * @returns {Matrix} Component-wise sum of this and M.
+ * @param {MatrixCommon} M Matrix
+ * @returns {MatrixCommon} Component-wise sum of this and M.
  * @export
  */
 MatrixCommon.prototype.add = function (M) {
@@ -619,8 +628,8 @@ MatrixCommon.prototype.add = function (M) {
 /**
  * Subtract a matrix.
  * If more than one matrix is passed, they wll be subtracted in order, i.e. this - M - N - ...
- * @param {Matrix} M Matrix
- * @returns {Matrix} Component-wise difference of this and M.
+ * @param {MatrixCommon} M Matrix
+ * @returns {MatrixCommon} Component-wise difference of this and M.
  * @export
  */
 MatrixCommon.prototype.subtract = function (M) {
@@ -651,7 +660,7 @@ MatrixCommon.prototype.subtract = function (M) {
 /**
  * Scale with a constant factor (i.e. calculate k * this)
  * @param {number} k Factor
- * @returns {Matrix} Matrix with all entries multiplied by k.
+ * @returns {MatrixCommon} Matrix with all entries multiplied by k.
  * @export
  */
 MatrixCommon.prototype.scale = function (k) {
@@ -674,8 +683,8 @@ MatrixCommon.prototype.scale = function (k) {
 
 /**
  * Multiply with another matrix.
- * @param {Matrix} M Matrix
- * @returns {Matrix} Matrix this * M.
+ * @param {MatrixCommon} M
+ * @returns {MatrixCommon}
  * @export
  */
 MatrixCommon.prototype.multiply = function (M) {
@@ -704,7 +713,7 @@ MatrixCommon.prototype.multiply = function (M) {
 
 /**
  * Transpose the matrix, i.e. take the rows as the columns of the resulting matrix.
- * @returns {Matrix}
+ * @returns {MatrixCommon}
  * @export
  */
 MatrixCommon.prototype.transpose = function () {
@@ -742,7 +751,7 @@ MatrixCommon.prototype.trace = function () {
 /**
  * Performs a LU decomposition. Both matrices will be written in the same matrix, i.e. the trivial
  * diagonal entries will not be stored.
- * @returns {Matrix} Matrix with the LU entries. There is also a hidden property swappedRows with the number
+ * @returns {MatrixCommon} Matrix with the LU entries. There is also a hidden property swappedRows with the number
  * of rows that were swapped in the process.
  * @export
  */
@@ -839,7 +848,7 @@ MatrixCommon.prototype.det = function () {
 
 /**
  * Calculate the inverse matrix.
- * @returns {Matrix}
+ * @returns {MatrixCommon}
  * @export
  */
 MatrixCommon.prototype.inverse = function () {
@@ -889,11 +898,11 @@ MatrixCommon.prototype.inverse = function () {
  * @param {number} rowEnd Row index where to end the cut
  * @param {number} columnStart Column index where to start the cut
  * @param {number} columnEnd Column index where to end the cut
- * @returns {Matrix}
+ * @returns {MatrixCommon}
  * @export
  */
 MatrixCommon.prototype.submatrix = function (rowStart, rowEnd, columnStart, columnEnd) {
-    if( !this.__inRange( rowStart, columnStart ) || !this.__inRange( rowEnd, columnEnd )
+    if( !this.isInRange( rowStart, columnStart ) || !this.isInRange( rowEnd, columnEnd )
         || rowStart > rowEnd || columnStart > columnEnd ) {
         throw new MatrixError( MatrixError.ErrorCodes.OUT_OF_BOUNDS );
     }
@@ -911,8 +920,8 @@ MatrixCommon.prototype.submatrix = function (rowStart, rowEnd, columnStart, colu
 
 /**
  * Augment with another matrix.
- * @param {Matrix} B Matrix
- * @returns {Matrix} Augmented matrix this|B.
+ * @param {MatrixCommon} B Matrix
+ * @returns {MatrixCommon} Augmented matrix this|B.
  * @export
  */
 MatrixCommon.prototype.augment = function (B) {
@@ -937,7 +946,7 @@ MatrixCommon.prototype.augment = function (B) {
 
 /**
  * Calculate the dot product. Both vectors have to be column vectors.
- * @param {Matrix} M Matrix
+ * @param {MatrixCommon} M Matrix
  * @returns {number} Euclidean dot product of this and M.
  * @export
  */
@@ -963,6 +972,7 @@ MatrixCommon.prototype.dot = function (M) {
 /**
  * Rounds each element to the nearest integer.
  * @see MatrixCommon.prototype.roundTo
+ * @returns {MatrixCommon}
  * @export
  */
 MatrixCommon.prototype.round = function () {
@@ -972,7 +982,7 @@ MatrixCommon.prototype.round = function () {
 /**
  * Rounds each element to a given number of digits.
  * @param {number} [digits=0] Precision in digits after the comma
- * @returns {Matrix}
+ * @returns {MatrixCommon}
  * @export
  */
 MatrixCommon.prototype.roundTo = function (digits) {
@@ -994,7 +1004,7 @@ MatrixCommon.prototype.roundTo = function (digits) {
 
 /**
  * Pointwise absolute value of the matrix.
- * @returns {Matrix} Matrix M with M(i,j) = abs( this(i,j) ) for all i,j.
+ * @returns {MatrixCommon} Matrix M with M(i,j) = abs( this(i,j) ) for all i,j.
  * @export
  */
 MatrixCommon.prototype.abs = function () {
@@ -1013,8 +1023,8 @@ MatrixCommon.prototype.abs = function () {
 
 /**
  * Returns the cross product. Both vectors have to be column vectors. The resulting vector will also be a column vector.
- * @param {Matrix} M Three-dimensional vector
- * @returns {Matrix} The three-dimensional vector V = A x M.
+ * @param {MatrixCommon} M Three-dimensional vector
+ * @returns {MatrixCommon} The three-dimensional vector V = A x M.
  * @export
  */
 MatrixCommon.prototype.cross = function (M) {
@@ -1032,8 +1042,8 @@ MatrixCommon.prototype.cross = function (M) {
 
 /**
  * Add a row to the matrix.
- * @param {(Array.<number>|Matrix)} row Array or matrix of entries to add
- * @returns {Matrix}
+ * @param {(Array.<number>|MatrixCommon)} row Array or matrix of entries to add
+ * @returns {MatrixCommon}
  * @export
  */
 MatrixCommon.prototype.addRow = function (row) {
@@ -1052,8 +1062,8 @@ MatrixCommon.prototype.addRow = function (row) {
 
 /**
  * Add a column to the matrix.
- * @param {(Array.<number>|Matrix)} column Array or matrix of entries to add
- * @returns {Matrix}
+ * @param {(Array.<number>|MatrixCommon)} column Array or matrix of entries to add
+ * @returns {MatrixCommon}
  * @export
  */
 MatrixCommon.prototype.addColumn = function (column) {
@@ -1125,7 +1135,7 @@ MatrixCommon.prototype.stringify = function (rowSeparator, columnSeparator) {
 
 /**
  * Compare with another matrix.
- * @param {Matrix} M Matrix
+ * @param {MatrixCommon} M Matrix
  * @returns {boolean} True if A = M, false otherwise.
  * @export
  */
@@ -1156,7 +1166,7 @@ MatrixCommon.prototype.equals = function (M) {
  * @param {?function(number, number, number): boolean} [filter=MatrixUtils.filters.all] A function that will be called with
  * the same arguments as applicator. If provided, applicator will only be applied if filter evaluates to true.
  * Predefined filters can be found at {@link MatrixUtils.filters}.
- * @returns {Matrix}
+ * @returns {MatrixCommon}
  * @export
  */
 MatrixCommon.prototype.fun = function (applicator, filter) {
@@ -1193,7 +1203,7 @@ MatrixCommon.prototype.fun = function (applicator, filter) {
  * @param {function(number, number, number): number} applicator Function to apply. It will be provided with three
  * arguments (value, row index, column index) and has to return the new value to write in the matrix. Predefined
  * applicators can be found at {@link MatrixUtils.applicators}.
- * @returns {Matrix}
+ * @returns {MatrixCommon}
  * @export
  */
 MatrixCommon.prototype.spfun = function (applicator) {
@@ -1202,7 +1212,7 @@ MatrixCommon.prototype.spfun = function (applicator) {
 
 /**
  * Apply the exponential function point-wise.
- * @returns {Matrix}
+ * @returns {MatrixCommon}
  * @export
  */
 MatrixCommon.prototype.pw_exp = function () {
@@ -1212,7 +1222,7 @@ MatrixCommon.prototype.pw_exp = function () {
 /**
  * Raise to the n-th power point-wise.
  * @param {number} n Power
- * @returns {Matrix} The matrix M^n.
+ * @returns {MatrixCommon} The matrix M^n.
  * @export
  */
 MatrixCommon.prototype.pw_pow = function (n) {
@@ -1357,199 +1367,23 @@ MatrixCommon.prototype.diag = function (k) {
 };
 
 /**
- * Convert array to matrix.
- * This method simply calls the {@link Matrix} constructor.
- * @param {number} [rows] Number of rows
- * @param {number} [columns] Number of columns
- * @returns {Matrix}
+ * Check if a given position is in the range of the matrix.
+ * If either parameter is null, it will not be considered.
+ * @param {?number} row
+ * @param {?number} column
+ * @returns {boolean}
  * @export
  */
-Array.prototype.toMatrix = function (rows, columns) {
-    return new Matrix( this, rows, columns );
-};
-
-/**
- * Convert array to vector.
- * @param {boolean} [isRowVector=false] If set to true, the vector will be a row vector, otherwise it will be a
- * column vector
- * @returns {Matrix}
- * @export
- */
-Array.prototype.toVector = function (isRowVector) {
-    isRowVector = MatrixUtils.getBooleanWithDefault( isRowVector, false );
-
-    return new Matrix( this, (isRowVector) ? 1 : this.length, (isRowVector) ? this.length : 1 );
-};
-
-/**
- * Convert string to matrix.
- * @param {string} [rowSeparator='\r\n'] Row separator
- * @param {string} [columnSeparator='\t'] Column separator
- * @returns {Matrix}
- * @export
- */
-String.prototype.toMatrix = function (rowSeparator, columnSeparator) {
-    rowSeparator = MatrixUtils.getStringWithDefault( rowSeparator, '\r\n' );
-    columnSeparator = MatrixUtils.getStringWithDefault( columnSeparator, '\t' );
-
-    var rows = this.split( rowSeparator ),
-        columns,
-        numColumns = 0,
-        Result = new Matrix( 0 );
-
-    for( var i = 0; i < rows.length; i++ ) {
-        columns = rows[i].split( columnSeparator );
-        if( numColumns === 0 ) {
-            numColumns = columns.length;
-            Result = new Matrix( rows.length, numColumns );
-        }
-
-        if( columns.length !== numColumns ) {
-            throw new MatrixError( MatrixError.ErrorCodes.INVALID_PARAMETERS, 'Number of columns is inconsistent' );
-        }
-
-        for( var j = 1; j <= numColumns; j++ ) {
-            Result.___set( i + 1, j, Number( columns[j - 1] ) );
-        }
-    }
-
-    return Result;
-};
-
-/**
- * @private
- * @ignore
- */
-MatrixCommon.prototype.__inRange = function (row, column) {
+MatrixCommon.prototype.isInRange = function (row, column) {
     return (!MatrixUtils.isNumber( row ) || ( row >= 1 && row <= this.___dim().rows ) )
         && (!MatrixUtils.isNumber( column ) || ( column >= 1 && column <= this.___dim().columns ) );
 };
 
-
-/**
- * @static
+/*
+ ======================================================================================================================
+ ================================================== Matrix ============================================================
+ ======================================================================================================================
  */
-MatrixUtils.isNumber = function (k) {
-    return typeof k === 'number';
-};
-
-/**
- * @static
- */
-MatrixUtils.isInteger = function (k) {
-    return MatrixUtils.isNumber( k ) && (k | 0) === k;
-};
-
-/**
- * @static
- */
-MatrixUtils.isMatrix = function (obj) {
-    return obj instanceof Matrix;
-};
-
-/**
- * @static
- */
-MatrixUtils.isNumberArray = function (obj) {
-    for( var i = 0; i < obj.length; i++ ) {
-        if( !MatrixUtils.isNumber( obj[i] ) ) {
-            return false;
-        }
-    }
-
-    return true;
-};
-
-/**
- * @param {(Matrix|Array.<number>)} obj
- * @static
- */
-MatrixUtils.toArray = function (obj) {
-    if( !MatrixUtils.isMatrix( obj ) ) {
-        return obj;
-    }
-
-    if( !obj.isVector() ) {
-        throw new MatrixError( MatrixError.ErrorCodes.DIMENSION_MISMATCH, 'Argument has to be vector' );
-    }
-
-    var temp_obj = obj.copy();
-    if( obj.dim( 'max' ) !== obj.___dim().rows ) {
-        temp_obj = temp_obj.transpose();
-    }
-
-    var result = [],
-        rows = temp_obj.___dim().rows;
-
-    for( var i = 1; i <= rows; i++ ) {
-        result.push( temp_obj.___get( i, 1 ) );
-    }
-
-    return result;
-};
-
-/**
- * @static
- */
-MatrixUtils.getNumberWithDefault = function (obj, defaultValue) {
-    return (MatrixUtils.isNumber( obj )) ? obj : defaultValue;
-};
-
-/**
- * @static
- */
-MatrixUtils.getStringWithDefault = function (obj, defaultValue) {
-    return (typeof obj === 'string') ? obj : defaultValue;
-};
-
-/**
- * @static
- */
-MatrixUtils.getBooleanWithDefault = function (obj, defaultValue) {
-    return (typeof obj === 'boolean') ? obj : defaultValue;
-};
-
-
-/**
- * Predefined filters that can be used with methods like {@link Matrix.apply}.
- * These functions can take up to three arguments (value, row index, column index).
- * @static
- * @export
- */
-MatrixUtils.filters = {
-    /** @expose */
-    all: function () {
-        return true;
-    },
-
-    /** @expose */
-    nonZero: function (value) {
-        return value !== 0;
-    },
-
-    /** @expose */
-    diag: function (value, i, j) {
-        return i === j;
-    }
-};
-
-/**
- * Predefined functions that can be used for methods like {@link Matrix.apply}.
- * These functions can take up to three arguments (value, row index, column index).
- * @static
- * @export
- */
-MatrixUtils.applicators = {
-    /** @expose */
-    exp: function (value) {
-        return Math.exp( value );
-    },
-
-    /** @expose */
-    square: function (value) {
-        return value * value;
-    }
-};
 
 /**
  * Returns a matrix of zeros.
@@ -1697,4 +1531,201 @@ Matrix.repeat = function (times, value) {
     }
 
     return result;
+};
+
+/*
+ ======================================================================================================================
+ ================================================ MatrixUtils =========================================================
+ ======================================================================================================================
+ */
+
+/**
+ * @static
+ */
+MatrixUtils.isNumber = function (k) {
+    return typeof k === 'number';
+};
+
+/**
+ * @static
+ */
+MatrixUtils.isInteger = function (k) {
+    return MatrixUtils.isNumber( k ) && (k | 0) === k;
+};
+
+/**
+ * @static
+ */
+MatrixUtils.isMatrix = function (obj) {
+    return obj instanceof Matrix;
+};
+
+/**
+ * @static
+ */
+MatrixUtils.isNumberArray = function (obj) {
+    for( var i = 0; i < obj.length; i++ ) {
+        if( !MatrixUtils.isNumber( obj[i] ) ) {
+            return false;
+        }
+    }
+
+    return true;
+};
+
+/**
+ * @param {(MatrixCommon|Array.<number>)} obj
+ * @static
+ */
+MatrixUtils.toArray = function (obj) {
+    if( !MatrixUtils.isMatrix( obj ) ) {
+        return obj;
+    }
+
+    if( !obj.isVector() ) {
+        throw new MatrixError( MatrixError.ErrorCodes.DIMENSION_MISMATCH, 'Argument has to be vector' );
+    }
+
+    var temp_obj = obj.copy();
+    if( obj.dim( 'max' ) !== obj.___dim().rows ) {
+        temp_obj = temp_obj.transpose();
+    }
+
+    var result = [],
+        rows = temp_obj.___dim().rows;
+
+    for( var i = 1; i <= rows; i++ ) {
+        result.push( temp_obj.___get( i, 1 ) );
+    }
+
+    return result;
+};
+
+/**
+ * @static
+ */
+MatrixUtils.getNumberWithDefault = function (obj, defaultValue) {
+    return (MatrixUtils.isNumber( obj )) ? obj : defaultValue;
+};
+
+/**
+ * @static
+ */
+MatrixUtils.getStringWithDefault = function (obj, defaultValue) {
+    return (typeof obj === 'string') ? obj : defaultValue;
+};
+
+/**
+ * @static
+ */
+MatrixUtils.getBooleanWithDefault = function (obj, defaultValue) {
+    return (typeof obj === 'boolean') ? obj : defaultValue;
+};
+
+
+/**
+ * Predefined filters that can be used with methods like {@link Matrix.apply}.
+ * These functions can take up to three arguments (value, row index, column index).
+ * @static
+ * @export
+ */
+MatrixUtils.filters = {
+    /** @expose */
+    all: function () {
+        return true;
+    },
+
+    /** @expose */
+    nonZero: function (value) {
+        return value !== 0;
+    },
+
+    /** @expose */
+    diag: function (value, i, j) {
+        return i === j;
+    }
+};
+
+/**
+ * Predefined functions that can be used for methods like {@link Matrix.apply}.
+ * These functions can take up to three arguments (value, row index, column index).
+ * @static
+ * @export
+ */
+MatrixUtils.applicators = {
+    /** @expose */
+    exp: function (value) {
+        return Math.exp( value );
+    },
+
+    /** @expose */
+    square: function (value) {
+        return value * value;
+    }
+};
+
+/*
+ ======================================================================================================================
+ =================================================== Other ============================================================
+ ======================================================================================================================
+ */
+
+/**
+ * Convert array to matrix.
+ * This method simply calls the {@link Matrix} constructor.
+ * @param {number} [rows] Number of rows
+ * @param {number} [columns] Number of columns
+ * @returns {Matrix}
+ * @export
+ */
+Array.prototype.toMatrix = function (rows, columns) {
+    return new Matrix( this, rows, columns );
+};
+
+/**
+ * Convert array to vector.
+ * @param {boolean} [isRowVector=false] If set to true, the vector will be a row vector, otherwise it will be a
+ * column vector
+ * @returns {Matrix}
+ * @export
+ */
+Array.prototype.toVector = function (isRowVector) {
+    isRowVector = MatrixUtils.getBooleanWithDefault( isRowVector, false );
+
+    return new Matrix( this, (isRowVector) ? 1 : this.length, (isRowVector) ? this.length : 1 );
+};
+
+/**
+ * Convert string to matrix.
+ * @param {string} [rowSeparator='\r\n'] Row separator
+ * @param {string} [columnSeparator='\t'] Column separator
+ * @returns {Matrix}
+ * @export
+ */
+String.prototype.toMatrix = function (rowSeparator, columnSeparator) {
+    rowSeparator = MatrixUtils.getStringWithDefault( rowSeparator, '\r\n' );
+    columnSeparator = MatrixUtils.getStringWithDefault( columnSeparator, '\t' );
+
+    var rows = this.split( rowSeparator ),
+        columns,
+        numColumns = 0,
+        Result = new Matrix( 0 );
+
+    for( var i = 0; i < rows.length; i++ ) {
+        columns = rows[i].split( columnSeparator );
+        if( numColumns === 0 ) {
+            numColumns = columns.length;
+            Result = new Matrix( rows.length, numColumns );
+        }
+
+        if( columns.length !== numColumns ) {
+            throw new MatrixError( MatrixError.ErrorCodes.INVALID_PARAMETERS, 'Number of columns is inconsistent' );
+        }
+
+        for( var j = 1; j <= numColumns; j++ ) {
+            Result.___set( i + 1, j, Number( columns[j - 1] ) );
+        }
+    }
+
+    return Result;
 };
