@@ -726,6 +726,7 @@ new Test( function () {
 Test.runAll();
 
 // for node-coverage
-if( $$_l ) {
-    $$_l.submit( "matrixjs-coverage_report" );
-}
+var $$_l = $$_l || { submit: function () {
+} };
+
+$$_l.submit( "matrixjs-coverage_report" );
