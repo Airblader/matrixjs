@@ -250,6 +250,63 @@ function Matrix (var_args) {
 Matrix.prototype = Object.create( MatrixCommon.prototype );
 Matrix.prototype.constructor = Matrix;
 
+function SparseMatrix () {
+    // TODO implementation
+    throw new Error( 'Not yet implemented.' );
+    return this;
+}
+
+// Let SparseMatrix inherit from MatrixCommon
+SparseMatrix.prototype = Object.create( MatrixCommon.prototype );
+SparseMatrix.prototype.constructor = SparseMatrix;
+
+function Vector () {
+    var args = [].slice.call( arguments ),
+        isRowVector,
+        __elements = [];
+
+    /**
+     * @override
+     * @private
+     * @ignore
+     */
+    this.___get = function (row, column) {
+        return __elements[(isRowVector) ? (row - 1) : (column - 1)];
+    };
+
+    /**
+     * @override
+     * @private
+     * @ignore
+     */
+    this.___set = function (row, column, value) {
+        __elements[(isRowVector) ? (row - 1) : (column - 1)] = value;
+        return this;
+    };
+
+    /**
+     * @override
+     * @private
+     * @ignore
+     */
+    this.___dim = function () {
+        return {
+            rows: (isRowVector) ? __elements.length : 1,
+            columns: (isRowVector) ? 1 : __elements.length
+        };
+    };
+
+    (function () {
+        // TODO constructor
+    })();
+
+    return this;
+}
+
+// Let SparseMatrix inherit from MatrixCommon
+Vector.prototype = Object.create( MatrixCommon.prototype );
+Vector.prototype.constructor = Vector;
+
 /*
  ======================================================================================================================
  =============================================== MatrixCommon =========================================================
@@ -590,7 +647,8 @@ MatrixCommon.prototype.copy = function () {
  * @export
  */
 MatrixCommon.prototype.size = function () {
-    return this.___dim().rows * this.___dim().columns;
+    var dim = this.___dim();
+    return dim.rows * dim.columns;
 };
 
 /**
@@ -631,8 +689,9 @@ MatrixCommon.prototype.dim = function (which) {
  * @export
  */
 MatrixCommon.prototype.add = function (M) {
-    var rows = this.___dim().rows,
-        columns = this.___dim().columns;
+    var dim = this.___dim(),
+        rows = dim.rows,
+        columns = dim.columns;
 
     if( arguments.length > 1 ) {
         var args = [].slice.call( arguments );
@@ -718,8 +777,9 @@ MatrixCommon.prototype.scale = function (k) {
  * @export
  */
 MatrixCommon.prototype.multiply = function (M) {
-    var dimOuterLeft = this.___dim().rows,
-        dimInner = this.___dim().columns,
+    var dim = this.___dim(),
+        dimOuterLeft = dim.rows,
+        dimInner = dim.columns,
         dimOuterRight = M.___dim().columns;
 
     if( dimInner !== M.___dim().rows ) {
