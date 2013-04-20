@@ -45,30 +45,20 @@ function IMatrix (var_args) {
  * @export
  */
 function MatrixCommon () {
-    var console = ( window.console && window.console.log ) || {
-        log: function (str) {
-            // dummy implementation
-        }
-    };
+    this.constructor = null;
 
     this.___get = function (row, column) {
-        console.log( 'Tried to call MatrixCommon::___get(' + row + ', ' + column + ')' );
-
         return null;
     };
 
     this.___set = function (row, column, value) {
-        console.log( 'Tried to call MatrixCommon::___set(' + row + ', ' + column + ', ' + value + ')' );
-
         return this;
     };
 
     this.___dim = function () {
-        console.log( 'Tried to call MatrixCommon::___dim()' );
-
         return {
-            rows: -1,
-            columns: -1
+            rows: null,
+            columns: null
         };
     };
 
@@ -373,7 +363,7 @@ MatrixCommon.prototype.newInstance = function (var_args) {
      * @constructor
      * @extends MatrixCommon
      */
-    var InstanceFactory = constructor.bind.apply( Object( constructor ), [constructor].concat( [].slice.call( arguments ) ) );
+    var InstanceFactory = constructor.bind.apply( constructor, [constructor].concat( [].slice.call( arguments ) ) );
 
     return new InstanceFactory();
 };
@@ -396,7 +386,7 @@ MatrixCommon.prototype.newMatrixInstance = function (var_args) {
      * @constructor
      * @extends MatrixCommon
      */
-    var MatrixFactory = constructor.bind.apply( Object( constructor ), [constructor].concat( [].slice.call( arguments ) ) );
+    var MatrixFactory = constructor.bind.apply( constructor, [constructor].concat( [].slice.call( arguments ) ) );
 
     return new MatrixFactory();
 };
