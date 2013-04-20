@@ -10,18 +10,6 @@
  */
 
 /**
- * This method is a polyfill for Object.create if the native implementation isn't present.
- */
-Object.create = Object.create || function (obj) {
-    /** @constructor */
-    function Factory () {
-    };
-
-    Factory.prototype = obj;
-    return new Factory();
-};
-
-/**
  * General interface for matrix-like objects.
  * @param var_args
  * @interface
