@@ -250,7 +250,15 @@ function Matrix (var_args) {
 Matrix.prototype = Object.create( MatrixCommon.prototype );
 Matrix.prototype.constructor = Matrix;
 
-function SparseMatrix () {
+/**
+ * TODO documentation
+ * @constructor
+ * @implements IMatrix
+ * @extends MatrixCommon
+ * @param {...*} var_args
+ * @export
+ */
+function SparseMatrix (var_args) {
     // TODO implementation
     throw new Error( 'Not yet implemented.' );
     return this;
@@ -260,7 +268,15 @@ function SparseMatrix () {
 SparseMatrix.prototype = Object.create( MatrixCommon.prototype );
 SparseMatrix.prototype.constructor = SparseMatrix;
 
-function Vector () {
+/**
+ * TODO documentation
+ * @constructor
+ * @implements IMatrix
+ * @extends MatrixCommon
+ * @param {...*} var_args
+ * @export
+ */
+function Vector (var_args) {
     var args = [].slice.call( arguments ),
         isRowVector,
         __elements = [];
@@ -344,6 +360,9 @@ MatrixCommon.options = {
 };
 
 /**
+ * Returns a new instance of the same type as the instance calling this method.
+ * For example, (new Matrix(3, 3)).newInstance(5, 5) will return a new 5-by-5 instance of Matrix, because
+ * the method was called from a Matrix instance.
  * @param {...*} var_args
  * @returns {MatrixCommon}
  * @private
@@ -354,9 +373,32 @@ MatrixCommon.prototype.newInstance = function (var_args) {
      * @constructor
      * @extends MatrixCommon
      */
-    var TypedMatrix = constructor.bind.apply( Object( constructor ), [constructor].concat( [].slice.call( arguments ) ) );
+    var InstanceFactory = constructor.bind.apply( Object( constructor ), [constructor].concat( [].slice.call( arguments ) ) );
 
-    return new TypedMatrix();
+    return new InstanceFactory();
+};
+
+/**
+ * Returns a new instance of the same type as the instance calling this method, but no vectors.
+ * For matrices (Matrix and SparseMatrix), this method is equivalent to {@see MatrixCommon.prototype.newInstance}.
+ * For vectors, however, this will return a new instance of Matrix.
+ * @param {...*} var_args
+ * @returns {MatrixCommon}
+ * @private
+ */
+MatrixCommon.prototype.newMatrixInstance = function (var_args) {
+    var constructor = this.constructor;
+    if( constructor === Vector ) {
+        constructor = Matrix;
+    }
+
+    /**
+     * @constructor
+     * @extends MatrixCommon
+     */
+    var MatrixFactory = constructor.bind.apply( Object( constructor ), [constructor].concat( [].slice.call( arguments ) ) );
+
+    return new MatrixFactory();
 };
 
 /**
