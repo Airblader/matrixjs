@@ -172,11 +172,9 @@ function Matrix (var_args) {
                 if( !MatrixUtils.isNumberArray( args[0][i] ) ) {
                     throw new MatrixError( MatrixError.ErrorCodes.INVALID_PARAMETERS, 'Elements must be numbers' );
                 }
-                __columns = Math.max( __columns, args[0][i].length );
 
-                for( var j = 0; j < args[0][i].length; j++ ) {
-                    __elements.push( args[0][i][j] );
-                }
+                __columns = Math.max( __columns, args[0][i].length );
+                __elements = __elements.concat( args[0][i] );
             }
         } else if( args.length >= 1 && args.length <= 3 && args[0] instanceof Array
             && ( args[0].length === 0 || MatrixUtils.isNumber( args[0][0] ) ) ) {
@@ -715,12 +713,18 @@ MatrixCommon.prototype.add = function (M) {
         throw new MatrixError( MatrixError.ErrorCodes.DIMENSION_MISMATCH, 'Matrices must be of the same size' );
     }
 
-    var Result = this.newInstance( {sparseIfAllSparse: [M]}, rows, columns );
+    var Result = this.newInstance( {sparseIfAllSparse: [M]}, rows, columns ),
+        rowA, rowB;
 
     for( var i = 1; i <= rows; i++ ) {
-        for( var j = 1; j <= columns; j++ ) {
-            Result.___set( i, j, this.___get( i, j ) + M.___get( i, j ) );
+        rowA = this.__getRow( i, false );
+        rowB = M.__getRow( i, false );
+
+        for( var j = 0; j < columns; j++ ) {
+            rowA[j] += rowB[j];
         }
+
+        Result.__setRow( i, rowA );
     }
 
     return Result;
@@ -747,12 +751,18 @@ MatrixCommon.prototype.subtract = function (M) {
         throw new MatrixError( MatrixError.ErrorCodes.DIMENSION_MISMATCH, 'Matrices must be of the same size' );
     }
 
-    var Result = this.newInstance( {sparseIfAllSparse: [M]}, rows, columns );
+    var Result = this.newInstance( {sparseIfAllSparse: [M]}, rows, columns ),
+        rowA, rowB;
 
     for( var i = 1; i <= rows; i++ ) {
-        for( var j = 1; j <= columns; j++ ) {
-            Result.___set( i, j, this.___get( i, j ) - M.___get( i, j ) );
+        rowA = this.__getRow( i, false );
+        rowB = M.__getRow( i, false );
+
+        for( var j = 0; j < columns; j++ ) {
+            rowA[j] -= rowB[j];
         }
+
+        Result.__setRow( i, rowA );
     }
 
     return Result;
@@ -771,12 +781,17 @@ MatrixCommon.prototype.scale = function (k) {
 
     var rows = this.___dim().rows,
         columns = this.___dim().columns,
-        Result = this.newInstance( {}, rows, columns );
+        Result = this.newInstance( {}, rows, columns ),
+        row;
 
     for( var i = 1; i <= rows; i++ ) {
-        for( var j = 1; j <= columns; j++ ) {
-            Result.___set( i, j, k * this.___get( i, j ) );
+        row = this.__getRow( i, false );
+
+        for( var j = 0; j < columns; j++ ) {
+            row[j] *= k;
         }
+
+        Result.__setRow( i, row );
     }
 
     return Result;
@@ -801,9 +816,12 @@ MatrixCommon.prototype.multiply = function (M) {
     var Result = this.newInstance( {sparseIfAllSparse: [M]}, dimOuterLeft, dimOuterRight );
     for( var i = 1; i <= dimOuterLeft; i++ ) {
         for( var j = 1; j <= dimOuterRight; j++ ) {
-            var temp = 0;
-            for( var k = 1; k <= dimInner; k++ ) {
-                temp += this.___get( i, k ) * M.___get( k, j );
+            var temp = 0,
+                rowA = this.__getRow( i, false ),
+                columnB = M.__getColumn( j, false );
+
+            for( var k = 0; k < dimInner; k++ ) {
+                temp += rowA[k] * columnB[k];
             }
 
             Result.___set( i, j, temp );
@@ -862,6 +880,7 @@ MatrixCommon.prototype.decomposeLU = function () {
         LU = this.copy();
 
     var i, j, k,
+        row_k, column_k, row_i,
         rows = this.___dim().rows,
         columns = this.___dim().columns;
 
@@ -871,8 +890,9 @@ MatrixCommon.prototype.decomposeLU = function () {
         pivot = 0;
         maxArg = -1;
 
+        column_k = LU.__getColumn( k, false );
         for( i = k; i <= rows; i++ ) {
-            currArg = Math.abs( LU.___get( i, k ) );
+            currArg = Math.abs( column_k[i - 1] );
 
             if( currArg >= maxArg ) {
                 pivot = i;
@@ -880,7 +900,7 @@ MatrixCommon.prototype.decomposeLU = function () {
             }
         }
 
-        if( LU.___get( pivot, k ) === 0 ) {
+        if( column_k[pivot - 1] === 0 ) {
             throw new MatrixError( MatrixError.ErrorCodes.MATRIX_IS_SINGULAR );
         }
 
@@ -893,12 +913,16 @@ MatrixCommon.prototype.decomposeLU = function () {
             swappedRows++;
         }
 
+        row_k = LU.__getRow( k, false );
         for( i = k + 1; i <= rows; i++ ) {
-            for( j = k + 1; j <= columns; j++ ) {
-                LU.___set( i, j, LU.___get( i, j ) - LU.___get( k, j ) * ( LU.___get( i, k ) / LU.___get( k, k ) ) );
+            row_i = LU.__getRow( i, false );
+
+            for( j = k; j < columns; j++ ) {
+                row_i[j] = row_i[j] - row_k[j] * ( row_i[k - 1] ) / row_k[k - 1];
             }
 
-            LU.___set( i, k, 0 );
+            row_i[k - 1] = 0;
+            LU.__setRow( i, row_i );
         }
     }
 
@@ -914,7 +938,7 @@ MatrixCommon.prototype.decomposeLU = function () {
  * @export
  */
 MatrixCommon.prototype.det = function () {
-    var i, det,
+    var i, det, diag,
         rows = this.___dim().rows;
 
     if( !this.isSquare() ) {
@@ -923,9 +947,10 @@ MatrixCommon.prototype.det = function () {
 
     if( this.isTriangular() ) {
         det = 1;
+        diag = this.diag();
 
-        for( i = 1; i <= this.___dim().rows; i++ ) {
-            det = det * this.___get( i, i );
+        for( i = 0; i < rows; i++ ) {
+            det *= diag[i];
         }
     } else {
         try {
@@ -939,9 +964,10 @@ MatrixCommon.prototype.det = function () {
         }
 
         det = Math.pow( -1, LU.swappedRows );
+        diag = LU.diag();
 
-        for( i = 1; i <= rows; i++ ) {
-            det = det * LU.___get( i, i );
+        for( i = 0; i < rows; i++ ) {
+            det *= diag[i];
         }
     }
 
