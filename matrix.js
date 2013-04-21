@@ -715,7 +715,7 @@ MatrixCommon.prototype.add = function (M) {
         throw new MatrixError( MatrixError.ErrorCodes.DIMENSION_MISMATCH, 'Matrices must be of the same size' );
     }
 
-    var Result = this.newInstance( {}, rows, columns );
+    var Result = this.newInstance( {sparseIfAllSparse: [M]}, rows, columns );
 
     for( var i = 1; i <= rows; i++ ) {
         for( var j = 1; j <= columns; j++ ) {
@@ -747,7 +747,7 @@ MatrixCommon.prototype.subtract = function (M) {
         throw new MatrixError( MatrixError.ErrorCodes.DIMENSION_MISMATCH, 'Matrices must be of the same size' );
     }
 
-    var Result = this.newInstance( {}, rows, columns );
+    var Result = this.newInstance( {sparseIfAllSparse: [M]}, rows, columns );
 
     for( var i = 1; i <= rows; i++ ) {
         for( var j = 1; j <= columns; j++ ) {
@@ -798,7 +798,7 @@ MatrixCommon.prototype.multiply = function (M) {
         throw new MatrixError( MatrixError.ErrorCodes.DIMENSION_MISMATCH, 'Inner dimensions must match' );
     }
 
-    var Result = this.newInstance( {}, dimOuterLeft, dimOuterRight );
+    var Result = this.newInstance( {sparseIfAllSparse: [M]}, dimOuterLeft, dimOuterRight );
     for( var i = 1; i <= dimOuterLeft; i++ ) {
         for( var j = 1; j <= dimOuterRight; j++ ) {
             var temp = 0;
@@ -1022,25 +1022,25 @@ MatrixCommon.prototype.submatrix = function (rowStart, rowEnd, columnStart, colu
 
 /**
  * Augment with another matrix.
- * @param {MatrixCommon} B Matrix
- * @returns {MatrixCommon} Augmented matrix this|B.
+ * @param {MatrixCommon} M
+ * @returns {MatrixCommon}
  * @export
  */
-MatrixCommon.prototype.augment = function (B) {
+MatrixCommon.prototype.augment = function (M) {
     var columns = this.___dim().columns,
-        columnsB = B.___dim().columns;
+        columnsB = M.___dim().columns;
 
-    if( this.___dim().rows !== B.___dim().rows ) {
+    if( this.___dim().rows !== M.___dim().rows ) {
         throw new MatrixError( MatrixError.ErrorCodes.INVALID_PARAMETERS, 'Number of rows must match' );
     }
 
-    var Result = this.newInstance( {}, this.___dim().rows, columns + columnsB );
+    var Result = this.newInstance( {sparseIfAllSparse: [M]}, this.___dim().rows, columns + columnsB );
 
     for( var i = 1; i <= columns; i++ ) {
         Result.__setColumn( i, this.__getColumn( i, false ) );
     }
     for( var j = 1; j <= columnsB; j++ ) {
-        Result.__setColumn( j + this.___dim().columns, B.__getColumn( j, false ) );
+        Result.__setColumn( j + this.___dim().columns, M.__getColumn( j, false ) );
     }
 
     return Result;
@@ -1607,7 +1607,7 @@ MatrixUtils.isInteger = function (k) {
  * @static
  */
 MatrixUtils.isMatrix = function (obj) {
-    return obj instanceof Matrix;
+    return obj instanceof MatrixCommon;
 };
 
 /**
