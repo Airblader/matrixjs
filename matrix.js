@@ -250,7 +250,6 @@ SparseMatrix.prototype.constructor = SparseMatrix;
  * TODO documentation
  * @constructor
  * @implements IMatrix
- * @extends MatrixCommon
  * @param {...*} var_args
  * @export
  */
@@ -296,10 +295,6 @@ function Vector (var_args) {
 
     return this;
 }
-
-// Let SparseMatrix inherit from MatrixCommon
-Vector.prototype = Object.create( MatrixCommon.prototype );
-Vector.prototype.constructor = Vector;
 
 /*
  ======================================================================================================================
