@@ -336,18 +336,27 @@ MatrixCommon.options = {
  * Returns a new instance of the same type as the instance calling this method.
  * For example, (new Matrix(3, 3)).newInstance(5, 5) will return a new 5-by-5 instance of Matrix, because
  * the method was called from a Matrix instance.
- * @param {...*} var_args
+ * @param {{sparseIfAllSparse: (Array.<MatrixCommon>|undefined)}} opts Options for creating the new instance
+ * @param {...*} var_args Arguments for the matrix constructor
  * @returns {MatrixCommon}
  * @private
  */
-MatrixCommon.prototype.newInstance = function (var_args) {
+MatrixCommon.prototype.newInstance = function (opts, var_args) {
     var constructor = this.constructor;
+
+    if( opts.sparseIfAllSparse && this.isSparse() ) {
+        for( var i = 0; i < opts.sparseIfAllSparse.length; i++ ) {
+            if( !opts.sparseIfAllSparse[i].isSparse() ) {
+                constructor = Matrix;
+            }
+        }
+    }
+
     /**
      * @constructor
      * @extends MatrixCommon
      */
-    var InstanceFactory = constructor.bind.apply( constructor, [constructor].concat( [].slice.call( arguments ) ) );
-
+    var InstanceFactory = constructor.bind.apply( constructor, [null].concat( [].slice.call( arguments, 1 ) ) );
     return new InstanceFactory();
 };
 
@@ -416,7 +425,7 @@ MatrixCommon.prototype.__getRow = function (row, asMatrix) {
         result.push( this.___get( row, i ) );
     }
 
-    return (asMatrix) ? this.newInstance( result, 1 ) : result;
+    return (asMatrix) ? this.newInstance( {}, result, 1 ) : result;
 };
 
 /**
@@ -484,7 +493,7 @@ MatrixCommon.prototype.__getColumn = function (column, asMatrix) {
         result.push( this.___get( i, column ) );
     }
 
-    return (asMatrix) ? this.newInstance( result, null, 1 ) : result;
+    return (asMatrix) ? this.newInstance( {}, result, null, 1 ) : result;
 };
 
 /**
@@ -521,6 +530,17 @@ MatrixCommon.prototype.__setColumn = function (column, entries) {
     }
 
     return this;
+};
+
+/**
+ * Check if the matrix is a sparse matrix.
+ * Note: This method only checks if the matrix is an instance of SparseMatrix. It does not actually check the values
+ * and decide whether it is suitable to be sparse-typed.
+ * @returns {boolean}
+ * @export
+ */
+MatrixCommon.prototype.isSparse = function () {
+    return ( this instanceof SparseMatrix );
 };
 
 /**
@@ -624,7 +644,7 @@ MatrixCommon.prototype.__isTriangular = function (upper) {
 MatrixCommon.prototype.copy = function () {
     var rows = this.___dim().rows,
         columns = this.___dim().columns,
-        Copy = this.newInstance( rows, columns );
+        Copy = this.newInstance( {}, rows, columns );
 
     for( var i = 1; i <= rows; i++ ) {
         Copy.__setRow( i, this.__getRow( i, false ) );
@@ -695,7 +715,7 @@ MatrixCommon.prototype.add = function (M) {
         throw new MatrixError( MatrixError.ErrorCodes.DIMENSION_MISMATCH, 'Matrices must be of the same size' );
     }
 
-    var Result = this.newInstance( rows, columns );
+    var Result = this.newInstance( {}, rows, columns );
 
     for( var i = 1; i <= rows; i++ ) {
         for( var j = 1; j <= columns; j++ ) {
@@ -727,7 +747,7 @@ MatrixCommon.prototype.subtract = function (M) {
         throw new MatrixError( MatrixError.ErrorCodes.DIMENSION_MISMATCH, 'Matrices must be of the same size' );
     }
 
-    var Result = this.newInstance( rows, columns );
+    var Result = this.newInstance( {}, rows, columns );
 
     for( var i = 1; i <= rows; i++ ) {
         for( var j = 1; j <= columns; j++ ) {
@@ -751,7 +771,7 @@ MatrixCommon.prototype.scale = function (k) {
 
     var rows = this.___dim().rows,
         columns = this.___dim().columns,
-        Result = this.newInstance( rows, columns );
+        Result = this.newInstance( {}, rows, columns );
 
     for( var i = 1; i <= rows; i++ ) {
         for( var j = 1; j <= columns; j++ ) {
@@ -778,7 +798,7 @@ MatrixCommon.prototype.multiply = function (M) {
         throw new MatrixError( MatrixError.ErrorCodes.DIMENSION_MISMATCH, 'Inner dimensions must match' );
     }
 
-    var Result = this.newInstance( dimOuterLeft, dimOuterRight );
+    var Result = this.newInstance( {}, dimOuterLeft, dimOuterRight );
     for( var i = 1; i <= dimOuterLeft; i++ ) {
         for( var j = 1; j <= dimOuterRight; j++ ) {
             var temp = 0;
@@ -801,7 +821,7 @@ MatrixCommon.prototype.multiply = function (M) {
 MatrixCommon.prototype.transpose = function () {
     var rows = this.___dim().rows,
         columns = this.___dim().columns,
-        Result = this.newInstance( columns, rows );
+        Result = this.newInstance( {}, columns, rows );
 
     for( var i = 1; i <= rows; i++ ) {
         Result.__setColumn( i, this.__getRow( i, false ) );
@@ -992,7 +1012,7 @@ MatrixCommon.prototype.submatrix = function (rowStart, rowEnd, columnStart, colu
     var mResult = rowEnd - rowStart + 1,
         nResult = columnEnd - columnStart + 1;
 
-    var Result = this.newInstance( mResult, nResult );
+    var Result = this.newInstance( {}, mResult, nResult );
     for( var i = rowStart; i <= rowEnd; i++ ) {
         Result.__setRow( i - rowStart + 1, this.__getRow( i, false ).slice( columnStart - 1, columnEnd ) );
     }
@@ -1014,7 +1034,7 @@ MatrixCommon.prototype.augment = function (B) {
         throw new MatrixError( MatrixError.ErrorCodes.INVALID_PARAMETERS, 'Number of rows must match' );
     }
 
-    var Result = this.newInstance( this.___dim().rows, columns + columnsB );
+    var Result = this.newInstance( {}, this.___dim().rows, columns + columnsB );
 
     for( var i = 1; i <= columns; i++ ) {
         Result.__setColumn( i, this.__getColumn( i, false ) );
@@ -1099,7 +1119,7 @@ MatrixCommon.prototype.cross = function (M) {
             'Parameters must be three-dimensional column vectors' );
     }
 
-    return this.newInstance( [
+    return this.newInstance( {}, [
         [this.___get( 2, 1 ) * M.___get( 3, 1 ) - this.___get( 3, 1 ) * M.___get( 2, 1 )],
         [this.___get( 3, 1 ) * M.___get( 1, 1 ) - this.___get( 1, 1 ) * M.___get( 3, 1 )],
         [this.___get( 1, 1 ) * M.___get( 2, 1 ) - this.___get( 2, 1 ) * M.___get( 1, 1 )]
@@ -1116,7 +1136,7 @@ MatrixCommon.prototype.addRow = function (row) {
     row = MatrixUtils.toArray( row );
     var rows = this.___dim().rows;
 
-    var Result = this.newInstance( rows + 1, this.___dim().columns );
+    var Result = this.newInstance( {}, rows + 1, this.___dim().columns );
 
     for( var i = 1; i <= rows; i++ ) {
         Result.__setRow( i, this.__getRow( i, false ) );
@@ -1133,7 +1153,7 @@ MatrixCommon.prototype.addRow = function (row) {
  * @export
  */
 MatrixCommon.prototype.addColumn = function (column) {
-    return this.copy().augment( this.newInstance( MatrixUtils.toArray( column ), null, 1 ) );
+    return this.copy().augment( this.newInstance( {}, MatrixUtils.toArray( column ), null, 1 ) );
 };
 
 /**
