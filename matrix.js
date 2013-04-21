@@ -352,29 +352,6 @@ MatrixCommon.prototype.newInstance = function (var_args) {
 };
 
 /**
- * Returns a new instance of the same type as the instance calling this method, but no vectors.
- * For matrices (Matrix and SparseMatrix), this method is equivalent to {@see MatrixCommon.prototype.newInstance}.
- * For vectors, however, this will return a new instance of Matrix.
- * @param {...*} var_args
- * @returns {MatrixCommon}
- * @private
- */
-MatrixCommon.prototype.newMatrixInstance = function (var_args) {
-    var constructor = this.constructor;
-    if( constructor === Vector ) {
-        constructor = Matrix;
-    }
-
-    /**
-     * @constructor
-     * @extends MatrixCommon
-     */
-    var MatrixFactory = constructor.bind.apply( constructor, [constructor].concat( [].slice.call( arguments ) ) );
-
-    return new MatrixFactory();
-};
-
-/**
  * Get an entry from the matrix.
  * @param {number} row
  * @param {number} column
