@@ -985,7 +985,7 @@ MatrixCommon.prototype.inverse = function () {
     }
 
     var M = this.augment( Matrix.eye( this.___dim().rows ) ),
-        row, i, j, k, factor, rows, columns;
+        row, row_before, new_row, i, j, k, factor, rows, columns;
 
     try {
         M = M.decomposeLU();
@@ -994,22 +994,26 @@ MatrixCommon.prototype.inverse = function () {
 
         // TODO The following two loops can probably be rewritten into something smarter
         for( i = rows; i > 1; i-- ) {
+            row_before = M.__getRow( i - 1, false );
             row = M.__getRow( i, false );
-            factor = M.___get( i - 1, i ) / M.___get( i, i );
+            factor = row_before[i - 1] / row[i - 1];
 
+            new_row = [];
             for( k = 0; k < columns; k++ ) {
-                M.___set( i - 1, k + 1, M.___get( i - 1, k + 1 ) - (row[k] * factor ) );
+                new_row[k] = row_before[k] - row[k] * factor;
             }
+            M.__setRow( i - 1, new_row );
         }
 
         for( j = 1; j <= rows; j++ ) {
             row = M.__getRow( j, false );
+            new_row = [];
 
             for( k = 0; k < columns; k++ ) {
-                row[k] = row[k] / M.___get( j, j );
+                new_row[k] = row[k] / row[j - 1];
             }
 
-            M.__setRow( j, row );
+            M.__setRow( j, new_row );
         }
     } catch( e ) {
         // TODO if caching attributes like the determinant is introduced, replace this by checking
@@ -1091,6 +1095,7 @@ MatrixCommon.prototype.dot = function (M) {
 
     var result = 0;
     for( var i = 1; i <= rows; i++ ) {
+        // TODO speed improvement
         result += this.___get( i, 1 ) * M.___get( i, 1 );
     }
 
@@ -1145,6 +1150,7 @@ MatrixCommon.prototype.cross = function (M) {
             'Parameters must be three-dimensional column vectors' );
     }
 
+    // TODO speed improvement
     return this.newInstance( {}, [
         [this.___get( 2, 1 ) * M.___get( 3, 1 ) - this.___get( 3, 1 ) * M.___get( 2, 1 )],
         [this.___get( 3, 1 ) * M.___get( 1, 1 ) - this.___get( 1, 1 ) * M.___get( 3, 1 )],
@@ -1192,20 +1198,23 @@ MatrixCommon.prototype.addColumn = function (column) {
 MatrixCommon.prototype.contains = function (needle, precision) {
     precision = MatrixUtils.getNumberWithDefault( precision, 0 );
     var rows = this.___dim().rows,
-        columns = this.___dim().columns;
+        columns = this.___dim().columns,
+        row;
 
     if( !MatrixUtils.isNumber( needle ) || !MatrixUtils.isNumber( precision ) ) {
         throw new MatrixError( MatrixError.ErrorCodes.INVALID_PARAMETERS, 'Parameter must be a number' );
     }
 
     for( var i = 1; i <= rows; i++ ) {
-        for( var j = 1; j <= columns; j++ ) {
+        row = this.__getRow( i, false );
+
+        for( var j = 0; j < columns; j++ ) {
             if( precision === 0 ) {
-                if( this.___get( i, j ) === needle ) {
+                if( row[j] === needle ) {
                     return true;
                 }
             } else {
-                if( Math.abs( this.___get( i, j ) - needle ) <= precision ) {
+                if( Math.abs( row[j] - needle ) <= precision ) {
                     return true;
                 }
             }
@@ -1233,12 +1242,7 @@ MatrixCommon.prototype.stringify = function (rowSeparator, columnSeparator) {
         columns = this.___dim().columns;
 
     for( var i = 1; i <= rows; i++ ) {
-        current = [];
-
-        for( var j = 1; j <= columns; j++ ) {
-            current.push( this.___get( i, j ) );
-        }
-
+        current = this.__getRow( i, false );
         outputRows.push( current.join( columnSeparator ) );
     }
 
@@ -1253,15 +1257,19 @@ MatrixCommon.prototype.stringify = function (rowSeparator, columnSeparator) {
  */
 MatrixCommon.prototype.equals = function (M) {
     var rows = this.___dim().rows,
-        columns = this.___dim().columns;
+        columns = this.___dim().columns,
+        row, other_row;
 
     if( rows !== M.___dim().rows || columns !== M.___dim().columns ) {
         return false;
     }
 
     for( var i = 1; i <= rows; i++ ) {
-        for( var j = 1; j <= columns; j++ ) {
-            if( this.___get( i, j ) !== M.___get( i, j ) ) {
+        row = this.__getRow( i, false );
+        other_row = M.__getRow( i, false );
+
+        for( var j = 0; j < columns; j++ ) {
+            if( row[j] !== other_row[j] ) {
                 return false;
             }
         }
@@ -1292,19 +1300,24 @@ MatrixCommon.prototype.fun = function (applicator, filter) {
         throw new MatrixError( MatrixError.ErrorCodes.INVALID_PARAMETERS, 'Filter must be a function' );
     }
 
-    var Result = this.copy(),
-        current,
-        rows = Result.___dim().rows,
-        columns = Result.___dim().columns;
+    var current, row,
+        dim = this.___dim(),
+        rows = dim.rows,
+        columns = dim.columns,
+        Result = this.newInstance( {}, rows, columns );
 
     for( var i = 1; i <= rows; i++ ) {
+        row = this.__getRow( i, false );
+
         for( var j = 1; j <= columns; j++ ) {
-            current = Result.___get( i, j );
+            current = row[j - 1];
 
             if( filter( current, i, j ) ) {
-                Result.___set( i, j, applicator( current, i, j ) );
+                row[j - 1] = applicator( current, i, j );
             }
         }
+
+        Result.__setRow( i, row );
     }
 
     return Result;
@@ -1391,11 +1404,14 @@ MatrixCommon.prototype.pnorm = function (p) {
 
     var norm = 0,
         rows = this.___dim().rows,
-        columns = this.___dim().columns;
+        columns = this.___dim().columns,
+        row;
 
     for( var i = 1; i <= rows; i++ ) {
-        for( var j = 1; j <= columns; j++ ) {
-            norm += Math.pow( Math.abs( this.___get( i, j ) ), p );
+        row = this.__getRow( i, false );
+
+        for( var j = 0; j < columns; j++ ) {
+            norm += Math.pow( Math.abs( row[j] ), p );
         }
     }
 
@@ -1410,11 +1426,14 @@ MatrixCommon.prototype.pnorm = function (p) {
 MatrixCommon.prototype.maxnorm = function () {
     var norm = 0,
         rows = this.___dim().rows,
-        columns = this.___dim().columns;
+        columns = this.___dim().columns,
+        row;
 
     for( var i = 1; i <= rows; i++ ) {
-        for( var j = 1; j <= columns; j++ ) {
-            norm = Math.max( norm, Math.abs( this.___get( i, j ) ) );
+        row = this.__getRow( i, false );
+
+        for( var j = 0; j < columns; j++ ) {
+            norm = Math.max( norm, Math.abs( row[j] ) );
         }
     }
 
