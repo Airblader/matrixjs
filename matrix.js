@@ -1510,6 +1510,23 @@ MatrixCommon.prototype.isInRange = function (row, column) {
         && (!MatrixUtils.isNumber( column ) || ( column >= 1 && column <= this.___dim().columns ) );
 };
 
+/**
+ * Convert matrix to array.
+ * The array will contain the matrix's elements read from left to right, top to bottom
+ * @returns {Array.<number>}
+ * @export
+ */
+MatrixCommon.prototype.toArray = function () {
+    var rows = this.___dim().rows,
+        result = [];
+
+    for( var i = 1; i <= rows; i++ ) {
+        result = result.concat( this.__getRow( i, false ) );
+    }
+
+    return result;
+};
+
 /*
  ======================================================================================================================
  ================================================== Matrix ============================================================

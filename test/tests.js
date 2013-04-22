@@ -713,6 +713,15 @@ new Test( function () {
 }, 'Is Symmetric 1' );
 
 new Test( function () {
+    assertArray( Matrix.zeros( 2 ).toArray(), [0, 0, 0, 0] );
+    assertArray( Matrix.ones( 2 ).toArray(), [1, 1, 1, 1] );
+    assertArray( Matrix.eye( 2 ).toArray(), [1, 0, 0, 1] );
+
+    assertArray( Matrix.diag( [1, 2] ).addRow( [3, 4] ).toArray(), [1, 0, 0, 2, 3, 4] );
+    assertArray( Matrix.diag( [1, 2] ).addColumn( [3, 4] ).toArray(), [1, 0, 3, 0, 2, 4] );
+}, 'ToArray 1' );
+
+new Test( function () {
     var M;
 
     for( var i = 1; i <= 20; i++ ) {
