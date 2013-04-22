@@ -711,11 +711,10 @@ MatrixCommon.prototype.add = function (M) {
 
     if( arguments.length > 1 ) {
         var args = [].slice.call( arguments );
-
-        return this.add.apply( Object( this.add( args.shift() ) ), Object( args ) );
+        return this.add.apply( this.add( args.shift() ), args );
     }
 
-    if( rows !== M.___dim().rows || columns !== M.___dim().columns ) {
+    if( !this.isSameSizeAs( M ) ) {
         throw new MatrixError( MatrixError.ErrorCodes.DIMENSION_MISMATCH, 'Matrices must be of the same size' );
     }
 
@@ -749,11 +748,10 @@ MatrixCommon.prototype.subtract = function (M) {
 
     if( arguments.length > 1 ) {
         var args = [].slice.call( arguments );
-
-        return this.subtract.apply( Object( this.subtract( args.shift() ) ), Object( args ) );
+        return this.subtract.apply( this.subtract( args.shift() ), args );
     }
 
-    if( rows !== M.___dim().rows || columns !== M.___dim().columns ) {
+    if( !this.isSameSizeAs( M ) ) {
         throw new MatrixError( MatrixError.ErrorCodes.DIMENSION_MISMATCH, 'Matrices must be of the same size' );
     }
 
