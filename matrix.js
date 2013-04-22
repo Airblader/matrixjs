@@ -640,15 +640,8 @@ MatrixCommon.prototype.__isTriangular = function (upper) {
  * @export
  */
 MatrixCommon.prototype.copy = function () {
-    var rows = this.___dim().rows,
-        columns = this.___dim().columns,
-        Copy = this.newInstance( {}, rows, columns );
-
-    for( var i = 1; i <= rows; i++ ) {
-        Copy.__setRow( i, this.__getRow( i, false ) );
-    }
-
-    return Copy;
+    var dim = this.___dim();
+    return this.newInstance( {}, this.toArray(), dim.rows, dim.columns );
 };
 
 /**
