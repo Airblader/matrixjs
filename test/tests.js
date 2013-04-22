@@ -722,6 +722,19 @@ new Test( function () {
 }, 'ToArray 1' );
 
 new Test( function () {
+    assertEquals( Matrix.zeros( 3 ).isSameSizeAs( Matrix.zeros( 3 ) ), true );
+    assertEquals( Matrix.eye( 3 ).isSameSizeAs( Matrix.eye( 3 ) ), true );
+    assertEquals( Matrix.ones( 3 ).isSameSizeAs( Matrix.zeros( 3 ) ), true );
+
+    assertEquals( Matrix.zeros( 3, 4 ).isSameSizeAs( Matrix.zeros( 3, 4 ) ), true );
+    assertEquals( Matrix.zeros( 3, 4 ).isSameSizeAs( Matrix.ones( 3, 4 ) ), true );
+
+    assertEquals( Matrix.zeros( 3 ).isSameSizeAs( Matrix.zeros( 4 ) ), false );
+    assertEquals( Matrix.zeros( 3 ).isSameSizeAs( Matrix.zeros( 3, 4 ) ), false );
+    assertEquals( Matrix.zeros( 4, 3 ).isSameSizeAs( Matrix.zeros( 3, 4 ) ), false );
+}, 'IsSameSizeAs 1' );
+
+new Test( function () {
     var M;
 
     for( var i = 1; i <= 20; i++ ) {

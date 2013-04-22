@@ -531,6 +531,19 @@ MatrixCommon.prototype.__setColumn = function (column, entries) {
 };
 
 /**
+ * Check if matrix has the same dimensions as another matrix.
+ * @param {MatrixCommon} M
+ * @returns {boolean}
+ * @export
+ */
+MatrixCommon.prototype.isSameSizeAs = function (M) {
+    var dim = this.___dim(),
+        other_dim = M.___dim();
+
+    return ( dim.rows === other_dim.rows && dim.columns === other_dim.columns );
+};
+
+/**
  * Check if the matrix is a sparse matrix.
  * Note: This method only checks if the matrix is an instance of SparseMatrix. It does not actually check the values
  * and decide whether it is suitable to be sparse-typed.
