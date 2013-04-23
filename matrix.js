@@ -841,11 +841,10 @@ MatrixCommon.prototype.multiply = function (M) {
  * @export
  */
 MatrixCommon.prototype.transpose = function () {
-    var rows = this.___dim().rows,
-        columns = this.___dim().columns,
-        Result = this.newInstance( {}, columns, rows );
+    var dim = this.___dim(),
+        Result = this.newInstance( {}, dim.columns, dim.rows );
 
-    for( var i = 1; i <= rows; i++ ) {
+    for( var i = 1; i <= dim.rows; i++ ) {
         Result.__setColumn( i, this.__getRow( i, false ) );
     }
 
@@ -1264,7 +1263,7 @@ MatrixCommon.prototype.equals = function (M) {
         columns = this.___dim().columns,
         row, other_row;
 
-    if( rows !== M.___dim().rows || columns !== M.___dim().columns ) {
+    if( !this.isSameSizeAs( M ) ) {
         return false;
     }
 
