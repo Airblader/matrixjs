@@ -158,6 +158,14 @@ function Matrix (var_args) {
         };
     };
 
+    /**
+     * @private
+     * @ignore
+     */
+    this.___getElements = function () {
+        return __elements;
+    };
+
     // Constructor
     (function () {
         if( args.length === 1 && args[0] instanceof Array && args[0].length !== 0 && args[0][0] instanceof Array ) {
@@ -1535,6 +1543,17 @@ MatrixCommon.prototype.toArray = function () {
  ================================================== Matrix ============================================================
  ======================================================================================================================
  */
+
+/**
+ * Convert matrix to array.
+ * The array will contain the matrix's elements read from left to right, top to bottom
+ * @returns {Array.<number>}
+ * @override
+ * @export
+ */
+Matrix.prototype.toArray = function () {
+    return [].slice.call( this.___getElements() );
+};
 
 /**
  * Returns a matrix of zeros.
