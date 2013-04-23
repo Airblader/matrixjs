@@ -94,11 +94,11 @@ MatrixError.ErrorCodes = {
 };
 
 /**
- * Creates a new Matrix.<br />
- * There is a number of different signatures for the parameter(s) to define the matrix.<br />
- *  - Use one number n to create a n-by-n matrix filled with zeros.<br />
- *  - Use two numbers m, n to create a m-by-n matrix filled with zeros.<br />
- *  - Use an array of arrays, wherein the inner arrays represent entire rows.<br />
+ * Creates a new Matrix.
+ * There is a number of different signatures for the parameter(s) to define the matrix.
+ *  - Use one number n to create a n-by-n matrix filled with zeros.
+ *  - Use two numbers m, n to create a m-by-n matrix filled with zeros.
+ *  - Use an array of arrays, wherein the inner arrays represent entire rows.
  *  - Use an array of numbers defining the elements from left to right, top to bottom. If no other argument
  *    is given, the matrix will be assumed to be square. Alternatively, pass two arguments to specify the row and
  *    column dimension of the matrix. If either one is null/undefined, it will be computed from the other one.
@@ -606,7 +606,7 @@ MatrixCommon.prototype.isSymmetric = function () {
 
 /**
  * Check if matrix is triangular.
- * @param {string} [mode='both'] What kind of triangular matrix to check for. Possible values are:<br />
+ * @param {string} [mode='both'] What kind of triangular matrix to check for. Possible values are:
  *  - 'lower': True if lower triangular matrix, false otherwise
  *  - 'upper': True if upper triangular matrix, false otherwise
  *  - 'both': True if either lower or upper triangular, false otherwise
@@ -677,10 +677,10 @@ MatrixCommon.prototype.size = function () {
 
 /**
  * Get the dimensions of the matrix.
- * @param {(number|string)} which Define which dimension should be returned. Possible values are:<br />
- *  - 1 or 'rows' : Number of rows<br />
- *  - 2 or 'columns' : Number of columns<br />
- *  - 'max' : Dominant dimension<br />
+ * @param {(number|string)} which Define which dimension should be returned. Possible values are:
+ *  - 1 or 'rows' : Number of rows
+ *  - 2 or 'columns' : Number of columns
+ *  - 'max' : Dominant dimension
  *  - 'min' : Smaller dimension
  * @returns {number} Object with the dimensions of requested dimension or just
  * the requested dimension.
@@ -1369,7 +1369,7 @@ MatrixCommon.prototype.pw_pow = function (n) {
 
 /**
  * Calculate the norm.
- * @param {string} [which='max'] Which norm to compute. Possible values are:<br />
+ * @param {string} [which='max'] Which norm to compute. Possible values are:
  *  - 'p' or 'pnorm': Entry-wise p-norm. The args parameter is required and has to specify p.
  *  - 'frobenius': Frobenius norm, a.k.a. the 2-norm.
  *  - 'rows' or 'rowsum': Row-sum norm.
