@@ -274,8 +274,79 @@ Matrix.prototype.constructor = Matrix;
  * @export
  */
 function SparseMatrix (var_args) {
-    // TODO implementation
-    throw new Error( 'Not yet implemented.' );
+    var args = [].slice.call( arguments ),
+        __columns,
+        __elements = [],
+        __columnIndicator = [],
+        __rowPointer = [];
+
+    /**
+     * @override
+     * @private
+     */
+    this.___get = function (row, column) {
+        for( var k = __rowPointer[row - 1]; k < __rowPointer[row]; k++ ) {
+            if( __columnIndicator[k] === column ) {
+                return __elements[k];
+            }
+        }
+
+        return 0;
+    };
+
+    /**
+     * @override
+     * @private
+     */
+    this.___set = function (row, column, value) {
+        var row_index = __rowPointer[row];
+        __elements.splice( row_index, 0, value );
+        __columnIndicator.splice( row_index, 0, column );
+
+        for( var i = row; i < __rowPointer.length; i++ ) {
+            __rowPointer[i] += 1;
+        }
+
+        return this;
+    };
+
+    /**
+     * @override
+     * @private
+     */
+    this.___dim = function () {
+        return {
+            rows: __rowPointer.length - 1,
+            columns: __columns
+        };
+    };
+
+    /**
+     * Get the number of rows.
+     * @returns {number}
+     * @override
+     */
+    this.rows = function () {
+        return __rowPointer.length - 1;
+    };
+
+    /**
+     * Get the number of columns.
+     * @returns {number}
+     * @override
+     */
+    this.columns = function () {
+        return __columns;
+    };
+
+    (function () {
+        // TODO
+        __elements = [1, 2, 3];
+        __columnIndicator = [1, 2, 3];
+        __rowPointer = [0, 1, 2, 3];
+        __columns = 3;
+    })();
+
     return this;
 }
 
