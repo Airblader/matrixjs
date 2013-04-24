@@ -21,10 +21,6 @@ function IMatrix (var_args) {
     this.___set = function (row, column, value) {
     };
 
-    this.___dim = function () {
-
-    };
-
     this.rows = function () {
 
     };
@@ -49,13 +45,6 @@ function MatrixCommon () {
 
     this.___set = function (row, column, value) {
         return this;
-    };
-
-    this.___dim = function () {
-        return {
-            rows: null,
-            columns: null
-        };
     };
 
     this.rows = function () {
@@ -158,17 +147,6 @@ function Matrix (var_args) {
     this.___set = function (row, column, value) {
         __elements[__columns * (row - 1) + column - 1] = value;
         return this;
-    };
-
-    /**
-     * @override
-     * @private
-     */
-    this.___dim = function () {
-        return {
-            rows: __rows,
-            columns: __columns
-        };
     };
 
     /**
@@ -311,17 +289,6 @@ function SparseMatrix (var_args) {
     };
 
     /**
-     * @override
-     * @private
-     */
-    this.___dim = function () {
-        return {
-            rows: __rowPointer.length - 1,
-            columns: __columns
-        };
-    };
-
-    /**
      * Get the number of rows.
      * @returns {number}
      * @override
@@ -384,23 +351,12 @@ function Vector (var_args) {
     };
 
     /**
-     * @override
-     * @private
-     */
-    this.___dim = function () {
-        return {
-            rows: (isRowVector) ? __elements.length : 1,
-            columns: (isRowVector) ? 1 : __elements.length
-        };
-    };
-
-    /**
      * Get the number of rows.
      * @returns {number}
      * @override
      */
     this.rows = function () {
-        // TODO
+        return (isRowVector) ? __elements.length : 1;
     };
 
     /**
@@ -409,7 +365,7 @@ function Vector (var_args) {
      * @override
      */
     this.columns = function () {
-        // TODO
+        return (isRowVector) ? 1 : __elements.length;
     };
 
     (function () {
@@ -807,11 +763,9 @@ MatrixCommon.prototype.dim = function (which) {
         case 'columns':
             return this.columns();
         case 'max':
-            var dim = this.___dim();
-            return Math.max( dim.rows, dim.columns );
+            return Math.max( this.rows(), this.columns() );
         case 'min':
-            var dim = this.___dim();
-            return Math.min( dim.rows, dim.columns );
+            return Math.min( this.rows(), this.columns() );
         default:
             throw new MatrixError( MatrixError.ErrorCodes.INVALID_PARAMETERS, 'Parameter must match a known value' );
     }
