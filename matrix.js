@@ -10,27 +10,6 @@
  */
 
 /**
- * General interface for matrix-like objects.
- * @param var_args
- * @interface
- */
-function IMatrix (var_args) {
-    this.___get = function (row, column) {
-    };
-
-    this.___set = function (row, column, value) {
-    };
-
-    this.rows = function () {
-
-    };
-
-    this.columns = function () {
-
-    };
-}
-
-/**
  * Static class for utility functions.
  * @static
  * @constructor
@@ -94,7 +73,6 @@ MatrixError.ErrorCodes = {
  *      new Matrix( [1, 2, 3, 4, 5, 6], 2 );
  *      new Matrix( [1, 2, 3, 4, 5, 6], null, 3 );
  * @constructor
- * @implements IMatrix
  * @param {...*} var_args
  * @export
  */
@@ -213,7 +191,6 @@ function Matrix (var_args) {
 /**
  * TODO documentation
  * @constructor
- * @implements IMatrix
  * @param {...*} var_args
  * @export
  */
@@ -286,7 +263,6 @@ function SparseMatrix (var_args) {
 /**
  * TODO documentation
  * @constructor
- * @implements IMatrix
  * @param {...*} var_args
  * @export
  */
