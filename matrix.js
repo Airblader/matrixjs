@@ -387,35 +387,6 @@
     /* Matrix */
 
     /**
-     * Default settings
-     * @static
-     */
-    Matrix.options = {
-        stringify: {
-            rowSeparator: '\r\n',
-            columnSeparator: '\t'
-        },
-
-        isTriangular: {
-            mode: 'both'
-        },
-
-        roundTo: {
-            digits: 0
-        },
-
-        norm: {
-            which: 'max'
-        },
-
-        random: {
-            minVal: 0,
-            maxVal: 1,
-            onlyInteger: true
-        }
-    };
-
-    /**
      * Get an entry from the matrix.
      * @param {number} row
      * @param {number} column
@@ -648,7 +619,7 @@
      * @returns {boolean}
      */
     Matrix.prototype.isTriangular = function (mode) {
-        mode = getStringWithDefault( mode, Matrix.options.isTriangular.mode );
+        mode = getStringWithDefault( mode, MatrixUtils.options.isTriangular.mode );
 
         if( !this.isSquare() ) {
             throw new MatrixError( MatrixError.ErrorCodes.DIMENSION_MISMATCH, 'Matrix must be square' );
@@ -1142,7 +1113,7 @@
      * @returns {Matrix}
      */
     Matrix.prototype.roundTo = function (digits) {
-        digits = getNumberWithDefault( digits, Matrix.options.roundTo.digits );
+        digits = getNumberWithDefault( digits, MatrixUtils.options.roundTo.digits );
 
         var power = Math.pow( 10, digits );
         return this.fun( function (value) {
@@ -1244,14 +1215,14 @@
 
     /**
      * Create a string representation of the matrix.
-     * @param {string} [rowSeparator=Matrix.options.stringify.rowSeparator] Delimiter between columns
-     * @param {string} [columnSeparator=Matrix.options.stringify.columnSeparator] Delimiter between the last column of the
+     * @param {string} [rowSeparator=MatrixUtils.options.stringify.rowSeparator] Delimiter between columns
+     * @param {string} [columnSeparator=MatrixUtils.options.stringify.columnSeparator] Delimiter between the last column of the
      * previous and first column of the next row
      * @returns {string}
      */
     Matrix.prototype.stringify = function (rowSeparator, columnSeparator) {
-        rowSeparator = getStringWithDefault( rowSeparator, Matrix.options.stringify.rowSeparator );
-        columnSeparator = getStringWithDefault( columnSeparator, Matrix.options.stringify.columnSeparator );
+        rowSeparator = getStringWithDefault( rowSeparator, MatrixUtils.options.stringify.rowSeparator );
+        columnSeparator = getStringWithDefault( columnSeparator, MatrixUtils.options.stringify.columnSeparator );
 
         var outputRows = [],
             current,
@@ -1378,7 +1349,7 @@
      * @returns {number}
      */
     Matrix.prototype.norm = function (which, args) {
-        which = getStringWithDefault( which, Matrix.options.norm.which );
+        which = getStringWithDefault( which, MatrixUtils.options.norm.which );
         args = args || {};
 
         switch( which.toLowerCase() ) {
@@ -1607,9 +1578,9 @@
      */
     Matrix.random = function (rows, columns, minVal, maxVal, onlyInteger) {
         columns = getNumberWithDefault( columns, rows );
-        minVal = getNumberWithDefault( minVal, Matrix.options.random.minVal );
-        maxVal = getNumberWithDefault( maxVal, Matrix.options.random.maxVal );
-        onlyInteger = getBooleanWithDefault( onlyInteger, Matrix.options.random.onlyInteger );
+        minVal = getNumberWithDefault( minVal, MatrixUtils.options.random.minVal );
+        maxVal = getNumberWithDefault( maxVal, MatrixUtils.options.random.maxVal );
+        onlyInteger = getBooleanWithDefault( onlyInteger, MatrixUtils.options.random.onlyInteger );
 
         var Result = new Matrix( rows, columns ),
             factor = ( maxVal - minVal ) + ( (onlyInteger) ? 1 : 0 ),
@@ -1667,14 +1638,14 @@
 
     /**
      * Create a string representation of the matrix.
-     * @param {string} [rowSeparator=Matrix.options.stringify.rowSeparator] Delimiter between columns
-     * @param {string} [columnSeparator=Matrix.options.stringify.columnSeparator] Delimiter between the last column of the
+     * @param {string} [rowSeparator=MatrixUtils.options.stringify.rowSeparator] Delimiter between columns
+     * @param {string} [columnSeparator=MatrixUtils.options.stringify.columnSeparator] Delimiter between the last column of the
      * previous and first column of the next row
      * @returns {string}
      */
     SparseMatrix.prototype.stringify = function (rowSeparator, columnSeparator) {
-        rowSeparator = getStringWithDefault( rowSeparator, Matrix.options.stringify.rowSeparator );
-        columnSeparator = getStringWithDefault( columnSeparator, Matrix.options.stringify.columnSeparator );
+        rowSeparator = getStringWithDefault( rowSeparator, MatrixUtils.options.stringify.rowSeparator );
+        columnSeparator = getStringWithDefault( columnSeparator, MatrixUtils.options.stringify.columnSeparator );
 
         var outputRows = [],
             current,
@@ -1706,6 +1677,35 @@
     };
 
     /* MatrixUtils */
+
+    /**
+     * Default settings
+     * @static
+     */
+    MatrixUtils.options = {
+        stringify: {
+            rowSeparator: '\r\n',
+            columnSeparator: '\t'
+        },
+
+        isTriangular: {
+            mode: 'both'
+        },
+
+        roundTo: {
+            digits: 0
+        },
+
+        norm: {
+            which: 'max'
+        },
+
+        random: {
+            minVal: 0,
+            maxVal: 1,
+            onlyInteger: true
+        }
+    };
 
     /**
      * Generate an array with linearly increasing numbers
