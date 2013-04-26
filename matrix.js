@@ -40,6 +40,30 @@
         return (typeof obj === 'boolean') ? obj : defaultValue;
     }
 
+    function toArray (obj) {
+        if( obj instanceof Array ) {
+            return obj;
+        }
+
+        if( !obj.isVector() ) {
+            throw new MatrixError( MatrixError.ErrorCodes.DIMENSION_MISMATCH, 'Argument has to be vector' );
+        }
+
+        var temp_obj = obj.copy();
+        if( obj.dim( 'max' ) !== obj.rows() ) {
+            temp_obj = temp_obj.transpose();
+        }
+
+        var result = [],
+            rows = temp_obj.rows();
+
+        for( var i = 1; i <= rows; i++ ) {
+            result.push( temp_obj.___get( i, 1 ) );
+        }
+
+        return result;
+    }
+
     /**
      * Static class for utility functions.
      * @static
@@ -440,7 +464,7 @@
      * @returns {Matrix}
      */
     Matrix.prototype.setRow = function (row, entries) {
-        entries = MatrixUtils.toArray( entries );
+        entries = toArray( entries );
 
         if( !this.isInRange( row, null ) ) {
             throw new MatrixError( MatrixError.ErrorCodes.OUT_OF_BOUNDS );
@@ -506,7 +530,7 @@
      * @returns {Matrix}
      */
     Matrix.prototype.setColumn = function (column, entries) {
-        entries = MatrixUtils.toArray( entries );
+        entries = toArray( entries );
 
         if( !this.isInRange( null, column ) ) {
             throw new MatrixError( MatrixError.ErrorCodes.OUT_OF_BOUNDS );
@@ -1137,7 +1161,7 @@
      * @returns {Matrix}
      */
     Matrix.prototype.addRow = function (row) {
-        row = MatrixUtils.toArray( row );
+        row = toArray( row );
         var rows = this.rows();
 
         var Result = new Matrix( rows + 1, this.columns() );
@@ -1156,7 +1180,7 @@
      * @returns {Matrix}
      */
     Matrix.prototype.addColumn = function (column) {
-        return this.copy().augment( new Matrix( MatrixUtils.toArray( column ), null, 1 ) );
+        return this.copy().augment( new Matrix( toArray( column ), null, 1 ) );
     };
 
     /**
@@ -1532,7 +1556,7 @@
      * @static
      */
     Matrix.diag = function (entries, k) {
-        entries = MatrixUtils.toArray( entries );
+        entries = toArray( entries );
         k = getNumberWithDefault( k, 0 );
 
         var Result = new Matrix( entries.length + Math.abs( k ) ),
@@ -1610,35 +1634,6 @@
         var result = [];
         for( var i = 1; i <= times; i++ ) {
             result[i - 1] = value;
-        }
-
-        return result;
-    };
-
-    /**
-     * @param {(Matrix|Array.<number>)} obj
-     * @returns {Array.<number>}
-     * @static
-     */
-    MatrixUtils.toArray = function (obj) {
-        if( obj instanceof Array ) {
-            return obj;
-        }
-
-        if( !obj.isVector() ) {
-            throw new MatrixError( MatrixError.ErrorCodes.DIMENSION_MISMATCH, 'Argument has to be vector' );
-        }
-
-        var temp_obj = obj.copy();
-        if( obj.dim( 'max' ) !== obj.rows() ) {
-            temp_obj = temp_obj.transpose();
-        }
-
-        var result = [],
-            rows = temp_obj.rows();
-
-        for( var i = 1; i <= rows; i++ ) {
-            result.push( temp_obj.___get( i, 1 ) );
         }
 
         return result;
