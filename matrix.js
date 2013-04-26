@@ -10,6 +10,28 @@
  */
 
 (function (window) {
+    function isNumber (k) {
+        return typeof k === 'number';
+    }
+
+    function isInteger (k) {
+        return isNumber( k ) && (k | 0) === k;
+    }
+
+    function isMatrix (obj) {
+        return obj instanceof Matrix;
+    }
+
+    function isNumberArray (obj) {
+        for( var i = 0; i < obj.length; i++ ) {
+            if( !isNumber( obj[i] ) ) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     /**
      * Static class for utility functions.
      * @static
@@ -132,7 +154,7 @@
                         throw new MatrixError( MatrixError.ErrorCodes.INVALID_PARAMETERS,
                             'Number of columns must be the same for all rows' );
                     }
-                    if( !MatrixUtils.isNumberArray( args[0][i] ) ) {
+                    if( !isNumberArray( args[0][i] ) ) {
                         throw new MatrixError( MatrixError.ErrorCodes.INVALID_PARAMETERS, 'Elements must be numbers' );
                     }
 
@@ -140,9 +162,9 @@
                     __elements = __elements.concat( args[0][i] );
                 }
             } else if( args.length >= 1 && args.length <= 3 && args[0] instanceof Array
-                && ( args[0].length === 0 || MatrixUtils.isNumber( args[0][0] ) ) ) {
+                && ( args[0].length === 0 || isNumber( args[0][0] ) ) ) {
 
-                if( !MatrixUtils.isNumberArray( args[0] ) ) {
+                if( !isNumberArray( args[0] ) ) {
                     throw new MatrixError( MatrixError.ErrorCodes.INVALID_PARAMETERS, 'Elements must be numbers' );
                 }
 
@@ -150,29 +172,29 @@
                 var rows = args[1],
                     columns = args[2];
 
-                if( !MatrixUtils.isNumber( rows ) && !MatrixUtils.isNumber( columns ) ) {
+                if( !isNumber( rows ) && !isNumber( columns ) ) {
                     var dim = Math.sqrt( __elements.length );
 
                     rows = dim;
                     columns = dim;
-                } else if( !MatrixUtils.isNumber( rows ) && MatrixUtils.isInteger( columns ) ) {
+                } else if( !isNumber( rows ) && isInteger( columns ) ) {
                     rows = __elements.length / columns;
-                } else if( MatrixUtils.isInteger( rows ) && !MatrixUtils.isNumber( columns ) ) {
+                } else if( isInteger( rows ) && !isNumber( columns ) ) {
                     columns = __elements.length / rows;
                 }
 
-                if( !MatrixUtils.isInteger( rows ) || !MatrixUtils.isInteger( columns ) ) {
+                if( !isInteger( rows ) || !isInteger( columns ) ) {
                     throw new MatrixError( MatrixError.ErrorCodes.OUT_OF_BOUNDS,
                         'Array must represent square matrix if no size is given' );
                 }
 
                 __rows = rows;
                 __columns = columns;
-            } else if( args.length === 1 && MatrixUtils.isInteger( args[0] ) ) {
+            } else if( args.length === 1 && isInteger( args[0] ) ) {
                 __rows = args[0];
                 __columns = args[0];
                 __elements = MatrixUtils.repeat( __rows * __columns, 0 );
-            } else if( args.length === 2 && MatrixUtils.isInteger( args[0] ) && MatrixUtils.isInteger( args[1] ) ) {
+            } else if( args.length === 2 && isInteger( args[0] ) && isInteger( args[1] ) ) {
                 __rows = args[0];
                 __columns = args[1];
                 __elements = MatrixUtils.repeat( __rows * __columns, 0 );
@@ -364,7 +386,7 @@
             throw new MatrixError( MatrixError.ErrorCodes.OUT_OF_BOUNDS );
         }
 
-        if( !MatrixUtils.isNumber( value ) ) {
+        if( !isNumber( value ) ) {
             throw new MatrixError( MatrixError.ErrorCodes.INVALID_PARAMETERS, 'Value has to be a number' );
         }
 
@@ -732,7 +754,7 @@
      * @returns {Matrix} Matrix with all entries multiplied by k.
      */
     Matrix.prototype.scale = function (k) {
-        if( !MatrixUtils.isNumber( k ) ) {
+        if( !isNumber( k ) ) {
             throw new MatrixError( MatrixError.ErrorCodes.INVALID_PARAMETERS, 'Parameter must be a number' );
         }
 
@@ -1141,7 +1163,7 @@
             columns = this.columns(),
             row;
 
-        if( !MatrixUtils.isNumber( needle ) || !MatrixUtils.isNumber( precision ) ) {
+        if( !isNumber( needle ) || !isNumber( precision ) ) {
             throw new MatrixError( MatrixError.ErrorCodes.INVALID_PARAMETERS, 'Parameter must be a number' );
         }
 
@@ -1328,7 +1350,7 @@
      * @returns {number}
      */
     Matrix.prototype.pnorm = function (p) {
-        if( !MatrixUtils.isInteger( p ) ) {
+        if( !isInteger( p ) ) {
             throw new MatrixError( MatrixError.ErrorCodes.INVALID_PARAMETERS, 'Parameter must be an integer' );
         }
 
@@ -1431,8 +1453,8 @@
      * @returns {boolean}
      */
     Matrix.prototype.isInRange = function (row, column) {
-        return (!MatrixUtils.isNumber( row ) || ( row >= 1 && row <= this.rows() ) )
-            && (!MatrixUtils.isNumber( column ) || ( column >= 1 && column <= this.columns() ) );
+        return (!isNumber( row ) || ( row >= 1 && row <= this.rows() ) )
+            && (!isNumber( column ) || ( column >= 1 && column <= this.columns() ) );
     };
 
     /**
@@ -1552,40 +1574,6 @@
     };
 
     /**
-     * @static
-     */
-    MatrixUtils.isNumber = function (k) {
-        return typeof k === 'number';
-    };
-
-    /**
-     * @static
-     */
-    MatrixUtils.isInteger = function (k) {
-        return MatrixUtils.isNumber( k ) && (k | 0) === k;
-    };
-
-    /**
-     * @static
-     */
-    MatrixUtils.isMatrix = function (obj) {
-        return obj instanceof Matrix;
-    };
-
-    /**
-     * @static
-     */
-    MatrixUtils.isNumberArray = function (obj) {
-        for( var i = 0; i < obj.length; i++ ) {
-            if( !MatrixUtils.isNumber( obj[i] ) ) {
-                return false;
-            }
-        }
-
-        return true;
-    };
-
-    /**
      * Generate an array with linearly increasing numbers
      * @param {number} start Number to start with
      * @param {number} end Number to end with
@@ -1621,10 +1609,11 @@
 
     /**
      * @param {(Matrix|Array.<number>)} obj
+     * @returns {Array.<number>}
      * @static
      */
     MatrixUtils.toArray = function (obj) {
-        if( !MatrixUtils.isMatrix( obj ) ) {
+        if( obj instanceof Array ) {
             return obj;
         }
 
@@ -1651,7 +1640,7 @@
      * @static
      */
     MatrixUtils.getNumberWithDefault = function (obj, defaultValue) {
-        return (MatrixUtils.isNumber( obj )) ? obj : defaultValue;
+        return (isNumber( obj )) ? obj : defaultValue;
     };
 
     /**
