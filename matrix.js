@@ -102,7 +102,8 @@
         /** @expose */ OUT_OF_BOUNDS: 'Out of bounds',
         /** @expose */ DIMENSION_MISMATCH: 'Dimension mismatch',
         /** @expose */ MATRIX_IS_SINGULAR: 'Matrix is singular',
-        /** @expose */ UNKNOWN_TYPE: 'Unknown type'
+        /** @expose */ UNKNOWN_TYPE: 'Unknown type',
+        /** @expose */ SIZE_NOT_GIVEN: 'Size not given'
     };
 
     /**
@@ -250,6 +251,7 @@
      */
     function SparseMatrix (var_args) {
         var args = [].slice.call( arguments ),
+            __rows,
             __columns,
             __elements = [],
             __columnIndicator = [],
@@ -291,7 +293,7 @@
          * @override
          */
         this.rows = function () {
-            return __rowPointer.length - 1;
+            return __rows;
         };
 
         /**
@@ -304,13 +306,25 @@
         };
 
         (function () {
-            if( args.length === 4 && isNumber( args[0] ) && isArray( args[1] ) && isArray( args[2] )
-                && isArray( args[3] ) ) {
-                __columns = args[0];
-                __elements = args[1];
-                __columnIndicator = args[2];
-                __rowPointer = args[3];
+            if( args.length >= 1 && args.length <= 2 && isInteger( args[0] )
+                && ( args.length === 1 || isInteger( args[1] ) ) ) {
+                __rows = args[0];
+                __columns = args[1] || __rows;
+                __elements = [];
+                __columnIndicator = [];
+                __rowPointer = MatrixUtils.repeat( __rows + 1, 0 );
+            } else if( args.length === 5 && isInteger( args[0] ) && isInteger( args[1] ) && isArray( args[2] )
+                && isArray( args[3] ) && isArray( args[4] ) ) {
+                __rows = args[0];
+                __columns = args[1];
+                __elements = args[2];
+                __columnIndicator = args[3];
+                __rowPointer = args[4];
 
+                if( __rows != __rowPointer.length - 1 ) {
+                    throw new MatrixError( MatrixError.ErrorCodes.OUT_OF_BOUNDS,
+                        'Number of rows is too small' );
+                }
                 if( __elements.length !== __columnIndicator.length ) {
                     throw new MatrixError( MatrixError.ErrorCodes.INVALID_PARAMETERS,
                         'Arrays for values and column indicators have to be the same size' );
@@ -319,10 +333,8 @@
                     throw new MatrixError( MatrixError.ErrorCodes.INVALID_PARAMETERS,
                         'Number of columns has to be bigger than the biggest column index' );
                 }
-            } else if( 1 ) {
-                // [{i: number, j: number, value: number}]
-            } else if( 1 ) {
-                // SparseBuilder
+            } else if( args.length === 1 && args[0] instanceof SparseBuilder ) {
+                return args[0].build();
             } else {
                 throw new MatrixError( MatrixError.ErrorCodes.INVALID_PARAMETERS,
                     'Parameters must match a supported signature' );
@@ -382,6 +394,81 @@
         })();
 
         return this;
+    }
+
+    /**
+     * TODO documentation
+     * @constructor
+     */
+    function SparseBuilder () {
+        var __rows, __columns,
+            __values = [];
+
+        function add (i, j, value) {
+            __values.push( {
+                row: i,
+                column: j,
+                value: value
+            } );
+        }
+
+        this.size = function (rows, columns) {
+            __rows = rows;
+            __columns = columns;
+
+            return this;
+        };
+
+        this.set = function (row, column, value) {
+            if( !isInteger( __rows ) || !isInteger( __columns ) ) {
+                throw new MatrixError( MatrixError.ErrorCodes.SIZE_NOT_GIVEN,
+                    'Size has to be specified first' );
+            }
+
+            if( row > __rows || column > __columns ) {
+                throw new MatrixError( MatrixError.ErrorCodes.OUT_OF_BOUNDS );
+            }
+
+            add( row, column, value );
+            return this;
+        };
+
+        this.build = function () {
+            __values.sort( function (a, b) {
+                if( a.row != b.row ) {
+                    return (a.row < b.row) ? -1 : 1;
+                }
+
+                if( a.column != b.column ) {
+                    return (a.column < b.column) ? -1 : 1;
+                }
+
+                return 0;
+            } );
+
+            var elements = [],
+                rowPointer = MatrixUtils.repeat( __rows + 1, 0 ),
+                columnIndicator = [],
+                lastRow = 1;
+
+            for( var i = 0; i < __values.length; i++ ) {
+                var current = __values[i];
+
+                elements[i] = current.value;
+                columnIndicator[i] = current.column;
+
+                if( current.row !== lastRow ) {
+                    for( var k = lastRow; k < current.row; k++ ) {
+                        rowPointer[k] = i;
+                    }
+
+                    lastRow = current.row;
+                }
+            }
+
+            rowPointer[__rows] = columnIndicator.length;
+            return new SparseMatrix( __rows, __columns, elements, columnIndicator, rowPointer );
+        };
     }
 
     /* Matrix */
@@ -1655,7 +1742,7 @@
         for( var i = 1; i <= rows; i++ ) {
             current = [];
             for( var j = 1; j <= columns; j++ ) {
-                current[j] = this.___get( i, j );
+                current[j - 1] = this.___get( i, j );
             }
 
             outputRows.push( current.join( columnSeparator ) );
@@ -1852,4 +1939,5 @@
     window.SparseMatrix = SparseMatrix;
     window.Vector = Vector;
     window.MatrixUtils = MatrixUtils;
+    window.SparseBuilder = SparseBuilder;
 })( window );
