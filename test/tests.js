@@ -107,20 +107,11 @@ Test.runAll = function () {
 // ##########
 
 new Test( function () {
-    assertDimension( new Matrix( 3, 3 ), 3, 3 );
-}, 'Create Matrix 1' );
-
-new Test( function () {
-    assertDimension( new Matrix( 3, 4 ), 3, 4 );
-}, 'Create Matrix 2' );
-
-new Test( function () {
-    assertDimension( new Matrix( 4, 3 ), 4, 3 );
-}, 'Create Matrix 3' );
-
-new Test( function () {
     assertDimension( new Matrix( 3 ), 3, 3 );
-}, 'Create Matrix 4' );
+    assertDimension( new Matrix( 3, 3 ), 3, 3 );
+    assertDimension( new Matrix( 3, 4 ), 3, 4 );
+    assertDimension( new Matrix( 4, 3 ), 4, 3 );
+}, 'Create Matrix 1' );
 
 new Test( function () {
     assertDimension( new Matrix( [
@@ -128,32 +119,32 @@ new Test( function () {
         [0, 0, 0],
         [0, 0, 0]
     ] ), 3, 3 );
-}, 'Create Matrix 5' );
+}, 'Create Matrix 2' );
 
 new Test( function () {
     assertMatrix( new Matrix( [1, 0, 0, 0, 1, 0, 0, 0, 1] ), Matrix.eye( 3 ) );
-}, 'Create Matrix 6' );
+}, 'Create Matrix 3' );
 
 new Test( function () {
     assertMatrix( new Matrix( [1, 2, 3, 4, 5, 6], 2, 3 ), new Matrix( [
         [1, 2, 3],
         [4, 5, 6]
     ] ) );
-}, 'Create Matrix 7' );
+}, 'Create Matrix 4' );
 
 new Test( function () {
     assertMatrix( new Matrix( [1, 2, 3, 4, 5, 6], 2 ), new Matrix( [
         [1, 2, 3],
         [4, 5, 6]
     ] ) );
-}, 'Create Matrix 8' );
+}, 'Create Matrix 5' );
 
 new Test( function () {
     assertMatrix( new Matrix( [1, 2, 3, 4, 5, 6], null, 3 ), new Matrix( [
         [1, 2, 3],
         [4, 5, 6]
     ] ) );
-}, 'Create Matrix 9' );
+}, 'Create Matrix 6' );
 
 new Test( function () {
     assertEquals( Matrix.zeros( 3 ).get( 2, 3 ), 0 );
@@ -733,6 +724,16 @@ new Test( function () {
     assertEquals( Matrix.zeros( 3 ).isSameSizeAs( Matrix.zeros( 3, 4 ) ), false );
     assertEquals( Matrix.zeros( 4, 3 ).isSameSizeAs( Matrix.zeros( 3, 4 ) ), false );
 }, 'IsSameSizeAs 1' );
+
+new Test( function () {
+    assertDimension( new SparseMatrix( 3 ), 3, 3 );
+    assertDimension( new SparseMatrix( 3, 4 ), 3, 4 );
+    assertDimension( new SparseMatrix( 4, 3 ), 4, 3 );
+
+    assertDimension( new SparseBuilder().size( 3, 3 ).build(), 3, 3 );
+    assertDimension( new SparseBuilder().size( 3, 4 ).build(), 3, 4 );
+    assertDimension( new SparseBuilder().size( 4, 3 ).build(), 4, 3 );
+}, 'Create SparseMatrix 1' );
 
 new Test( function () {
     var M;

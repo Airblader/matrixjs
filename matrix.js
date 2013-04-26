@@ -1724,6 +1724,33 @@
     };
 
     /**
+     * Get the dimensions of the matrix.
+     * @param {(number|string)} which Define which dimension should be returned. Possible values are:
+     *  - 1 or 'rows' : Number of rows
+     *  - 2 or 'columns' : Number of columns
+     *  - 'max' : Dominant dimension
+     *  - 'min' : Smaller dimension
+     * @returns {number} Object with the dimensions of requested dimension or just
+     * the requested dimension.
+     */
+    SparseMatrix.prototype.dim = function (which) {
+        switch( which ) {
+            case 1:
+            case 'rows':
+                return this.rows();
+            case 2:
+            case 'columns':
+                return this.columns();
+            case 'max':
+                return Math.max( this.rows(), this.columns() );
+            case 'min':
+                return Math.min( this.rows(), this.columns() );
+            default:
+                throw new MatrixError( MatrixError.ErrorCodes.INVALID_PARAMETERS, 'Parameter must match a known value' );
+        }
+    };
+
+    /**
      * Create a string representation of the matrix.
      * @param {string} [rowSeparator=MatrixUtils.options.stringify.rowSeparator] Delimiter between columns
      * @param {string} [columnSeparator=MatrixUtils.options.stringify.columnSeparator] Delimiter between the last column of the
