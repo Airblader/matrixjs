@@ -18,6 +18,10 @@
         return isNumber( k ) && (k | 0) === k;
     }
 
+    function isArray (obj) {
+        return obj instanceof Array;
+    }
+
     function isNumberArray (obj) {
         for( var i = 0; i < obj.length; i++ ) {
             if( !isNumber( obj[i] ) ) {
@@ -41,7 +45,7 @@
     }
 
     function toArray (obj) {
-        if( obj instanceof Array ) {
+        if( isArray( obj ) ) {
             return obj;
         }
 
@@ -177,7 +181,7 @@
 
         // Constructor
         (function () {
-            if( args.length === 1 && args[0] instanceof Array && args[0].length !== 0 && args[0][0] instanceof Array ) {
+            if( args.length === 1 && isArray( args[0] ) && args[0].length !== 0 && isArray( args[0][0] ) ) {
                 __rows = args[0].length;
                 __columns = -1;
 
@@ -193,7 +197,7 @@
                     __columns = Math.max( __columns, args[0][i].length );
                     __elements = __elements.concat( args[0][i] );
                 }
-            } else if( args.length >= 1 && args.length <= 3 && args[0] instanceof Array
+            } else if( args.length >= 1 && args.length <= 3 && isArray( args[0] )
                 && ( args[0].length === 0 || isNumber( args[0][0] ) ) ) {
 
                 if( !isNumberArray( args[0] ) ) {
@@ -300,11 +304,29 @@
         };
 
         (function () {
-            // TODO
-            __elements = [1, 2, 3];
-            __columnIndicator = [1, 2, 3];
-            __rowPointer = [0, 1, 2, 3];
-            __columns = 3;
+            if( args.length === 4 && isNumber( args[0] ) && isArray( args[1] ) && isArray( args[2] )
+                && isArray( args[3] ) ) {
+                __columns = args[0];
+                __elements = args[1];
+                __columnIndicator = args[2];
+                __rowPointer = args[3];
+
+                if( __elements.length !== __columnIndicator.length ) {
+                    throw new MatrixError( MatrixError.ErrorCodes.INVALID_PARAMETERS,
+                        'Arrays for values and column indicators have to be the same size' );
+                }
+                if( Math.max.apply( this, __columnIndicator ) > __columns ) {
+                    throw new MatrixError( MatrixError.ErrorCodes.INVALID_PARAMETERS,
+                        'Number of columns has to be bigger than the biggest column index' );
+                }
+            } else if( 1 ) {
+                // [{i: number, j: number, value: number}]
+            } else if( 1 ) {
+                // SparseBuilder
+            } else {
+                throw new MatrixError( MatrixError.ErrorCodes.INVALID_PARAMETERS,
+                    'Parameters must match a supported signature' );
+            }
         })();
 
         return this;
@@ -361,6 +383,8 @@
 
         return this;
     }
+
+    /* Matrix */
 
     /**
      * Default settings
@@ -1605,6 +1629,84 @@
         return Result;
     };
 
+    /* SparseMatrix */
+
+    /**
+     * Get an entry from the matrix.
+     * @param {number} row
+     * @param {number} column
+     * @returns {number}
+     */
+    SparseMatrix.prototype.get = function (row, column) {
+        if( !this.isInRange( row, column ) ) {
+            throw new MatrixError( MatrixError.ErrorCodes.OUT_OF_BOUNDS );
+        }
+
+        return this.___get( row, column );
+    };
+
+    /**
+     * Set an entry in the matrix.
+     * Note: This function modifies the instance it is called on.
+     * @param {number} row
+     * @param {number} column
+     * @param {number} value
+     * @returns {SparseMatrix}
+     */
+    SparseMatrix.prototype.set = function (row, column, value) {
+        if( !this.isInRange( row, column ) ) {
+            throw new MatrixError( MatrixError.ErrorCodes.OUT_OF_BOUNDS );
+        }
+
+        if( !isNumber( value ) ) {
+            throw new MatrixError( MatrixError.ErrorCodes.INVALID_PARAMETERS, 'Value has to be a number' );
+        }
+
+        return this.___set( row, column, value );
+    };
+
+    /**
+     * Create a string representation of the matrix.
+     * @param {string} [rowSeparator=Matrix.options.stringify.rowSeparator] Delimiter between columns
+     * @param {string} [columnSeparator=Matrix.options.stringify.columnSeparator] Delimiter between the last column of the
+     * previous and first column of the next row
+     * @returns {string}
+     */
+    SparseMatrix.prototype.stringify = function (rowSeparator, columnSeparator) {
+        rowSeparator = getStringWithDefault( rowSeparator, Matrix.options.stringify.rowSeparator );
+        columnSeparator = getStringWithDefault( columnSeparator, Matrix.options.stringify.columnSeparator );
+
+        var outputRows = [],
+            current,
+            rows = this.rows(),
+            columns = this.columns();
+
+        for( var i = 1; i <= rows; i++ ) {
+            current = [];
+            for( var j = 1; j <= columns; j++ ) {
+                current[j] = this.___get( i, j );
+            }
+
+            outputRows.push( current.join( columnSeparator ) );
+        }
+
+        return outputRows.join( rowSeparator );
+    };
+
+    /**
+     * Check if a given position is in the range of the matrix.
+     * If either parameter is null, it will not be considered.
+     * @param {?number} row
+     * @param {?number} column
+     * @returns {boolean}
+     */
+    SparseMatrix.prototype.isInRange = function (row, column) {
+        return (!isNumber( row ) || ( row >= 1 && row <= this.rows() ) )
+            && (!isNumber( column ) || ( column >= 1 && column <= this.columns() ) );
+    };
+
+    /* MatrixUtils */
+
     /**
      * Generate an array with linearly increasing numbers
      * @param {number} start Number to start with
@@ -1678,6 +1780,8 @@
         }
     };
 
+    /* Primitive */
+
     /**
      * Convert array to matrix.
      * This method simply calls the {@link Matrix} constructor.
@@ -1741,6 +1845,8 @@
 
         return Result;
     };
+
+    /* Export */
 
     window.Matrix = Matrix;
     window.SparseMatrix = SparseMatrix;
