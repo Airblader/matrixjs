@@ -629,16 +629,6 @@ new Test( function () {
 }, 'Matrix: isSameSizeAs' );
 
 new Test( function () {
-    assertDimension( new SparseMatrix( 3 ), 3, 3 );
-    assertDimension( new SparseMatrix( 3, 4 ), 3, 4 );
-    assertDimension( new SparseMatrix( 4, 3 ), 4, 3 );
-
-    assertDimension( new SparseBuilder().size( 3, 3 ).build(), 3, 3 );
-    assertDimension( new SparseBuilder().size( 3, 4 ).build(), 3, 4 );
-    assertDimension( new SparseBuilder().size( 4, 3 ).build(), 4, 3 );
-}, 'SparseMatrix: Create' );
-
-new Test( function () {
     assertMatrix( new SparseBuilder().size( 2, 3 ).build(), new SparseMatrix( 2, 3 ) );
     assertMatrix( new SparseBuilder().size( 2, 3 ).set( 2, 2, 0 ).build(), new SparseMatrix( 2, 3 ) );
     assertMatrix( new SparseBuilder().size( 2, 3 ).set( 1, 3, 1 ).build(), new SparseMatrix( 2, 3 ).set( 1, 3, 1 ) );
@@ -658,6 +648,16 @@ new Test( function () {
 }, 'SparseBuilder: Build' );
 
 new Test( function () {
+    assertDimension( new SparseMatrix( 3 ), 3, 3 );
+    assertDimension( new SparseMatrix( 3, 4 ), 3, 4 );
+    assertDimension( new SparseMatrix( 4, 3 ), 4, 3 );
+
+    assertDimension( new SparseBuilder().size( 3, 3 ).build(), 3, 3 );
+    assertDimension( new SparseBuilder().size( 3, 4 ).build(), 3, 4 );
+    assertDimension( new SparseBuilder().size( 4, 3 ).build(), 4, 3 );
+}, 'SparseMatrix: Create' );
+
+new Test( function () {
     assertEquals( new SparseMatrix( 3 ).get( 2, 3 ), 0 );
     assertEquals( new SparseMatrix( 3 ).set( 2, 2, 1 ).get( 2, 2 ), 1 );
 
@@ -668,11 +668,31 @@ new Test( function () {
         .set( 2, 3, 7 )
         .build();
 
+    assertEquals( M.get( 1, 2 ), 0 );
+    assertEquals( M.get( 3, 1 ), 0 );
     assertEquals( M.get( 1, 1 ), 1 );
     assertEquals( M.get( 2, 2 ), 2 );
     assertEquals( M.get( 3, 3 ), 3 );
     assertEquals( M.get( 2, 3 ), 7 );
 }, 'SparseMatrix: Get / Set' );
+
+new Test( function () {
+    assertArray( new SparseMatrix( 3 ).getRow( 3 ), [0, 0, 0] );
+    //assertArray( new SparseMatrix( 3 ).getColumn( 3 ), [0, 0, 0] );
+}, 'SparseMatrix: Get Row / Get Column 1' );
+
+new Test( function () {
+    var M = new SparseMatrix( 4, 3, [1, 2, 3, 4, 5, 6, 7, 8, 9], [1, 2, 3, 1, 2, 3, 1, 2, 3], [0, 3, 3, 6, 9] );
+
+    assertArray( M.getRow( 1 ), [1, 2, 3] );
+    assertArray( M.getRow( 2 ), [0, 0, 0] );
+    assertArray( M.getRow( 3 ), [4, 5, 6] );
+    assertArray( M.getRow( 4 ), [7, 8, 9] );
+
+    //assertArray( M.getColumn( 1 ), [1, 0, 4, 7] );
+    //assertArray( M.getColumn( 2 ), [2, 0, 5, 8] );
+    //assertArray( M.getColumn( 3 ), [3, 0, 6, 9] );
+}, 'SparseMatrix: Get Row / Get Column 2' );
 
 // ##########
 

@@ -1784,12 +1784,13 @@
      * @ignore
      */
     SparseMatrix.prototype.__getRow = function (row) {
-        var result = [],
-            columns = this.columns();
+        var result = MatrixUtils.repeat( this.columns(), 0 ),
+            rowPointer = this.___getRowPointer(),
+            columnIndicator = this.___getColumnIndicator(),
+            elements = this.___getElements();
 
-        // TODO performance can be improved by using internals
-        for( var i = 1; i <= columns; i++ ) {
-            result.push( this.___get( row, i ) );
+        for( var i = rowPointer[row - 1]; i < rowPointer[row]; i++ ) {
+            result[columnIndicator[i] - 1] = elements[i];
         }
 
         return result;
