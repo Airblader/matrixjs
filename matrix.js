@@ -276,12 +276,34 @@
          * @private
          */
         this.___set = function (row, column, value) {
-            var row_index = __rowPointer[row];
-            __elements.splice( row_index, 0, value );
-            __columnIndicator.splice( row_index, 0, column );
+            var index,
+                hasBeenAssignedBefore = false;
+            for( var k = __rowPointer[row - 1]; k < __rowPointer[row]; k++ ) {
+                index = k;
 
-            for( var i = row; i < __rowPointer.length; i++ ) {
-                __rowPointer[i] += 1;
+                if( __columnIndicator[k] === column ) {
+                    hasBeenAssignedBefore = true;
+                    break;
+                }
+            }
+
+            if( !hasBeenAssignedBefore && value !== 0 ) {
+                for( var i = row; i < __rowPointer.length; i++ ) {
+                    __rowPointer[i] += 1;
+                }
+
+                __elements.splice( index, 0, value );
+                __columnIndicator.splice( index, 0, column );
+            } else if( hasBeenAssignedBefore && value !== 0 ) {
+                __elements.splice( index, 1, value );
+                __columnIndicator.splice( index, 1, column );
+            } else {
+                for( var i = row; i < __rowPointer.length; i++ ) {
+                    __rowPointer[i] -= 1;
+                }
+
+                __elements.splice( index, 1 );
+                __columnIndicator.splice( index, 1 );
             }
 
             return this;
@@ -321,6 +343,10 @@
                 __columnIndicator = args[3];
                 __rowPointer = args[4];
 
+                if( __elements.indexOf( 0 ) !== -1 ) {
+                    throw new MatrixError( MatrixError.ErrorCodes.INVALID_PARAMETERS,
+                        'Values must not be 0' );
+                }
                 if( __rows != __rowPointer.length - 1 ) {
                     throw new MatrixError( MatrixError.ErrorCodes.OUT_OF_BOUNDS,
                         'Number of rows is too small' );
@@ -425,11 +451,28 @@
                     'Size has to be specified first' );
             }
 
+            if( !isNumber( value ) ) {
+                throw new MatrixError( MatrixError.ErrorCodes.INVALID_PARAMETERS,
+                    'Value is not numeric' );
+            }
+
+            // prevent setting the same entry multiple times
+            var assignedBefore = __values.filter(function (current) {
+                return current.row === row && current.column === column;
+            } ).length;
+            if( assignedBefore !== 0 ) {
+                throw new MatrixError( MatrixError.ErrorCodes.INVALID_PARAMETERS,
+                    'Cannot set same entry multiple times' );
+            }
+
             if( row > __rows || column > __columns ) {
                 throw new MatrixError( MatrixError.ErrorCodes.OUT_OF_BOUNDS );
             }
 
-            add( row, column, value );
+            if( value !== 0 ) {
+                add( row, column, value );
+            }
+
             return this;
         };
 
@@ -510,24 +553,21 @@
     /**
      * Get a row.
      * @param {number} row The row index of the row that shall be returned
-     * @param {boolean} [asMatrix=false] If true, the row will be returned as a matrix, otherwise as an array.
-     * @returns {Array.<number>|Matrix} Array of the elements in the specified row.
+     * @returns {Array.<number>|Matrix}
      */
-    Matrix.prototype.getRow = function (row, asMatrix) {
-        asMatrix = getBooleanWithDefault( asMatrix, false );
-
+    Matrix.prototype.getRow = function (row) {
         if( !this.isInRange( row, null ) ) {
             throw new MatrixError( MatrixError.ErrorCodes.OUT_OF_BOUNDS );
         }
 
-        return this.__getRow( row, asMatrix );
+        return this.__getRow( row );
     };
 
     /**
      * @private
      * @ignore
      */
-    Matrix.prototype.__getRow = function (row, asMatrix) {
+    Matrix.prototype.__getRow = function (row) {
         var result = [],
             columns = this.columns();
 
@@ -535,7 +575,7 @@
             result.push( this.___get( row, i ) );
         }
 
-        return (asMatrix) ? new Matrix( result, 1 ) : result;
+        return result;
     };
 
     /**
@@ -576,24 +616,21 @@
     /**
      * Get a column.
      * @param {number} column The column index of the column that shall be returned
-     * @param {boolean} [asMatrix=false] If true, the column will be returned as a matrix, otherwise as an array.
-     * @returns {(Array.<number>|Matrix)} Array of the elements in the specified column.
+     * @returns {(Array.<number>|Matrix)}
      */
-    Matrix.prototype.getColumn = function (column, asMatrix) {
-        asMatrix = getBooleanWithDefault( asMatrix, false );
-
+    Matrix.prototype.getColumn = function (column) {
         if( !this.isInRange( null, column ) ) {
             throw new MatrixError( MatrixError.ErrorCodes.OUT_OF_BOUNDS );
         }
 
-        return this.__getColumn( column, asMatrix );
+        return this.__getColumn( column );
     };
 
     /**
      * @private
      * @ignore
      */
-    Matrix.prototype.__getColumn = function (column, asMatrix) {
+    Matrix.prototype.__getColumn = function (column) {
         var result = [],
             rows = this.rows();
 
@@ -601,7 +638,7 @@
             result.push( this.___get( i, column ) );
         }
 
-        return (asMatrix) ? new Matrix( result, null, 1 ) : result;
+        return result;
     };
 
     /**
@@ -813,8 +850,8 @@
             rowA, rowB;
 
         for( var i = 1; i <= rows; i++ ) {
-            rowA = this.__getRow( i, false );
-            rowB = M.__getRow( i, false );
+            rowA = this.__getRow( i );
+            rowB = M.__getRow( i );
 
             for( var j = 0; j < columns; j++ ) {
                 rowA[j] += rowB[j];
@@ -849,8 +886,8 @@
             rowA, rowB;
 
         for( var i = 1; i <= rows; i++ ) {
-            rowA = this.__getRow( i, false );
-            rowB = M.__getRow( i, false );
+            rowA = this.__getRow( i );
+            rowB = M.__getRow( i );
 
             for( var j = 0; j < columns; j++ ) {
                 rowA[j] -= rowB[j];
@@ -878,7 +915,7 @@
             row;
 
         for( var i = 1; i <= rows; i++ ) {
-            row = this.__getRow( i, false );
+            row = this.__getRow( i );
 
             for( var j = 0; j < columns; j++ ) {
                 row[j] *= k;
@@ -908,8 +945,8 @@
         for( var i = 1; i <= dimOuterLeft; i++ ) {
             for( var j = 1; j <= dimOuterRight; j++ ) {
                 var temp = 0,
-                    rowA = this.__getRow( i, false ),
-                    columnB = M.__getColumn( j, false );
+                    rowA = this.__getRow( i ),
+                    columnB = M.__getColumn( j );
 
                 for( var k = 0; k < dimInner; k++ ) {
                     temp += rowA[k] * columnB[k];
@@ -931,7 +968,7 @@
             Result = new Matrix( this.columns(), rows );
 
         for( var i = 1; i <= rows; i++ ) {
-            Result.__setColumn( i, this.__getRow( i, false ) );
+            Result.__setColumn( i, this.__getRow( i ) );
         }
 
         return Result;
@@ -977,7 +1014,7 @@
             pivot = 0;
             maxArg = -1;
 
-            column_k = LU.__getColumn( k, false );
+            column_k = LU.__getColumn( k );
             for( i = k; i <= rows; i++ ) {
                 currArg = Math.abs( column_k[i - 1] );
 
@@ -992,17 +1029,17 @@
             }
 
             if( pivot !== k ) {
-                tempRow = LU.__getRow( pivot, false );
+                tempRow = LU.__getRow( pivot );
 
-                LU.__setRow( pivot, LU.__getRow( k, false ) );
+                LU.__setRow( pivot, LU.__getRow( k ) );
                 LU.__setRow( k, tempRow );
 
                 swappedRows++;
             }
 
-            row_k = LU.__getRow( k, false );
+            row_k = LU.__getRow( k );
             for( i = k + 1; i <= rows; i++ ) {
-                row_i = LU.__getRow( i, false );
+                row_i = LU.__getRow( i );
 
                 for( j = k; j < columns; j++ ) {
                     row_i[j] = row_i[j] - row_k[j] * ( row_i[k - 1] ) / row_k[k - 1];
@@ -1079,8 +1116,8 @@
 
             // TODO The following two loops can probably be rewritten into something smarter
             for( i = rows; i > 1; i-- ) {
-                row_before = M.__getRow( i - 1, false );
-                row = M.__getRow( i, false );
+                row_before = M.__getRow( i - 1 );
+                row = M.__getRow( i );
                 factor = row_before[i - 1] / row[i - 1];
 
                 new_row = [];
@@ -1091,7 +1128,7 @@
             }
 
             for( j = 1; j <= rows; j++ ) {
-                row = M.__getRow( j, false );
+                row = M.__getRow( j );
                 new_row = [];
 
                 for( k = 0; k < columns; k++ ) {
@@ -1128,7 +1165,7 @@
 
         var Result = new Matrix( mResult, nResult );
         for( var i = rowStart; i <= rowEnd; i++ ) {
-            Result.__setRow( i - rowStart + 1, this.__getRow( i, false ).slice( columnStart - 1, columnEnd ) );
+            Result.__setRow( i - rowStart + 1, this.__getRow( i ).slice( columnStart - 1, columnEnd ) );
         }
 
         return Result;
@@ -1151,10 +1188,10 @@
         var Result = new Matrix( rows, columns + columnsM );
 
         for( var i = 1; i <= columns; i++ ) {
-            Result.__setColumn( i, this.__getColumn( i, false ) );
+            Result.__setColumn( i, this.__getColumn( i ) );
         }
         for( var j = 1; j <= columnsM; j++ ) {
-            Result.__setColumn( j + columns, M.__getColumn( j, false ) );
+            Result.__setColumn( j + columns, M.__getColumn( j ) );
         }
 
         return Result;
@@ -1249,7 +1286,7 @@
         var Result = new Matrix( rows + 1, this.columns() );
 
         for( var i = 1; i <= rows; i++ ) {
-            Result.__setRow( i, this.__getRow( i, false ) );
+            Result.__setRow( i, this.__getRow( i ) );
         }
 
         Result.__setRow( rows + 1, row );
@@ -1282,7 +1319,7 @@
         }
 
         for( var i = 1; i <= rows; i++ ) {
-            row = this.__getRow( i, false );
+            row = this.__getRow( i );
 
             for( var j = 0; j < columns; j++ ) {
                 if( precision === 0 ) {
@@ -1316,7 +1353,7 @@
             rows = this.rows();
 
         for( var i = 1; i <= rows; i++ ) {
-            current = this.__getRow( i, false );
+            current = this.__getRow( i );
             outputRows.push( current.join( columnSeparator ) );
         }
 
@@ -1338,8 +1375,8 @@
         }
 
         for( var i = 1; i <= rows; i++ ) {
-            row = this.__getRow( i, false );
-            other_row = M.__getRow( i, false );
+            row = this.__getRow( i );
+            other_row = M.__getRow( i );
 
             for( var j = 0; j < columns; j++ ) {
                 if( row[j] !== other_row[j] ) {
@@ -1378,7 +1415,7 @@
             Result = new Matrix( rows, columns );
 
         for( var i = 1; i <= rows; i++ ) {
-            row = this.__getRow( i, false );
+            row = this.__getRow( i );
 
             for( var j = 1; j <= columns; j++ ) {
                 current = row[j - 1];
@@ -1474,7 +1511,7 @@
             row;
 
         for( var i = 1; i <= rows; i++ ) {
-            row = this.__getRow( i, false );
+            row = this.__getRow( i );
 
             for( var j = 0; j < columns; j++ ) {
                 norm += Math.pow( Math.abs( row[j] ), p );
@@ -1495,7 +1532,7 @@
             row;
 
         for( var i = 1; i <= rows; i++ ) {
-            row = this.__getRow( i, false );
+            row = this.__getRow( i );
 
             for( var j = 0; j < columns; j++ ) {
                 norm = Math.max( norm, Math.abs( row[j] ) );
@@ -1514,7 +1551,7 @@
             rows = this.rows();
 
         for( var i = 1; i <= rows; i++ ) {
-            norm = Math.max( norm, this.__getRow( i, true ).pnorm( 1 ) );
+            norm = Math.max( norm, this.__getRow( i ).toMatrix( 1 ).pnorm( 1 ) );
         }
 
         return norm;
@@ -1529,7 +1566,7 @@
             columns = this.columns();
 
         for( var i = 1; i <= columns; i++ ) {
-            norm = Math.max( norm, this.__getColumn( i, true ).pnorm( 1 ) );
+            norm = Math.max( norm, this.__getColumn( i ).toMatrix( null, 1 ).pnorm( 1 ) );
         }
 
         return norm;
@@ -1721,6 +1758,34 @@
         }
 
         return this.___set( row, column, value );
+    };
+
+    /**
+     * Get a row.
+     * @param {number} row The row index of the row that shall be returned
+     * @returns {Array.<number>}
+     */
+    SparseMatrix.prototype.getRow = function (row) {
+        if( !this.isInRange( row, null ) ) {
+            throw new MatrixError( MatrixError.ErrorCodes.OUT_OF_BOUNDS );
+        }
+
+        return this.__getRow( row );
+    };
+
+    /**
+     * @private
+     * @ignore
+     */
+    SparseMatrix.prototype.__getRow = function (row) {
+        var result = [],
+            columns = this.columns();
+
+        for( var i = 1; i <= columns; i++ ) {
+            result.push( this.___get( row, i ) );
+        }
+
+        return result;
     };
 
     /**

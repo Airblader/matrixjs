@@ -202,16 +202,6 @@ new Test( function () {
 }, 'Get Row/Column 2' );
 
 new Test( function () {
-    assertEquals( Matrix.zeros( 3 ).getRow( 2 ) instanceof Matrix, false );
-    assertEquals( Matrix.zeros( 3 ).getRow( 2, false ) instanceof Matrix, false );
-    assertEquals( Matrix.zeros( 3 ).getRow( 2, true ) instanceof Matrix, true );
-
-    assertEquals( Matrix.zeros( 3 ).getColumn( 2 ) instanceof Matrix, false );
-    assertEquals( Matrix.zeros( 3 ).getColumn( 2, false ) instanceof Matrix, false );
-    assertEquals( Matrix.zeros( 3 ).getColumn( 2, true ) instanceof Matrix, true );
-}, 'Get Row/Column 3' );
-
-new Test( function () {
     var A = new Matrix( 3 ),
         B = new Matrix( 3 ),
         M = new Matrix( [1, 2, 3, 4, 5, 6, 7, 8, 9] );
