@@ -638,6 +638,42 @@ new Test( function () {
     assertDimension( new SparseBuilder().size( 4, 3 ).build(), 4, 3 );
 }, 'SparseMatrix: Create' );
 
+new Test( function () {
+    assertMatrix( new SparseBuilder().size( 2, 3 ).build(), new SparseMatrix( 2, 3 ) );
+    assertMatrix( new SparseBuilder().size( 2, 3 ).set( 2, 2, 0 ).build(), new SparseMatrix( 2, 3 ) );
+    assertMatrix( new SparseBuilder().size( 2, 3 ).set( 1, 3, 1 ).build(), new SparseMatrix( 2, 3 ).set( 1, 3, 1 ) );
+
+    assertMatrix( new SparseBuilder()
+        .size( 10, 3 )
+        .set( 2, 1, 1 )
+        .set( 4, 2, 2 )
+        .set( 10, 3, 3 )
+        .build(), new SparseMatrix( 10, 3, [1, 2, 3], [1, 2, 3], [0, 0, 1, 1, 2, 2, 2, 2, 2, 2, 3] ) );
+
+    assertMatrix( new SparseBuilder()
+        .size( 10, 3 )
+        .set( 1, 3, 1 )
+        .set( 9, 1, 2 )
+        .build(), new SparseMatrix( 10, 3, [1, 2], [3, 1], [0, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2] ) );
+}, 'SparseBuilder: Build' );
+
+new Test( function () {
+    assertEquals( new SparseMatrix( 3 ).get( 2, 3 ), 0 );
+    assertEquals( new SparseMatrix( 3 ).set( 2, 2, 1 ).get( 2, 2 ), 1 );
+
+    var M = new SparseBuilder().size( 3, 3 )
+        .set( 1, 1, 1 )
+        .set( 2, 2, 2 )
+        .set( 3, 3, 3 )
+        .set( 2, 3, 7 )
+        .build();
+
+    assertEquals( M.get( 1, 1 ), 1 );
+    assertEquals( M.get( 2, 2 ), 2 );
+    assertEquals( M.get( 3, 3 ), 3 );
+    assertEquals( M.get( 2, 3 ), 7 );
+}, 'SparseMatrix: Get / Set' );
+
 // ##########
 
 Test.runAll();

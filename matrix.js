@@ -309,6 +309,21 @@
             return this;
         };
 
+        /** @private */
+        this.___getElements = function () {
+            return __elements;
+        };
+
+        /** @private */
+        this.___getColumnIndicator = function () {
+            return __columnIndicator;
+        };
+
+        /** @private */
+        this.___getRowPointer = function () {
+            return __rowPointer;
+        };
+
         /**
          * Get the number of rows.
          * @returns {number}
@@ -500,13 +515,14 @@
                 elements[i] = current.value;
                 columnIndicator[i] = current.column;
 
-                if( current.row !== lastRow ) {
-                    for( var k = lastRow; k < current.row; k++ ) {
-                        rowPointer[k] = i;
+                if( rowPointer[current.row] === 0 ) {
+                    for( var k = lastRow + 1; k <= current.row; k++ ) {
+                        rowPointer[k] = rowPointer[k - 1];
                     }
-
-                    lastRow = current.row;
                 }
+
+                rowPointer[current.row]++;
+                lastRow = current.row;
             }
 
             rowPointer[__rows] = columnIndicator.length;
@@ -683,16 +699,6 @@
      */
     Matrix.prototype.isSameSizeAs = function (M) {
         return ( this.rows() === M.rows() && this.columns() === M.columns() );
-    };
-
-    /**
-     * Check if the matrix is a sparse matrix.
-     * Note: This method only checks if the matrix is an instance of SparseMatrix. It does not actually check the values
-     * and decide whether it is suitable to be sparse-typed.
-     * @returns {boolean}
-     */
-    Matrix.prototype.isSparse = function () {
-        return ( this instanceof SparseMatrix );
     };
 
     /**
@@ -1781,11 +1787,21 @@
         var result = [],
             columns = this.columns();
 
+        // TODO performance can be improved by using internals
         for( var i = 1; i <= columns; i++ ) {
             result.push( this.___get( row, i ) );
         }
 
         return result;
+    };
+
+    /**
+     * Check if matrix has the same dimensions as another matrix.
+     * @param {SparseMatrix} M
+     * @returns {boolean}
+     */
+    SparseMatrix.prototype.isSameSizeAs = function (M) {
+        return ( this.rows() === M.rows() && this.columns() === M.columns() );
     };
 
     /**
@@ -1813,6 +1829,39 @@
             default:
                 throw new MatrixError( MatrixError.ErrorCodes.INVALID_PARAMETERS, 'Parameter must match a known value' );
         }
+    };
+
+    /**
+     * Compare with another matrix.
+     * @param {SparseMatrix} M
+     * @returns {boolean} True if A = M, false otherwise.
+     */
+    SparseMatrix.prototype.equals = function (M) {
+        if( !this.isSameSizeAs( M ) ) {
+            return false;
+        }
+
+        var elements = this.___getElements(),
+            other_elements = M.___getElements(),
+            columnIndicator = this.___getColumnIndicator(),
+            other_columnIndicator = M.___getColumnIndicator();
+
+        for( var i = 0; i < elements.length; i++ ) {
+            if( elements[i] !== other_elements[i] || columnIndicator[i] !== other_columnIndicator[i] ) {
+                return false;
+            }
+        }
+
+        var rowPointer = this.___getRowPointer(),
+            other_rowPointer = M.___getRowPointer();
+
+        for( var j = 0; j < rowPointer.length; j++ ) {
+            if( rowPointer[j] !== other_rowPointer[j] ) {
+                return false;
+            }
+        }
+
+        return true;
     };
 
     /**
