@@ -635,7 +635,7 @@
     /**
      * Get a column.
      * @param {number} column The column index of the column that shall be returned
-     * @returns {(Array.<number>|Matrix)}
+     * @returns {Array.<number>}
      */
     Matrix.prototype.getColumn = function (column) {
         if( !this.isInRange( null, column ) ) {
@@ -1204,24 +1204,24 @@
      * @returns {number} Euclidean dot product of this and M.
      */
     /*Matrix.prototype.dot = function (M) {
-        var rows = this.rows();
+     var rows = this.rows();
 
-        if( !this.isVector() || !M.isVector() || this.columns() !== 1 || M.columns() !== 1 ) {
-            throw new MatrixError( MatrixError.ErrorCodes.INVALID_PARAMETERS, 'Parameter must be a column vector' );
-        }
+     if( !this.isVector() || !M.isVector() || this.columns() !== 1 || M.columns() !== 1 ) {
+     throw new MatrixError( MatrixError.ErrorCodes.INVALID_PARAMETERS, 'Parameter must be a column vector' );
+     }
 
-        if( rows !== M.rows() ) {
-            throw new MatrixError( MatrixError.ErrorCodes.DIMENSION_MISMATCH );
-        }
+     if( rows !== M.rows() ) {
+     throw new MatrixError( MatrixError.ErrorCodes.DIMENSION_MISMATCH );
+     }
 
-        var result = 0;
-        for( var i = 1; i <= rows; i++ ) {
-            // TODO speed improvement
-            result += this.___get( i, 1 ) * M.___get( i, 1 );
-        }
+     var result = 0;
+     for( var i = 1; i <= rows; i++ ) {
+     // TODO speed improvement
+     result += this.___get( i, 1 ) * M.___get( i, 1 );
+     }
 
-        return result;
-    };*/
+     return result;
+     };*/
 
     /**
      * Rounds each element to the nearest integer.
@@ -1262,18 +1262,18 @@
      * @returns {Matrix} The three-dimensional vector V = A x M.
      */
     /*Matrix.prototype.cross = function (M) {
-        if( !this.isVector() || !M.isVector() || this.rows() !== 3 || M.rows() !== 3 ) {
-            throw new MatrixError( MatrixError.ErrorCodes.INVALID_PARAMETERS,
-                'Parameters must be three-dimensional column vectors' );
-        }
+     if( !this.isVector() || !M.isVector() || this.rows() !== 3 || M.rows() !== 3 ) {
+     throw new MatrixError( MatrixError.ErrorCodes.INVALID_PARAMETERS,
+     'Parameters must be three-dimensional column vectors' );
+     }
 
-        // TODO speed improvement
-        return new Matrix( [
-            [this.___get( 2, 1 ) * M.___get( 3, 1 ) - this.___get( 3, 1 ) * M.___get( 2, 1 )],
-            [this.___get( 3, 1 ) * M.___get( 1, 1 ) - this.___get( 1, 1 ) * M.___get( 3, 1 )],
-            [this.___get( 1, 1 ) * M.___get( 2, 1 ) - this.___get( 2, 1 ) * M.___get( 1, 1 )]
-        ] );
-    };*/
+     // TODO speed improvement
+     return new Matrix( [
+     [this.___get( 2, 1 ) * M.___get( 3, 1 ) - this.___get( 3, 1 ) * M.___get( 2, 1 )],
+     [this.___get( 3, 1 ) * M.___get( 1, 1 ) - this.___get( 1, 1 ) * M.___get( 3, 1 )],
+     [this.___get( 1, 1 ) * M.___get( 2, 1 ) - this.___get( 2, 1 ) * M.___get( 1, 1 )]
+     ] );
+     };*/
 
     /**
      * Add a row to the matrix.
@@ -1670,7 +1670,7 @@
     /**
      * Returns a diagonal matrix.
      * If called with a second parameter k, the k-th diagonal will be filled instead of the main diagonal.
-     * @param {(Array.<number>|Matrix)} entries Array or matrix of diagonal entries
+     * @param {(Array.<number>|Matrix|SparseMatrix)} entries Array or matrix of diagonal entries
      * @param {number} [k=0] Offset specifying the diagonal, i.e. k = 1 is the first upper diagonal
      * @returns {Matrix} Matrix with the specified entries on its diagonal.
      * @static
@@ -1785,6 +1785,34 @@
 
         for( var i = rowPointer[row - 1]; i < rowPointer[row]; i++ ) {
             result[columnIndicator[i] - 1] = elements[i];
+        }
+
+        return result;
+    };
+
+    /**
+     * Get a column.
+     * @param {number} column The column index of the column that shall be returned
+     * @returns {Array.<number>}
+     */
+    SparseMatrix.prototype.getColumn = function (column) {
+        if( !this.isInRange( null, column ) ) {
+            throw new MatrixError( MatrixError.ErrorCodes.OUT_OF_BOUNDS );
+        }
+
+        return this.__getColumn( column );
+    };
+
+    /**
+     * @private
+     * @ignore
+     */
+    SparseMatrix.prototype.__getColumn = function (column) {
+        var result = [],
+            rows = this.rows();
+
+        for( var i = 1; i <= rows; i++ ) {
+            result.push( this.___get( i, column ) );
         }
 
         return result;

@@ -673,7 +673,7 @@ new Test( function () {
 
 new Test( function () {
     assertArray( new SparseMatrix( 3 ).getRow( 3 ), [0, 0, 0] );
-    //assertArray( new SparseMatrix( 3 ).getColumn( 3 ), [0, 0, 0] );
+    assertArray( new SparseMatrix( 3 ).getColumn( 3 ), [0, 0, 0] );
 }, 'SparseMatrix: Get Row / Get Column 1' );
 
 new Test( function () {
@@ -684,9 +684,9 @@ new Test( function () {
     assertArray( M.getRow( 3 ), [4, 5, 6] );
     assertArray( M.getRow( 4 ), [7, 8, 9] );
 
-    //assertArray( M.getColumn( 1 ), [1, 0, 4, 7] );
-    //assertArray( M.getColumn( 2 ), [2, 0, 5, 8] );
-    //assertArray( M.getColumn( 3 ), [3, 0, 6, 9] );
+    assertArray( M.getColumn( 1 ), [1, 0, 4, 7] );
+    assertArray( M.getColumn( 2 ), [2, 0, 5, 8] );
+    assertArray( M.getColumn( 3 ), [3, 0, 6, 9] );
 }, 'SparseMatrix: Get Row / Get Column 2' );
 
 // ##########
