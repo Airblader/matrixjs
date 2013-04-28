@@ -53,16 +53,11 @@
             throw new MatrixError( MatrixError.ErrorCodes.DIMENSION_MISMATCH, 'Argument has to be vector' );
         }
 
-        var temp_obj = obj.copy();
-        if( obj.dim( 'max' ) !== obj.rows() ) {
-            temp_obj = temp_obj.transpose();
-        }
+        var elements = (obj.dim( 'max' ) === obj.rows()) ? obj.__getColumn( 1 ) : obj.__getRow( 1 ),
+            result = [];
 
-        var result = [],
-            rows = temp_obj.rows();
-
-        for( var i = 1; i <= rows; i++ ) {
-            result.push( temp_obj.___get( i, 1 ) );
+        for( var i = 1; i <= elements.length; i++ ) {
+            result.push( elements[i - 1] );
         }
 
         return result;
