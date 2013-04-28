@@ -171,19 +171,14 @@ new Test( function () {
 
     assertEquals( M.size(), 9 );
     assertEquals( M.isSquare(), true );
-    assertEquals( M.isVector(), false );
-
-    assertEquals( Matrix.zeros( 1, 3 ).isVector(), true );
-    assertEquals( Matrix.zeros( 3, 1 ).isVector(), true );
-}, 'Matrix: Size / isSquare / isVector 1' );
+}, 'Matrix: Size / isSquare 1' );
 
 new Test( function () {
     var M = new Matrix( 2, 3 );
 
     assertEquals( M.size(), 6 );
     assertEquals( M.isSquare(), false );
-    assertEquals( M.isVector(), false );
-}, 'Matrix: Size / isSquare / isVector 2' );
+}, 'Matrix: Size / isSquare 2' );
 
 new Test( function () {
     assertArray( Matrix.zeros( 3 ).getRow( 3 ), [0, 0, 0] );
@@ -392,7 +387,7 @@ new Test( function () {
 
     assertEquals( A.dot( B ), 10 );
     assertEquals( B.dot( A ), 10 );
-}, 'Matrix: Dot Product' );
+}, 'Matrix: Dot Product', true );
 
 new Test( function () {
     assertEquals( Matrix.eye( 3 ).contains( 1 ), true );
@@ -470,7 +465,7 @@ new Test( function () {
         .setColumn( 3, B.getColumn( 1 ) )
         .det()
     ) );
-}, 'Matrix: Cross Product' );
+}, 'Matrix: Cross Product', true );
 
 new Test( function () {
     var M = Matrix.eye( 3 );

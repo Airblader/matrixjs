@@ -44,12 +44,16 @@
         return (typeof obj === 'boolean') ? obj : defaultValue;
     }
 
+    function isVectorSized (M) {
+        return M.dim( 'min' ) === 1;
+    };
+
     function toArray (obj) {
         if( isArray( obj ) ) {
             return obj;
         }
 
-        if( !obj.isVector() ) {
+        if( !isVectorSized( obj ) ) {
             throw new MatrixError( MatrixError.ErrorCodes.DIMENSION_MISMATCH, 'Argument has to be vector' );
         }
 
@@ -701,14 +705,6 @@
     };
 
     /**
-     * Check if the matrix is a vector.
-     * @returns {boolean} True if at least one dimension is 1.
-     */
-    Matrix.prototype.isVector = function () {
-        return this.dim( 'min' ) === 1;
-    };
-
-    /**
      * Check if the matrix is a square matrix.
      * @returns {boolean} True if the number of rows and columns equal, false otherwise.
      */
@@ -1207,7 +1203,7 @@
      * @param {Matrix} M Matrix
      * @returns {number} Euclidean dot product of this and M.
      */
-    Matrix.prototype.dot = function (M) {
+    /*Matrix.prototype.dot = function (M) {
         var rows = this.rows();
 
         if( !this.isVector() || !M.isVector() || this.columns() !== 1 || M.columns() !== 1 ) {
@@ -1225,7 +1221,7 @@
         }
 
         return result;
-    };
+    };*/
 
     /**
      * Rounds each element to the nearest integer.
@@ -1265,7 +1261,7 @@
      * @param {Matrix} M Three-dimensional vector
      * @returns {Matrix} The three-dimensional vector V = A x M.
      */
-    Matrix.prototype.cross = function (M) {
+    /*Matrix.prototype.cross = function (M) {
         if( !this.isVector() || !M.isVector() || this.rows() !== 3 || M.rows() !== 3 ) {
             throw new MatrixError( MatrixError.ErrorCodes.INVALID_PARAMETERS,
                 'Parameters must be three-dimensional column vectors' );
@@ -1277,7 +1273,7 @@
             [this.___get( 3, 1 ) * M.___get( 1, 1 ) - this.___get( 1, 1 ) * M.___get( 3, 1 )],
             [this.___get( 1, 1 ) * M.___get( 2, 1 ) - this.___get( 2, 1 ) * M.___get( 1, 1 )]
         ] );
-    };
+    };*/
 
     /**
      * Add a row to the matrix.
@@ -1934,12 +1930,13 @@
     /**
      * Returns a diagonal matrix.
      * If called with a second parameter k, the k-th diagonal will be filled instead of the main diagonal.
-     * @param {Array.<number>} entries Array of diagonal entries
+     * @param {Array.<number>|Matrix|SparseMatrix} entries Array or matrix of diagonal entries
      * @param {number} [k=0] Offset specifying the diagonal, i.e. k = 1 is the first upper diagonal
      * @returns {SparseMatrix} Matrix with the specified entries on its diagonal.
      * @static
      */
     SparseMatrix.diag = function (entries, k) {
+        entries = toArray( entries );
         k = getNumberWithDefault( k, 0 );
 
         var builder = new SparseBuilder().size( entries.length + Math.abs( k ) ),
