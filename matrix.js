@@ -453,9 +453,13 @@
             } );
         }
 
+        /**
+         * @param {number} rows
+         * @param {number} [columns=rows]
+         */
         this.size = function (rows, columns) {
             __rows = rows;
-            __columns = columns;
+            __columns = getNumberWithDefault( columns, rows );
 
             return this;
         };
@@ -1686,10 +1690,9 @@
 
         var Result = new Matrix( entries.length + Math.abs( k ) ),
             rowOffset = -Math.min( k, 0 ),
-            columnOffset = Math.max( k, 0 ),
-            endOfLoop = ( Result.rows() - Math.abs( k ) );
+            columnOffset = Math.max( k, 0 );
 
-        for( var i = 1; i <= endOfLoop; i++ ) {
+        for( var i = 1; i <= entries.length; i++ ) {
             Result.___set( i + rowOffset, i + columnOffset, entries[i - 1] );
         }
 
@@ -1903,6 +1906,56 @@
     SparseMatrix.prototype.isInRange = function (row, column) {
         return (!isNumber( row ) || ( row >= 1 && row <= this.rows() ) )
             && (!isNumber( column ) || ( column >= 1 && column <= this.columns() ) );
+    };
+
+    /**
+     * Returns a matrix of zeros.
+     * If called with only one argument n, it will return a n-by-n matrix with zeros.
+     * @param {number} rows Number of rows
+     * @param {number} [columns=rows] Number of columns (defaults to the value of rows)
+     * @returns {SparseMatrix} A new matrix of the specified size containing zeros everywhere.
+     * @static
+     */
+    SparseMatrix.zeros = function (rows, columns) {
+        columns = getNumberWithDefault( columns, rows );
+
+        return new SparseMatrix( rows, columns );
+    };
+
+    /**
+     * Returns an identity matrix.
+     * @param {number} n Size of the matrix
+     * @returns {SparseMatrix} A new n-by-n identity matrix.
+     * @static
+     */
+    SparseMatrix.eye = function (n) {
+        var elements = MatrixUtils.repeat( n, 1 ),
+            columnIndicator = MatrixUtils.linspace( 1, n ),
+            rowPointer = MatrixUtils.linspace( 0, n );
+
+        return new SparseMatrix( n, n, elements, columnIndicator, rowPointer );
+    };
+
+    /**
+     * Returns a diagonal matrix.
+     * If called with a second parameter k, the k-th diagonal will be filled instead of the main diagonal.
+     * @param {Array.<number>} entries Array of diagonal entries
+     * @param {number} [k=0] Offset specifying the diagonal, i.e. k = 1 is the first upper diagonal
+     * @returns {SparseMatrix} Matrix with the specified entries on its diagonal.
+     * @static
+     */
+    SparseMatrix.diag = function (entries, k) {
+        k = getNumberWithDefault( k, 0 );
+
+        var builder = new SparseBuilder().size( entries.length + Math.abs( k ) ),
+            rowOffset = -Math.min( k, 0 ),
+            columnOffset = Math.max( k, 0 );
+
+        for( var i = 1; i <= entries.length; i++ ) {
+            builder.set( i + rowOffset, i + columnOffset, entries[i - 1] );
+        }
+
+        return builder.build();
     };
 
     /* MatrixUtils */
