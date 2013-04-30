@@ -277,7 +277,7 @@
         this.___set = function (row, column, value) {
             var index,
                 hasBeenAssignedBefore = false;
-            for( var k = __rowPointer[row - 1]; k < __rowPointer[row]; k++ ) {
+            for( var k = __rowPointer[row - 1]; k <= __rowPointer[row]; k++ ) {
                 index = k;
 
                 if( __columnIndicator[k] === column ) {
@@ -1791,6 +1791,39 @@
     };
 
     /**
+     * Replace a row.
+     * Note: This function modifies the instance it is called on.
+     * @param {number} row The row index of the row to replace
+     * @param {Array.<number>} entries An array containing the new entries for the row
+     * @returns {SparseMatrix}
+     */
+    SparseMatrix.prototype.setRow = function (row, entries) {
+        if( !this.isInRange( row, null ) ) {
+            throw new MatrixError( MatrixError.ErrorCodes.OUT_OF_BOUNDS );
+        }
+
+        if( entries.length !== this.columns() ) {
+            throw new MatrixError( MatrixError.ErrorCodes.INVALID_PARAMETERS, 'Wrong number of columns in row.' );
+        }
+
+        return this.__setRow( row, entries );
+    };
+
+    /**
+     * @private
+     * @ignore
+     */
+    SparseMatrix.prototype.__setRow = function (row, entries) {
+        var columns = this.columns();
+
+        for( var i = 1; i <= columns; i++ ) {
+            this.___set( row, i, entries[i - 1] );
+        }
+
+        return this;
+    };
+
+    /**
      * Get a column.
      * @param {number} column The column index of the column that shall be returned
      * @returns {Array.<number>}
@@ -1816,6 +1849,39 @@
         }
 
         return result;
+    };
+
+    /**
+     * Replace a column.
+     * Note: This function modifies the instance it is called on.
+     * @param {number} column The column index of the column to replace
+     * @param {Array.<number>} entries An array containing the new entries for the column
+     * @returns {SparseMatrix}
+     */
+    SparseMatrix.prototype.setColumn = function (column, entries) {
+        if( !this.isInRange( null, column ) ) {
+            throw new MatrixError( MatrixError.ErrorCodes.OUT_OF_BOUNDS );
+        }
+
+        if( entries.length !== this.rows() ) {
+            throw new MatrixError( MatrixError.ErrorCodes.INVALID_PARAMETERS, 'Wrong number of rows in column' );
+        }
+
+        return this.__setColumn( column, entries );
+    };
+
+    /**
+     * @private
+     * @ignore
+     */
+    SparseMatrix.prototype.__setColumn = function (column, entries) {
+        var rows = this.rows();
+
+        for( var i = 1; i <= rows; i++ ) {
+            this.___set( i, column, entries[i - 1] );
+        }
+
+        return this;
     };
 
     /**

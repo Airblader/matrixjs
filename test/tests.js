@@ -669,6 +669,9 @@ new Test( function () {
     assertEquals( M.get( 2, 2 ), 2 );
     assertEquals( M.get( 3, 3 ), 3 );
     assertEquals( M.get( 2, 3 ), 7 );
+
+    assertMatrix( new SparseMatrix( 3 ).set( 1, 1, 1 ).set( 2, 2, 2 ),
+        new SparseMatrix( 3, 3, [1, 2], [1, 2], [0, 1, 2, 2] ) );
 }, 'SparseMatrix: Get / Set' );
 
 new Test( function () {
@@ -688,6 +691,24 @@ new Test( function () {
     assertArray( M.getColumn( 2 ), [2, 0, 5, 8] );
     assertArray( M.getColumn( 3 ), [3, 0, 6, 9] );
 }, 'SparseMatrix: Get Row / Get Column 2' );
+
+new Test( function () {
+    var A = new SparseMatrix( 3 ),
+        B = new SparseMatrix( 3 ),
+        M = new SparseMatrix( 3, 3, [1, 2, 3, 4, 5, 6, 7, 8, 9], [1, 2, 3, 1, 2, 3, 1, 2, 3],
+            [0, 3, 6, 9] );
+
+    A.setRow( 1, [1, 2, 3] );
+    A.setRow( 2, [4, 5, 6] );
+    A.setRow( 3, [7, 8, 9] );
+
+    B.setColumn( 1, [1, 4, 7] );
+    B.setColumn( 2, [2, 5, 8] );
+    B.setColumn( 3, [3, 6, 9] );
+
+    assertMatrix( A, M );
+    assertMatrix( B, M );
+}, 'SparseMatrix: Set Row / Set Column' );
 
 // ##########
 
