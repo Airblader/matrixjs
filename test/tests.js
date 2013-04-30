@@ -710,6 +710,20 @@ new Test( function () {
     assertMatrix( B, M );
 }, 'SparseMatrix: Set Row / Set Column' );
 
+new Test( function () {
+    assertEquals( new SparseMatrix( 3, 3 ).isSquare(), true );
+    assertEquals( new SparseMatrix( 2, 3 ).isSquare(), false );
+    assertEquals( new SparseMatrix( 3, 2 ).isSquare(), false );
+}, 'SparseMatrix: isSquare' );
+
+new Test( function () {
+    assertEquals( SparseMatrix.zeros( 3 ).isSymmetric(), true );
+    assertEquals( SparseMatrix.eye( 3 ).isSymmetric(), true );
+
+    assertEquals( SparseMatrix.eye( 3 ).set( 3, 1, 1 ).isSymmetric(), false );
+    assertEquals( SparseMatrix.eye( 3 ).set( 3, 1, 1 ).set( 1, 3, 1 ).isSymmetric(), true );
+}, 'SparseMatrix: isSymmetric' );
+
 // ##########
 
 Test.runAll();

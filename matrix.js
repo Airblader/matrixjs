@@ -1894,6 +1894,37 @@
     };
 
     /**
+     * Check if the matrix is a square matrix.
+     * @returns {boolean} True if the number of rows and columns equal, false otherwise.
+     */
+    SparseMatrix.prototype.isSquare = function () {
+        return this.rows() === this.columns();
+    };
+
+    /**
+     * Check if the matrix is symmetric.
+     * @returns {boolean}
+     */
+    SparseMatrix.prototype.isSymmetric = function () {
+        if( !this.isSquare() ) {
+            throw new MatrixError( MatrixError.ErrorCodes.DIMENSION_MISMATCH, 'Matrix must be square' );
+        }
+
+        var rows = this.rows();
+
+        // shifted loop start because the diagonal doesn't need to be checked
+        for( var i = 2; i <= rows; i++ ) {
+            for( var j = 1; j < i; j++ ) {
+                if( this.___get( i, j ) !== this.___get( j, i ) ) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    };
+
+    /**
      * Get the dimensions of the matrix.
      * @param {(number|string)} which Define which dimension should be returned. Possible values are:
      *  - 1 or 'rows' : Number of rows
