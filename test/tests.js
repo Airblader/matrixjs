@@ -670,8 +670,12 @@ new Test( function () {
     assertEquals( M.get( 3, 3 ), 3 );
     assertEquals( M.get( 2, 3 ), 7 );
 
+    // Tests added because of previously experienced bugs
     assertMatrix( new SparseMatrix( 3 ).set( 1, 1, 1 ).set( 2, 2, 2 ),
         new SparseMatrix( 3, 3, [1, 2], [1, 2], [0, 1, 2, 2] ) );
+
+    assertMatrix( SparseMatrix.eye( 3 ).set( 2, 3, 3 ),
+        new SparseMatrix( 3, 3, [1, 1, 3, 1], [1, 2, 3, 3], [0, 1, 3, 4] ) );
 }, 'SparseMatrix: Get / Set' );
 
 new Test( function () {

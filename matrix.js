@@ -67,6 +67,10 @@
         return result;
     }
 
+    function copyArray (arr) {
+        return [].slice.call( arr );
+    }
+
     /**
      * Static class for utility functions.
      * @static
@@ -132,7 +136,7 @@
      * @param {...*} var_args
      */
     function Matrix (var_args) {
-        var args = [].slice.call( arguments ),
+        var args = copyArray( arguments ),
             __rows, __columns,
             __elements = [];
 
@@ -249,7 +253,7 @@
      * @param {...*} var_args
      */
     function SparseMatrix (var_args) {
-        var args = [].slice.call( arguments ),
+        var args = copyArray( arguments ),
             __rows,
             __columns,
             __elements = [],
@@ -280,7 +284,7 @@
             for( var k = __rowPointer[row - 1]; k <= __rowPointer[row]; k++ ) {
                 index = k;
 
-                if( __columnIndicator[k] === column ) {
+                if( __columnIndicator[k] === column && k !== __rowPointer[row] ) {
                     hasBeenAssignedBefore = true;
                     break;
                 }
@@ -296,7 +300,7 @@
             } else if( hasBeenAssignedBefore && value !== 0 ) {
                 __elements.splice( index, 1, value );
                 __columnIndicator.splice( index, 1, column );
-            } else {
+            } else if( hasBeenAssignedBefore ) {
                 for( var i = row; i < __rowPointer.length; i++ ) {
                     __rowPointer[i] -= 1;
                 }
@@ -390,7 +394,7 @@
      * @param {...*} var_args
      */
     function Vector (var_args) {
-        var args = [].slice.call( arguments ),
+        var args = copyArray( arguments ),
             isRowVector,
             __elements = [];
 
@@ -839,7 +843,7 @@
             columns = this.columns();
 
         if( arguments.length > 1 ) {
-            var args = [].slice.call( arguments );
+            var args = copyArray( arguments );
             return this.add.apply( this.add( args.shift() ), args );
         }
 
@@ -875,7 +879,7 @@
             columns = this.columns();
 
         if( arguments.length > 1 ) {
-            var args = [].slice.call( arguments );
+            var args = copyArray( arguments );
             return this.subtract.apply( this.subtract( args.shift() ), args );
         }
 
@@ -911,21 +915,20 @@
         }
 
         var rows = this.rows(),
-            columns = this.columns(),
-            Result = new Matrix( rows, columns ),
-            row;
+            columns = this.columns();
 
-        for( var i = 1; i <= rows; i++ ) {
-            row = this.__getRow( i );
-
-            for( var j = 0; j < columns; j++ ) {
-                row[j] *= k;
-            }
-
-            Result.__setRow( i, row );
+        // Trivial cases in which we can spare the multiplications
+        if( k === 0 ) {
+            return new Matrix( rows, columns );
         }
 
-        return Result;
+        if( k === 1 ) {
+            return this;
+        }
+
+        return this.fun( function (value) {
+            return k * value;
+        } );
     };
 
     /**
@@ -1615,7 +1618,7 @@
      * @returns {Array.<number>}
      */
     Matrix.prototype.toArray = function () {
-        return [].slice.call( this.___getElements() );
+        return copyArray( this.___getElements() );
     };
 
     /**
@@ -1952,12 +1955,114 @@
     };
 
     /**
+     * Add a matrix.
+     * If more than one matrix is passed, they will be added in order, i.e. this + M + N + ...
+     * @param {SparseMatrix} M Matrix
+     * @returns {SparseMatrix} Component-wise sum of this and M.
+     */
+    SparseMatrix.prototype.add = function (M) {
+        var rows = this.rows(),
+            columns = this.columns();
+
+        if( arguments.length > 1 ) {
+            var args = copyArray( arguments );
+            return this.add.apply( this.add( args.shift() ), args );
+        }
+
+        if( !this.isSameSizeAs( M ) ) {
+            throw new MatrixError( MatrixError.ErrorCodes.DIMENSION_MISMATCH, 'Matrices must be of the same size' );
+        }
+
+        var Result = new SparseBuilder().size( rows, columns ),
+            row, other_row;
+
+        for( var i = 1; i <= rows; i++ ) {
+            row = this.__getRow( i );
+            other_row = M.__getRow( i );
+
+            for( var j = 1; j <= columns; j++ ) {
+                Result.set( i, j, row[j - 1] + other_row[j - 1] );
+            }
+        }
+
+        return Result.build();
+    };
+
+    /**
+     * Subtract a matrix.
+     * If more than one matrix is passed, they wll be subtracted in order, i.e. this - M - N - ...
+     * @param {SparseMatrix} M Matrix
+     * @returns {SparseMatrix} Component-wise difference of this and M.
+     */
+    SparseMatrix.prototype.subtract = function (M) {
+        var rows = this.rows(),
+            columns = this.columns();
+
+        if( arguments.length > 1 ) {
+            var args = copyArray( arguments );
+            return this.subtract.apply( this.subtract( args.shift() ), args );
+        }
+
+        if( !this.isSameSizeAs( M ) ) {
+            throw new MatrixError( MatrixError.ErrorCodes.DIMENSION_MISMATCH, 'Matrices must be of the same size' );
+        }
+
+        var Result = new SparseBuilder().size( rows, columns ),
+            row, other_row;
+
+        for( var i = 1; i <= rows; i++ ) {
+            row = this.__getRow( i );
+            other_row = M.__getRow( i );
+
+            for( var j = 1; j <= columns; j++ ) {
+                Result.set( i, j, row[j - 1] - other_row[j - 1] );
+            }
+        }
+
+        return Result.build();
+    };
+
+    /**
+     * Scale with a constant factor (i.e. calculate k * this)
+     * @param {number} k Factor
+     * @returns {SparseMatrix} Matrix with all entries multiplied by k.
+     */
+    SparseMatrix.prototype.scale = function (k) {
+        if( !isNumber( k ) ) {
+            throw new MatrixError( MatrixError.ErrorCodes.INVALID_PARAMETERS, 'Parameter must be a number' );
+        }
+
+        var rows = this.rows(),
+            columns = this.columns();
+
+        // Multiplication with a scalar won't change which elements are non-zero unless the scalaer itself is zero.
+        // But if k = 0, the matrix will be all zeros, so in this case we just return a new empty zero, otherwise we
+        // multiply only the non-zero entries.
+        if( k === 0 ) {
+            return new SparseMatrix( rows, columns );
+        }
+
+        // If k = 1, no multiplications have to be executed
+        if( k === 1 ) {
+            return this;
+        }
+
+        var elements = copyArray( this.___getElements() );
+        for( var i = 0; i < elements.length; i++ ) {
+            elements[i] *= k;
+        }
+
+        return new SparseMatrix( rows, columns, elements,
+            copyArray( this.___getColumnIndicator() ), copyArray( this.___getRowPointer() ) );
+    };
+
+    /**
      * Return a copy of the matrix. This prevents accidental usage of references.
      * @returns {SparseMatrix}
      */
     SparseMatrix.prototype.copy = function () {
-        return new SparseMatrix( this.rows(), this.columns(), [].slice.call( this.___getElements() ),
-            [].slice.call( this.___getColumnIndicator() ), [].slice.call( this.___getRowPointer() ) );
+        return new SparseMatrix( this.rows(), this.columns(), copyArray( this.___getElements() ),
+            copyArray( this.___getColumnIndicator() ), copyArray( this.___getRowPointer() ) );
     };
 
     /**
