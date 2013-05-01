@@ -1952,6 +1952,15 @@
     };
 
     /**
+     * Return a copy of the matrix. This prevents accidental usage of references.
+     * @returns {SparseMatrix}
+     */
+    SparseMatrix.prototype.copy = function () {
+        return new SparseMatrix( this.rows(), this.columns(), [].slice.call( this.___getElements() ),
+            [].slice.call( this.___getColumnIndicator() ), [].slice.call( this.___getRowPointer() ) );
+    };
+
+    /**
      * Compare with another matrix.
      * @param {SparseMatrix} M
      * @returns {boolean} True if A = M, false otherwise.
