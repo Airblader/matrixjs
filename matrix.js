@@ -2047,6 +2047,7 @@
             return this;
         }
 
+        // TODO spfun can be used here
         var elements = copyArray( this.___getElements() );
         for( var i = 0; i < elements.length; i++ ) {
             elements[i] *= k;

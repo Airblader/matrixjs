@@ -728,6 +728,30 @@ new Test( function () {
     assertEquals( SparseMatrix.eye( 3 ).set( 3, 1, 1 ).set( 1, 3, 1 ).isSymmetric(), true );
 }, 'SparseMatrix: isSymmetric' );
 
+new Test( function () {
+    assertMatrix( SparseMatrix.zeros( 3 ).add( SparseMatrix.zeros( 3 ) ), SparseMatrix.zeros( 3 ) );
+
+    var A = new SparseMatrix( 3, 3, [1, 2, 3, 4, 5, 6, 7, 8, 9], [1, 2, 3, 1, 2, 3, 1, 2, 3], [0, 3, 6, 9] ),
+        B = new SparseMatrix( 3, 3, [9, 8, 7, 6, 5, 4, 3, 2, 1], [1, 2, 3, 1, 2, 3, 1, 2, 3], [0, 3, 6, 9] );
+
+    assertMatrix( A.add( A ), A.scale( 2 ) );
+    assertMatrix( A.add( B ),
+        new SparseMatrix( 3, 3, MatrixUtils.repeat( 9, 10 ), [1, 2, 3, 1, 2, 3, 1, 2, 3], [0, 3, 6, 9] ) );
+
+    assertMatrix( B.add( B, B ), B.scale( 3 ) );
+}, 'SparseMatrix: Add' );
+
+new Test( function () {
+    var Ones = new SparseMatrix( 3, 3, MatrixUtils.repeat( 9, 10 ), [1, 2, 3, 1, 2, 3, 1, 2, 3], [0, 3, 6, 9] ),
+        A = Ones.scale( 2 ),
+        B = Ones;
+
+    assertMatrix( A.subtract( A ), SparseMatrix.zeros( 3 ) );
+    assertMatrix( A.subtract( B ), Ones );
+
+    assertMatrix( B.scale( 2 ).subtract( B, B ), SparseMatrix.zeros( 3 ) );
+}, 'SparseMatrix: Subtract' );
+
 // ##########
 
 Test.runAll();
