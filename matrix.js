@@ -574,6 +574,20 @@
     };
 
     /**
+     * Dump matrix into console
+     * @author studentIvan
+     */
+    Matrix.prototype.dump = function() {
+        for (var i = 1; i <= this.rows(); i++) {
+            var row = this.getRow(i), rowStr = "";
+            for (e = 0; e < row.length; e++) {
+                rowStr += row[e].toString() + " ";
+            }
+            console.log(rowStr);
+        }
+    }
+
+    /**
      * Get a row.
      * @param {number} row The row index of the row that shall be returned
      * @returns {Array.<number>|Matrix}
